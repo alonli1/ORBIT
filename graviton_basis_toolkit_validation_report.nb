@@ -1,0 +1,219 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[      9859,        210]
+NotebookOptionsPosition[      7368,        170]
+NotebookOutlinePosition[      7959,        191]
+CellTagsIndexPosition[      7916,        188]
+WindowTitle->graviton_basis_toolkit_validation_report
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["Graviton Basis Toolkit Validation Report", "Title",ExpressionUUID->"b41fd094-8ef1-614d-9fff-f05ef2388520"],
+
+Cell["\<\
+This notebook is the notebook and PDF rendering of \
+graviton_basis_toolkit_validation_report.md. It documents the validation \
+strategy and records the current test outcome.\
+\>", "Text",ExpressionUUID->"63f3a608-5318-b849-9ec2-3c2636806571"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["NetworkGraphics",
+   DynamicModuleBox[{Typeset`graph = HoldComplete[
+     Graph[{
+      "Choose generic\ndelta h", "Build FP image\nShiftFromRedefExpr", 
+       "Expand into a\nmessy scalar", "ReduceLagrangian", 
+       "Expected result:\n0"}, {{{1, 2}, {2, 3}, {3, 4}, {4, 5}}, Null}, {
+      EdgeStyle -> {
+         Directive[
+          GrayLevel[0.45], 
+          Thickness[0.004]]}, 
+       GraphLayout -> {"LayeredDigraphEmbedding", "Orientation" -> Left}, 
+       ImageSize -> 520, VertexLabels -> {
+         Placed["Name", Center]}, VertexSize -> {{0.23, 0.1}}, VertexStyle -> {
+         Directive[
+          RGBColor[0.8032000000000001, 0.9088, 0.8488], 
+          EdgeForm[
+           GrayLevel[0.7]]]}}]]}, 
+    TagBox[GraphicsGroupBox[{
+       {GrayLevel[0.45], Thickness[0.004], Opacity[0.7], CapForm["Round"], 
+        Arrowheads[Medium], 
+        ArrowBox[{{-1.9999999999999993`, 
+         2.000000053589794}, {-0.9999999999999998, 2.000000026794897}}, 0.23],
+         ArrowBox[{{-0.9999999999999998, 2.000000026794897}, {0., 2.}}, 0.23],
+         ArrowBox[{{0., 2.}, {0.9999999999999997, 1.9999999732051028`}}, 
+         0.23], ArrowBox[{{0.9999999999999997, 1.9999999732051028`}, {
+         1.9999999999999993`, 1.9999999464102058`}}, 0.23]}, 
+       {RGBColor[0.8032000000000001, 0.9088, 0.8488], EdgeForm[{GrayLevel[
+        0.7], Opacity[
+        0.7]}], {
+         DiskBox[{-1.9999999999999993`, 2.000000053589794}, {0.23, 0.1}], 
+         InsetBox["\<\"Choose generic\\ndelta h\"\>", {-1.9999999999999993, 2.000000053589794},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-0.9999999999999998, 2.000000026794897}, {0.23, 0.1}], 
+         InsetBox["\<\"Build FP image\\nShiftFromRedefExpr\"\>", {-0.9999999999999998, 2.000000026794897},
+          
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 2.}, {0.23, 0.1}], 
+         InsetBox["\<\"Expand into a\\nmessy scalar\"\>", {0., 2.},
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{0.9999999999999997, 1.9999999732051028`}, {0.23, 0.1}], 
+         InsetBox["\<\"ReduceLagrangian\"\>", {0.9999999999999997, 1.9999999732051028},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{1.9999999999999993`, 1.9999999464102058`}, {0.23, 0.1}], 
+         InsetBox["\<\"Expected result:\\n0\"\>", {1.9999999999999993, 1.9999999464102058},
+          
+          BaseStyle->"Graphics"]}}}],
+     MouseAppearanceTag["NetworkGraphics"]],
+    AllowKernelInitialization->False]],
+  DefaultBaseStyle->"NetworkGraphics",
+  FormatType->TraditionalForm,
+  FrameTicks->None,
+  ImageSize->520]], "Output",ExpressionUUID->"025f6276-a5ac-8b44-955a-\
+7e774075b22c"],
+
+Cell["Validation Strategy", "Section",ExpressionUUID->"d157e421-012d-c749-bdd6-138fd3ed743f"],
+
+Cell["\<\
+The reducer is tested on expressions that are guaranteed to be redundant: \
+images of the Fierz-Pauli kinetic term under nonlinear field redefinitions. \
+In EFT language these are EOM-proportional terms up to a total derivative.\
+\>", "Text",ExpressionUUID->"56b27ba9-8ff8-a448-98e3-07d4308768a7"],
+
+Cell["\<\
+Choose a generic rank-2 redefinition from the computed RedefDeltaBasis.\
+\>", "Item",ExpressionUUID->"af8f9435-f2b1-1940-b2f6-7d766bf2099c"],
+
+Cell["\<\
+Map it into the target scalar sector with ShiftFromRedefExpr.\
+\>", "Item",ExpressionUUID->"f07b71cc-e9cf-a24a-beff-1c7511509457"],
+
+Cell["Expand the result into a large scalar expression.", "Item",ExpressionUUID->"f33ac8da-6710-3e4e-a356-f60d47a34a36"],
+
+Cell["Reduce the expression with ReduceLagrangian.", "Item",ExpressionUUID->"d3a8fe95-bcad-a344-9f99-b866826844a4"],
+
+Cell["Require the reduced representative to vanish exactly.", "Item",ExpressionUUID->"3edd554f-758b-9941-b133-8e66789d10ac"],
+
+Cell["Current Results", "Section",ExpressionUUID->"1cb73829-bafe-7548-a923-f3efae484552"],
+
+Cell["\<\
+The table below comes from graviton_basis_toolkit_validation_output.wl.\
+\>", "Text",ExpressionUUID->"4639d76e-237c-2d4a-8356-1b9be1416972"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"Sector\"\>", "\<\"IBPCount\"\>", "\<\"RedefRank\"\>", \
+"\<\"PhysicalCount\"\>", "\<\"DeltaBasisLength\"\>", "\<\"LagTermCount\"\>", \
+"\<\"Reduced to 0?\"\>"},
+    {
+     RowBox[{"{", 
+      RowBox[{"3", ",", "2"}], "}"}], "14", "4", "10", "4", "18", "True"},
+    {
+     RowBox[{"{", 
+      RowBox[{"3", ",", "4"}], "}"}], "64", "33", "31", "33", "240", "True"}
+   },
+   AutoDelete->False,
+   GridBoxAlignment->{"Columns" -> {{Left}}},
+   GridBoxBackground->{"Columns" -> {{None}}, "Rows" -> {None, {
+        RGBColor[0.975, 0.975, 0.975]}}},
+   GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+   GridBoxItemStyle->{"Columns" -> {{
+        Directive[FontFamily -> "Source Sans Pro", 11]}}, "Rows" -> {{
+        Directive[FontFamily -> "Source Sans Pro", 11]}}}],
+  "Grid"]], "Output",ExpressionUUID->"6c71c859-adab-e44e-b40b-052157d89eb9"],
+
+Cell["Interpretation", "Subsection",ExpressionUUID->"a3bd8702-fa2b-aa45-bfcc-155420d68106"],
+
+Cell["\<\
+The {3,2} test is a compact sanity check. The {3,4} test is the stronger one \
+because it uses all 33 rank-2 redefinition basis elements in that sector and \
+expands to 240 scalar terms before reduction.\
+\>", "Text",ExpressionUUID->"0c8abe79-e4c0-b44b-9fde-ebdae7ba1f83"],
+
+Cell["Re-run Command", "Section",ExpressionUUID->"ebacfd5d-2371-9448-bb59-6702a4f447d4"],
+
+Cell["\<\
+& 'C:\\Program Files\\Wolfram Research\\Wolfram\\14.2\\WolframKernel.exe' \
+-script graviton_basis_toolkit_validation.wls\
+\>", "Input",ExpressionUUID->"a233d5f2-cf63-dd41-bd63-3486c4d0c013"],
+
+Cell["\<\
+After rerunning, inspect graviton_basis_toolkit_validation_output.wl for the \
+updated association.\
+\>", "Text",ExpressionUUID->"d9e47dfc-e827-0a4d-85f6-168c62e3058b"],
+
+Cell["Files Produced by the Validation", "Section",ExpressionUUID->"3994067f-2038-e449-bbe8-6f0077b08f13"],
+
+Cell["graviton_basis_toolkit_validation.wls: validation script", "Item",ExpressionUUID->"28f7740f-cb2c-d54c-be30-760f1d3ba7d0"],
+
+Cell["\<\
+graviton_basis_toolkit_validation_output.wl: machine-readable output\
+\>", "Item",ExpressionUUID->"dc2b3f89-1176-594e-9ab4-3a4a06f6e3a6"],
+
+Cell["\<\
+graviton_basis_validation_cache/: persistent cache used by the validation run\
+\
+\>", "Item",ExpressionUUID->"95d5c112-aaaa-ac46-92c1-ce1ec30da690"]
+},
+Saveable->True,
+WindowTitle->"graviton_basis_toolkit_validation_report",
+PageHeaders->{{
+   Cell["graviton_basis_toolkit_validation_report", "Header"], None, None}, {
+  None, None, 
+   Cell["2026-03-11", "Header"]}},
+PrintingOptions->{"PrintCellBrackets"->False},
+FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"b43b778c-dff3-c545-8d31-35c629bded23"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[608, 21, 112, 0, 70, "Title",ExpressionUUID->"b41fd094-8ef1-614d-9fff-f05ef2388520"],
+Cell[723, 23, 253, 4, 70, "Text",ExpressionUUID->"63f3a608-5318-b849-9ec2-3c2636806571"],
+Cell[979, 29, 2694, 55, 70, "Output",ExpressionUUID->"025f6276-a5ac-8b44-955a-7e774075b22c"],
+Cell[3676, 86, 93, 0, 70, "Section",ExpressionUUID->"d157e421-012d-c749-bdd6-138fd3ed743f"],
+Cell[3772, 88, 307, 4, 70, "Text",ExpressionUUID->"56b27ba9-8ff8-a448-98e3-07d4308768a7"],
+Cell[4082, 94, 150, 2, 70, "Item",ExpressionUUID->"af8f9435-f2b1-1940-b2f6-7d766bf2099c"],
+Cell[4235, 98, 140, 2, 70, "Item",ExpressionUUID->"f07b71cc-e9cf-a24a-beff-1c7511509457"],
+Cell[4378, 102, 120, 0, 70, "Item",ExpressionUUID->"f33ac8da-6710-3e4e-a356-f60d47a34a36"],
+Cell[4501, 104, 115, 0, 70, "Item",ExpressionUUID->"d3a8fe95-bcad-a344-9f99-b866826844a4"],
+Cell[4619, 106, 124, 0, 70, "Item",ExpressionUUID->"3edd554f-758b-9941-b133-8e66789d10ac"],
+Cell[4746, 108, 89, 0, 70, "Section",ExpressionUUID->"1cb73829-bafe-7548-a923-f3efae484552"],
+Cell[4838, 110, 150, 2, 70, "Text",ExpressionUUID->"4639d76e-237c-2d4a-8356-1b9be1416972"],
+Cell[4991, 114, 968, 21, 70, "Output",ExpressionUUID->"6c71c859-adab-e44e-b40b-052157d89eb9"],
+Cell[5962, 137, 91, 0, 70, "Subsection",ExpressionUUID->"a3bd8702-fa2b-aa45-bfcc-155420d68106"],
+Cell[6056, 139, 282, 4, 70, "Text",ExpressionUUID->"0c8abe79-e4c0-b44b-9fde-ebdae7ba1f83"],
+Cell[6341, 145, 88, 0, 70, "Section",ExpressionUUID->"ebacfd5d-2371-9448-bb59-6702a4f447d4"],
+Cell[6432, 147, 201, 3, 70, "Input",ExpressionUUID->"a233d5f2-cf63-dd41-bd63-3486c4d0c013"],
+Cell[6636, 152, 178, 3, 70, "Text",ExpressionUUID->"d9e47dfc-e827-0a4d-85f6-168c62e3058b"],
+Cell[6817, 157, 106, 0, 70, "Section",ExpressionUUID->"3994067f-2038-e449-bbe8-6f0077b08f13"],
+Cell[6926, 159, 127, 0, 70, "Item",ExpressionUUID->"28f7740f-cb2c-d54c-be30-760f1d3ba7d0"],
+Cell[7056, 161, 147, 2, 70, "Item",ExpressionUUID->"dc2b3f89-1176-594e-9ab4-3a4a06f6e3a6"],
+Cell[7206, 165, 158, 3, 70, "Item",ExpressionUUID->"95d5c112-aaaa-ac46-92c1-ce1ec30da690"]
+}
+]
+*)
+
+(* End of internal cache information *)

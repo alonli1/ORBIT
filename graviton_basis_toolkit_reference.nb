@@ -1,0 +1,503 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     25465,        494]
+NotebookOptionsPosition[     21394,        437]
+NotebookOutlinePosition[     21969,        458]
+CellTagsIndexPosition[     21926,        455]
+WindowTitle->graviton_basis_toolkit_reference
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["Graviton Basis Toolkit Reference", "Title",ExpressionUUID->"62b29023-b9cf-df49-8d14-f7bbecaff5da"],
+
+Cell["\<\
+This notebook is the notebook and PDF rendering of \
+graviton_basis_toolkit_reference.md. It explains both the algorithms and how \
+they are realized in graviton_basis_toolkit.wl.\
+\>", "Text",ExpressionUUID->"8c056a51-a557-554a-aedb-ea331bdeb2ac"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["NetworkGraphics",
+   DynamicModuleBox[{Typeset`graph = HoldComplete[
+     Graph[{
+      "Ordered derivative\npartitions", 
+       "All contractions\n+ canonicalization", "Raw scalar basis", 
+       "Euler operator\nfor IBP relations", "IBP quotient basis", 
+       "Field-redefinition\nimage in IBP basis", "Physical basis"}, {{{1, 
+       2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 7}}, Null}, {EdgeStyle -> {
+         Directive[
+          GrayLevel[0.45], 
+          Thickness[0.004]]}, 
+       GraphLayout -> {"LayeredDigraphEmbedding", "Orientation" -> Top}, 
+       ImageSize -> 560, VertexLabels -> {
+         Placed["Name", Center]}, VertexSize -> {{0.26, 0.11}}, VertexStyle -> {
+         Directive[
+          RGBColor[0.78, 0.8625, 0.9299999999999999], 
+          EdgeForm[
+           GrayLevel[0.7]]]}}]]}, 
+    TagBox[GraphicsGroupBox[{
+       {GrayLevel[0.45], Thickness[0.004], Opacity[0.7], CapForm["Round"], 
+        Arrowheads[Medium], ArrowBox[{{0., 6.}, {0., 5.}}, 0.26], 
+        ArrowBox[{{0., 5.}, {0., 4.}}, 0.26], 
+        ArrowBox[{{0., 4.}, {0., 3.}}, 0.26], 
+        ArrowBox[{{0., 3.}, {0., 2.}}, 0.26], 
+        ArrowBox[{{0., 2.}, {0., 1.}}, 0.26], 
+        ArrowBox[{{0., 1.}, {0., 0.}}, 0.26]}, 
+       {RGBColor[0.78, 0.8625, 0.9299999999999999], EdgeForm[{GrayLevel[0.7], 
+        Opacity[0.7]}], {DiskBox[{0., 6.}, {0.26, 0.11}], 
+         InsetBox["\<\"Ordered derivative\\npartitions\"\>", {0., 6.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 5.}, {0.26, 0.11}], 
+         InsetBox["\<\"All contractions\\n+ canonicalization\"\>", {0., 5.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 4.}, {0.26, 0.11}], 
+         InsetBox["\<\"Raw scalar basis\"\>", {0., 4.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 3.}, {0.26, 0.11}], 
+         InsetBox["\<\"Euler operator\\nfor IBP relations\"\>", {0., 3.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 2.}, {0.26, 0.11}], 
+         InsetBox["\<\"IBP quotient basis\"\>", {0., 2.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 1.}, {0.26, 0.11}], 
+         InsetBox["\<\"Field-redefinition\\nimage in IBP basis\"\>", {0., 1.},
+          
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 0.}, {0.26, 0.11}], 
+         InsetBox["\<\"Physical basis\"\>", {0., 0.},
+          BaseStyle->"Graphics"]}}}],
+     MouseAppearanceTag["NetworkGraphics"]],
+    AllowKernelInitialization->False]],
+  DefaultBaseStyle->"NetworkGraphics",
+  FormatType->TraditionalForm,
+  FrameTicks->None,
+  ImageSize->560]], "Output",ExpressionUUID->"266d712f-be8a-b04a-ab32-\
+17e79ef8f390"],
+
+Cell["Overall Architecture", "Section",ExpressionUUID->"b1726ebc-cc50-ab47-80b2-62cfb07b98a6"],
+
+Cell["\<\
+The toolkit works sector by sector in the grading {nh, Nd}, where nh is the \
+number of graviton fields and Nd is the number of derivatives. For each \
+sector it constructs a raw scalar basis, quotients by total derivatives using \
+the Euler operator, and then removes the image of Fierz-Pauli field \
+redefinitions in the interaction sectors.\
+\>", "Text",ExpressionUUID->"4622a386-0788-2941-80c6-52eaf44e91b0"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["NetworkGraphics",
+   DynamicModuleBox[{Typeset`graph = HoldComplete[
+     Graph[{
+      "RunBasisComputation", "ComputeSectorData", "RawScalarBasis", "IBPData",
+        "QuotientBasisFromRelations", "RedefinitionImageData", "Rank2Basis", 
+       "ShiftFromRedefExpr", "ProjectModuloIBP", "ReduceLagrangian", 
+       "SplitTermsBySector", "ReduceSectorLagrangian", 
+       "ReduceCoordinatesModuloRedef"}, {{{1, 2}, {2, 3}, {2, 4}, {2, 5}, {2, 
+       6}, {6, 7}, {6, 8}, {6, 9}, {10, 11}, {10, 12}, {12, 2}, {12, 9}, {12, 
+       13}}, Null}, {EdgeStyle -> {
+         Directive[
+          GrayLevel[0.45], 
+          Thickness[0.003]]}, 
+       GraphLayout -> {"LayeredDigraphEmbedding", "Orientation" -> Top}, 
+       ImageSize -> 620, VertexLabels -> {
+         Placed["Name", Center]}, VertexSize -> {Medium}, VertexStyle -> {
+         Directive[
+          RGBColor[0.8619999999999999, 0.8659999999999999, 0.91], 
+          EdgeForm[
+           GrayLevel[0.7]]]}}]]}, 
+    TagBox[GraphicsGroupBox[{
+       {GrayLevel[0.45], Thickness[0.003], Opacity[0.7], CapForm["Round"], 
+        Arrowheads[Medium], ArrowBox[{{0., 3.}, {0., 2.}}, 0.1], 
+        ArrowBox[{{0., 2.}, {-2., 1.}}, 0.1], 
+        ArrowBox[{{0., 2.}, {-1., 1.}}, 0.1], 
+        ArrowBox[{{0., 2.}, {0., 1.}}, 0.1], 
+        ArrowBox[{{0., 2.}, {1., 1.}}, 0.1], 
+        ArrowBox[{{1., 1.}, {0., 0.}}, 0.1], 
+        ArrowBox[{{1., 1.}, {1., 0.}}, 0.1], 
+        ArrowBox[{{1., 1.}, {2., 0.}}, 0.1], 
+        ArrowBox[{{1., 4.}, {-1., 3.}}, 0.1], 
+        ArrowBox[{{1., 4.}, {1., 3.}}, 0.1], 
+        ArrowBox[{{1., 3.}, {0., 2.}}, 0.1], 
+        ArrowBox[BezierCurveBox[CompressedData["
+1:eJxTTMoPSmViYGBQBWIQDQEf7CE0h0POjpWSosc+2J9U1i7+Oofd4dMpq6W2
+az7ad8xK0n2oye4wwXzzospNn+wtU5bpHV7G5uD6T0jo5I3P9vcavpXNFmZz
+EJaP+qwt/9W+7EMQW1YBq8OvmR1ui1q/2bNs3n1Hby+Lw4+8edw6PD/sW04Y
+/Hr5k9mBf95sp5Obftr/NNgUN1uN2cFOveF1ZeVv+8Q39lzOzkwOa06u6pqf
+88feyFVIffJ+Rof0Q1pqWs5/7d+7dc77ZsroUCTIsE/y71/7GR+XFOQuY3A4
+sU0rKG/WP3st19S53wUYHHI2rXqkLv3fPqB5iqfW63/2sSwN+W71/+2Vzi3n
+7Vnx1372mlU/Th77b38ii6VdJOqPvfpqrbpNH//bu0eu2nr4/y9ouDA4pIHB
+Nzh/sf+vJf6/vsD5jy36gOizPSOUr6wEAp/g8onc2xK4t32A8+1fTrZ7Ofkd
+nL9nNwi8hvMtQcY9fgHng3QncD+D843B4DGcP29j93X7/Adw/jn+7imNy2/D
+3SOec1As5+A1uLxkxS5Te51LcP6K9DePvp4/DedPsQM58DCc/+DltT8bPHbC
++f+0znTysa6A82EpCQCgEdK0
+          "]], 0.1], ArrowBox[{{1., 3.}, {1., 2.}}, 0.1]}, 
+       {RGBColor[0.8619999999999999, 0.8659999999999999, 0.91], EdgeForm[{
+        GrayLevel[0.7], Opacity[
+        0.7]}], {DiskBox[{0., 3.}, 0.1], 
+         InsetBox["\<\"RunBasisComputation\"\>", {0., 3.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 2.}, 0.1], 
+         InsetBox["\<\"ComputeSectorData\"\>", {0., 2.},
+          BaseStyle->"Graphics"]}, {DiskBox[{-2., 1.}, 0.1], 
+         InsetBox["\<\"RawScalarBasis\"\>", {-2., 1.},
+          BaseStyle->"Graphics"]}, {DiskBox[{-1., 1.}, 0.1], 
+         InsetBox["\<\"IBPData\"\>", {-1., 1.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 1.}, 0.1], 
+         InsetBox["\<\"QuotientBasisFromRelations\"\>", {0., 1.},
+          BaseStyle->"Graphics"]}, {DiskBox[{1., 1.}, 0.1], 
+         InsetBox["\<\"RedefinitionImageData\"\>", {1., 1.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 0.}, 0.1], 
+         InsetBox["\<\"Rank2Basis\"\>", {0., 0.},
+          BaseStyle->"Graphics"]}, {DiskBox[{1., 0.}, 0.1], 
+         InsetBox["\<\"ShiftFromRedefExpr\"\>", {1., 0.},
+          BaseStyle->"Graphics"]}, {DiskBox[{2., 0.}, 0.1], 
+         InsetBox["\<\"ProjectModuloIBP\"\>", {2., 0.},
+          BaseStyle->"Graphics"]}, {DiskBox[{1., 4.}, 0.1], 
+         InsetBox["\<\"ReduceLagrangian\"\>", {1., 4.},
+          BaseStyle->"Graphics"]}, {DiskBox[{-1., 3.}, 0.1], 
+         InsetBox["\<\"SplitTermsBySector\"\>", {-1., 3.},
+          BaseStyle->"Graphics"]}, {DiskBox[{1., 3.}, 0.1], 
+         InsetBox["\<\"ReduceSectorLagrangian\"\>", {1., 3.},
+          BaseStyle->"Graphics"]}, {DiskBox[{1., 2.}, 0.1], 
+         InsetBox["\<\"ReduceCoordinatesModuloRedef\"\>", {1., 2.},
+          BaseStyle->"Graphics"]}}}],
+     MouseAppearanceTag["NetworkGraphics"]],
+    AllowKernelInitialization->False]],
+  DefaultBaseStyle->"NetworkGraphics",
+  FormatType->TraditionalForm,
+  FrameTicks->None,
+  ImageSize->620]], "Output",ExpressionUUID->"eabbd2d5-3bf9-5d43-89b5-\
+269f4ca1ee3d"],
+
+Cell["Code Organization", "Section",ExpressionUUID->"32b0260d-fcf7-df45-895b-cc2ab60f6fca"],
+
+Cell["Public API and options", "Item",ExpressionUUID->"ecb758d0-2a34-fa45-82d8-3fc646ea1668"],
+
+Cell["xAct setup for M, eta, PD, h, dh, probe, and lam", "Item",ExpressionUUID->"175d8cdf-bc8e-6846-ba44-f67e620cfcf1"],
+
+Cell["Utilities, canonicalization, sector keys, and cache helpers", "Item",ExpressionUUID->"cb06e4a2-c440-df45-acf4-b60e43735f2a"],
+
+Cell["\<\
+Raw scalar-basis generation from ordered derivative partitions\
+\>", "Item",ExpressionUUID->"f720e60d-7418-d94e-820f-dc97d5a0b0e2"],
+
+Cell["IBP relations via VarD and SolveConstants", "Item",ExpressionUUID->"c5360b29-6c05-ca43-b7f1-fefdaa80be8a"],
+
+Cell["Field-redefinition image via the Fierz-Pauli variation", "Item",ExpressionUUID->"4f519317-0eb3-af46-9fb1-6ebc6e8e4273"],
+
+Cell["Sector assembly, summaries, and the Lagrangian reducer API", "Item",ExpressionUUID->"b84f1ae5-290f-024c-ac36-bf6469a4e993"],
+
+Cell["Canonicalization", "Section",ExpressionUUID->"de6e8960-430c-2549-80e5-0fd94ab72ad6"],
+
+Cell["\<\
+canonExpr is the core normal-form map. It expands the expression, contracts \
+metrics, canonicalizes tensor symmetries, sorts nested PD operators, \
+canonicalizes again, and finally collects tensor structures. The second \
+canonicalization pass after SortCovDs is essential for eliminating fake \
+distinctions caused by reordered commuting scalar derivatives.\
+\>", "Text",ExpressionUUID->"c0041ea4-337a-ed48-8f9b-92605999b802"],
+
+Cell["Raw Basis Generation", "Section",ExpressionUUID->"33cf70b7-0a1a-5443-aa20-3956779a0402"],
+
+Cell["\<\
+RawScalarBasis[nh, Nd] builds all ordered ways of distributing Nd derivatives \
+across nh graviton fields, forms the corresponding monomials, applies \
+AllContractions, and canonicalizes the results. Ordered partitions are \
+necessary because different derivative placements become equivalent only \
+after canonicalization, not before.\
+\>", "Text",ExpressionUUID->"e8d7eef6-beeb-8344-a34b-684813c0dba5"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["NetworkGraphics",
+   DynamicModuleBox[{Typeset`graph = HoldComplete[
+     Graph[{
+      "Target sector\n{nh, Nd}", "Raw scalar basis\nRawScalarBasis[nh, Nd]", 
+       "Redef basis\nRank2Basis[nh-1, Nd-2]", 
+       "Shift images\nShiftFromRedefExpr", "IBP quotient basis", 
+       "Project onto\nIBP quotient basis", "Physical basis"}, {{{1, 2}, {1, 
+       3}, {3, 4}, {2, 5}, {4, 6}, {5, 6}, {6, 7}}, Null}, {EdgeStyle -> {
+         Directive[
+          GrayLevel[0.45], 
+          Thickness[0.004]]}, 
+       GraphLayout -> {"LayeredDigraphEmbedding", "Orientation" -> Left}, 
+       ImageSize -> 600, VertexLabels -> {
+         Placed["Name", Center]}, VertexSize -> {{0.25, 0.1}}, VertexStyle -> {
+         Directive[
+          RGBColor[
+          0.9099999999999999, 0.8595999999999999, 0.8415999999999999], 
+          EdgeForm[
+           GrayLevel[0.7]]]}}]]}, 
+    TagBox[GraphicsGroupBox[{
+       {GrayLevel[0.45], Thickness[0.004], Opacity[0.7], CapForm["Round"], 
+        Arrowheads[Medium], 
+        ArrowBox[{{-1.5714285790842557`, 
+         1.8571429069048089`}, {-0.5714285522893592, 2.8571428801099112`}}, 
+         0.25], ArrowBox[{{-1.5714285790842557`, 
+         1.8571429069048089`}, {-0.5714285790842561, 1.857142880109912}}, 
+         0.25], ArrowBox[{{-0.5714285522893592, 2.8571428801099112`}, {
+         0.4285714477106406, 2.8571428533150143`}}, 0.25], 
+        ArrowBox[{{-0.5714285790842561, 1.857142880109912}, {
+         0.42857142091574363`, 1.857142853315015}}, 0.25], 
+        ArrowBox[{{0.42857142091574363`, 1.857142853315015}, {
+         1.4285714209157434`, 1.8571428265201178`}}, 0.25], 
+        ArrowBox[{{0.4285714477106406, 2.8571428533150143`}, {
+         1.4285714209157434`, 1.8571428265201178`}}, 0.25], 
+        ArrowBox[{{1.4285714209157434`, 1.8571428265201178`}, {
+         2.428571420915743, 1.8571427997252208`}}, 0.25]}, 
+       {RGBColor[0.9099999999999999, 0.8595999999999999, 0.8415999999999999], 
+        EdgeForm[{GrayLevel[0.7], Opacity[
+        0.7]}], {
+         DiskBox[{-1.5714285790842557`, 1.8571429069048089`}, {0.25, 0.1}], 
+         InsetBox["\<\"Target sector\\n{nh, Nd}\"\>", {-1.5714285790842557, 1.8571429069048089},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-0.5714285522893592, 2.8571428801099112`}, {0.25, 0.1}], 
+         InsetBox["\<\"Raw scalar basis\\nRawScalarBasis[nh, Nd]\"\>", {-0.5714285522893592, 2.8571428801099112},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-0.5714285790842561, 1.857142880109912}, {0.25, 0.1}], 
+         InsetBox["\<\"Redef basis\\nRank2Basis[nh-1, Nd-2]\"\>", {-0.5714285790842561, 1.857142880109912},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{0.42857142091574363`, 1.857142853315015}, {0.25, 0.1}], 
+         InsetBox["\<\"Shift images\\nShiftFromRedefExpr\"\>", {0.42857142091574363, 1.857142853315015},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{0.4285714477106406, 2.8571428533150143`}, {0.25, 0.1}], 
+         InsetBox["\<\"IBP quotient basis\"\>", {0.4285714477106406, 2.8571428533150143},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{1.4285714209157434`, 1.8571428265201178`}, {0.25, 0.1}], 
+         InsetBox["\<\"Project onto\\nIBP quotient basis\"\>", {1.4285714209157434, 1.8571428265201178},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{2.428571420915743, 1.8571427997252208`}, {0.25, 0.1}], 
+         InsetBox["\<\"Physical basis\"\>", {2.428571420915743, 1.8571427997252208},
+          
+          BaseStyle->"Graphics"]}}}],
+     MouseAppearanceTag["NetworkGraphics"]],
+    AllowKernelInitialization->False]],
+  DefaultBaseStyle->"NetworkGraphics",
+  FormatType->TraditionalForm,
+  FrameTicks->None,
+  ImageSize->600]], "Output",ExpressionUUID->"d6131b04-7b28-0d40-9a33-\
+2dc03f120464"],
+
+Cell["IBP Quotient", "Section",ExpressionUUID->"a404cbd2-9f87-b24f-958e-e790b841d889"],
+
+Cell["\<\
+IBPData constructs a generic linear combination of the raw basis and applies \
+the Euler-Lagrange operator VarD[h[-m,-n], PD]. A scalar density is a total \
+derivative exactly when its Euler derivative vanishes, so solving \
+VarD[ansatz] == 0 gives the full space of IBP relations. \
+QuotientBasisFromRelations then removes pivot columns to produce an IBP basis.\
+\>", "Text",ExpressionUUID->"4f1f3bbd-9ad7-8040-9d53-bbdf57cc6905"],
+
+Cell["Field-Redefinition Quotient", "Section",ExpressionUUID->"3d876875-fa45-e34f-8e74-f4f8a73b1e1f"],
+
+Cell["\<\
+For a target sector {nh, Nd}, the relevant redefinitions have rank-2 basis \
+Rank2Basis[nh-1, Nd-2]. ShiftFromRedefExpr computes the linearized variation \
+of the Fierz-Pauli Lagrangian under h -> h + lam dh and substitutes a \
+concrete delta h. Each resulting image is projected onto the IBP basis, the \
+independent image vectors are extracted, and their span is removed from the \
+IBP quotient basis.\
+\>", "Text",ExpressionUUID->"ba7f8f36-08bd-1b4e-b03f-778d6c6e9264"],
+
+Cell["\<\
+Quadratic sectors are intentionally not quotiented by field redefinitions. At \
+nh < 3, linear redefinitions act directly on the kinetic operator itself, so \
+removing those directions is not the right equivalence relation for \
+classifying the quadratic action.\
+\>", "Text",ExpressionUUID->"ad26b7b3-c49d-7840-8f24-913ab5e0560f"],
+
+Cell["Reducer API", "Section",ExpressionUUID->"2af7cc69-bc4b-8a4a-b085-be0f77849e1f"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["NetworkGraphics",
+   DynamicModuleBox[{Typeset`graph = HoldComplete[
+     Graph[{
+      "Input Lagrangian", "Canonicalize\nand expand", 
+       "Split into\n{nh, Nd} sectors", "Project each sector\nonto IBP basis", 
+       "Subtract field-\nredefinition image", "Sum sector representatives", 
+       "Reduced Lagrangian"}, {{{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 
+       7}}, Null}, {EdgeStyle -> {
+         Directive[
+          GrayLevel[0.45], 
+          Thickness[0.004]]}, 
+       GraphLayout -> {"LayeredDigraphEmbedding", "Orientation" -> Left}, 
+       ImageSize -> 560, VertexLabels -> {
+         Placed["Name", Center]}, VertexSize -> {{0.24, 0.1}}, VertexStyle -> {
+         Directive[
+          RGBColor[0.967, 0.8768, 0.8064], 
+          EdgeForm[
+           GrayLevel[0.7]]]}}]]}, 
+    TagBox[GraphicsGroupBox[{
+       {GrayLevel[0.45], Thickness[0.004], Opacity[0.7], CapForm["Round"], 
+        Arrowheads[Medium], 
+        ArrowBox[{{-2.999999999999999, 
+         3.0000000803846913`}, {-1.9999999999999991`, 3.0000000535897944`}}, 
+         0.24], ArrowBox[{{-1.9999999999999991`, 
+         3.0000000535897944`}, {-0.9999999999999996, 3.0000000267948974`}}, 
+         0.24], ArrowBox[{{-0.9999999999999996, 3.0000000267948974`}, {0., 
+         3.}}, 0.24], 
+        ArrowBox[{{0., 3.}, {0.9999999999999998, 2.999999973205103}}, 0.24], 
+        ArrowBox[{{0.9999999999999998, 2.999999973205103}, {
+         1.9999999999999996`, 2.999999946410206}}, 0.24], 
+        ArrowBox[{{1.9999999999999996`, 2.999999946410206}, {
+         2.999999999999999, 2.999999919615309}}, 0.24]}, 
+       {RGBColor[0.967, 0.8768, 0.8064], EdgeForm[{GrayLevel[0.7], Opacity[
+        0.7]}], {
+         DiskBox[{-2.999999999999999, 3.0000000803846913`}, {0.24, 0.1}], 
+         InsetBox["\<\"Input Lagrangian\"\>", {-2.999999999999999, 3.0000000803846913},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-1.9999999999999991`, 3.0000000535897944`}, {0.24, 0.1}], 
+         InsetBox["\<\"Canonicalize\\nand expand\"\>", {-1.9999999999999991, 3.0000000535897944},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-0.9999999999999996, 3.0000000267948974`}, {0.24, 0.1}], 
+         InsetBox["\<\"Split into\\n{nh, Nd} sectors\"\>", {-0.9999999999999996, 3.0000000267948974},
+          
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 3.}, {0.24, 0.1}], 
+         InsetBox["\<\"Project each sector\\nonto IBP basis\"\>", {0., 3.},
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{0.9999999999999998, 2.999999973205103}, {0.24, 0.1}], 
+         InsetBox["\<\"Subtract field-\\nredefinition image\"\>", {0.9999999999999998, 2.999999973205103},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{1.9999999999999996`, 2.999999946410206}, {0.24, 0.1}], 
+         InsetBox["\<\"Sum sector representatives\"\>", {1.9999999999999996, 2.999999946410206},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{2.999999999999999, 2.999999919615309}, {0.24, 0.1}], 
+         InsetBox["\<\"Reduced Lagrangian\"\>", {2.999999999999999, 2.999999919615309},
+          
+          BaseStyle->"Graphics"]}}}],
+     MouseAppearanceTag["NetworkGraphics"]],
+    AllowKernelInitialization->False]],
+  DefaultBaseStyle->"NetworkGraphics",
+  FormatType->TraditionalForm,
+  FrameTicks->None,
+  ImageSize->560]], "Output",ExpressionUUID->"d963ef0b-3b49-a64b-8031-\
+d150f828614b"],
+
+Cell["\<\
+ReduceSectorLagrangian takes an expression and an explicit sector label, \
+projects the expression into the IBP basis, subtracts the field-redefinition \
+image component, and returns the remaining physical representative together \
+with all intermediate coordinates.\
+\>", "Text",ExpressionUUID->"a124de6b-c4ba-2e41-8fd5-0f2723b785c4"],
+
+Cell["\<\
+ReduceLagrangian canonicalizes and expands the input, splits it term by term \
+into sectors, applies ReduceSectorLagrangian to each sector, and then sums \
+the reduced representatives.\
+\>", "Text",ExpressionUUID->"f30b894b-1ff8-c943-9bb6-86ca8f5ca00e"],
+
+Cell["Main Public Functions", "Section",ExpressionUUID->"d139404b-9ba2-754f-b851-a5815b82e3f8"],
+
+Cell["RunBasisComputation", "Item",ExpressionUUID->"b7d65bd2-e508-7e41-9061-40d6bbad404a"],
+
+Cell["ComputeSectorData", "Item",ExpressionUUID->"2e8393f5-ffa2-3f40-a03f-f957e39b0bb5"],
+
+Cell["RawBasisOfSector, IBPBasisOfSector, PhysicalBasisOfSector", "Item",ExpressionUUID->"55102f20-544d-5a41-9c1a-31ea2cee28e3"],
+
+Cell["RedefinitionRulesOfSector", "Item",ExpressionUUID->"9afa09dc-af29-ec4d-b5cd-46c374dc29cb"],
+
+Cell["ReduceSectorLagrangian, ReduceLagrangian", "Item",ExpressionUUID->"fa5fdfeb-6d0f-e345-80c2-274d69a96db1"],
+
+Cell["Implementation Notes", "Section",ExpressionUUID->"0666c356-381f-3441-a3ab-3b837c0211f8"],
+
+Cell["\<\
+Odd-derivative scalar sectors are empty in this setup and are skipped early.\
+\>", "Item",ExpressionUUID->"25b670a3-590d-f44a-af29-251540b79b9c"],
+
+Cell["\<\
+The cache is per intermediate object, not only per final sector summary.\
+\>", "Item",ExpressionUUID->"7f1f0339-34ab-a044-8434-8ae1a347404b"],
+
+Cell["\<\
+ProjectModuloIBP sets any remaining unsolved ansatz coefficients to zero so \
+returned coordinates are concrete.\
+\>", "Item",ExpressionUUID->"153242c7-6964-ee45-854d-0813a3e6f2ef"],
+
+Cell["\<\
+The current automatic splitter assumes the input uses the same h, eta, and PD \
+conventions as the toolkit itself.\
+\>", "Item",ExpressionUUID->"5930b7de-c6e7-c644-8bef-59e73e2e190f"]
+},
+Saveable->True,
+WindowTitle->"graviton_basis_toolkit_reference",
+PageHeaders->{{
+   Cell["graviton_basis_toolkit_reference", "Header"], None, None}, {
+  None, None, 
+   Cell["2026-03-11", "Header"]}},
+PrintingOptions->{"PrintCellBrackets"->False},
+FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"b43b778c-dff3-c545-8d31-35c629bded23"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[600, 21, 104, 0, 70, "Title",ExpressionUUID->"62b29023-b9cf-df49-8d14-f7bbecaff5da"],
+Cell[707, 23, 258, 4, 70, "Text",ExpressionUUID->"8c056a51-a557-554a-aedb-ea331bdeb2ac"],
+Cell[968, 29, 2605, 51, 70, "Output",ExpressionUUID->"266d712f-be8a-b04a-ab32-17e79ef8f390"],
+Cell[3576, 82, 94, 0, 70, "Section",ExpressionUUID->"b1726ebc-cc50-ab47-80b2-62cfb07b98a6"],
+Cell[3673, 84, 422, 6, 70, "Text",ExpressionUUID->"4622a386-0788-2941-80c6-52eaf44e91b0"],
+Cell[4098, 92, 4336, 83, 70, "Output",ExpressionUUID->"eabbd2d5-3bf9-5d43-89b5-269f4ca1ee3d"],
+Cell[8437, 177, 91, 0, 70, "Section",ExpressionUUID->"32b0260d-fcf7-df45-895b-cc2ab60f6fca"],
+Cell[8531, 179, 93, 0, 70, "Item",ExpressionUUID->"ecb758d0-2a34-fa45-82d8-3fc646ea1668"],
+Cell[8627, 181, 119, 0, 70, "Item",ExpressionUUID->"175d8cdf-bc8e-6846-ba44-f67e620cfcf1"],
+Cell[8749, 183, 130, 0, 70, "Item",ExpressionUUID->"cb06e4a2-c440-df45-acf4-b60e43735f2a"],
+Cell[8882, 185, 141, 2, 70, "Item",ExpressionUUID->"f720e60d-7418-d94e-820f-dc97d5a0b0e2"],
+Cell[9026, 189, 112, 0, 70, "Item",ExpressionUUID->"c5360b29-6c05-ca43-b7f1-fefdaa80be8a"],
+Cell[9141, 191, 125, 0, 70, "Item",ExpressionUUID->"4f519317-0eb3-af46-9fb1-6ebc6e8e4273"],
+Cell[9269, 193, 129, 0, 70, "Item",ExpressionUUID->"b84f1ae5-290f-024c-ac36-bf6469a4e993"],
+Cell[9401, 195, 90, 0, 70, "Section",ExpressionUUID->"de6e8960-430c-2549-80e5-0fd94ab72ad6"],
+Cell[9494, 197, 438, 6, 70, "Text",ExpressionUUID->"c0041ea4-337a-ed48-8f9b-92605999b802"],
+Cell[9935, 205, 94, 0, 70, "Section",ExpressionUUID->"33cf70b7-0a1a-5443-aa20-3956779a0402"],
+Cell[10032, 207, 414, 6, 70, "Text",ExpressionUUID->"e8d7eef6-beeb-8344-a34b-684813c0dba5"],
+Cell[10449, 215, 3887, 75, 70, "Output",ExpressionUUID->"d6131b04-7b28-0d40-9a33-2dc03f120464"],
+Cell[14339, 292, 86, 0, 70, "Section",ExpressionUUID->"a404cbd2-9f87-b24f-958e-e790b841d889"],
+Cell[14428, 294, 441, 6, 70, "Text",ExpressionUUID->"4f1f3bbd-9ad7-8040-9d53-bbdf57cc6905"],
+Cell[14872, 302, 101, 0, 70, "Section",ExpressionUUID->"3d876875-fa45-e34f-8e74-f4f8a73b1e1f"],
+Cell[14976, 304, 482, 7, 70, "Text",ExpressionUUID->"ba7f8f36-08bd-1b4e-b03f-778d6c6e9264"],
+Cell[15461, 313, 341, 5, 70, "Text",ExpressionUUID->"ad26b7b3-c49d-7840-8f24-913ab5e0560f"],
+Cell[15805, 320, 85, 0, 70, "Section",ExpressionUUID->"2af7cc69-bc4b-8a4a-b085-be0f77849e1f"],
+Cell[15893, 322, 3458, 68, 70, "Output",ExpressionUUID->"d963ef0b-3b49-a64b-8031-d150f828614b"],
+Cell[19354, 392, 345, 5, 70, "Text",ExpressionUUID->"a124de6b-c4ba-2e41-8fd5-0f2723b785c4"],
+Cell[19702, 399, 263, 4, 70, "Text",ExpressionUUID->"f30b894b-1ff8-c943-9bb6-86ca8f5ca00e"],
+Cell[19968, 405, 95, 0, 70, "Section",ExpressionUUID->"d139404b-9ba2-754f-b851-a5815b82e3f8"],
+Cell[20066, 407, 90, 0, 70, "Item",ExpressionUUID->"b7d65bd2-e508-7e41-9061-40d6bbad404a"],
+Cell[20159, 409, 88, 0, 70, "Item",ExpressionUUID->"2e8393f5-ffa2-3f40-a03f-f957e39b0bb5"],
+Cell[20250, 411, 128, 0, 70, "Item",ExpressionUUID->"55102f20-544d-5a41-9c1a-31ea2cee28e3"],
+Cell[20381, 413, 96, 0, 70, "Item",ExpressionUUID->"9afa09dc-af29-ec4d-b5cd-46c374dc29cb"],
+Cell[20480, 415, 111, 0, 70, "Item",ExpressionUUID->"fa5fdfeb-6d0f-e345-80c2-274d69a96db1"],
+Cell[20594, 417, 94, 0, 70, "Section",ExpressionUUID->"0666c356-381f-3441-a3ab-3b837c0211f8"],
+Cell[20691, 419, 155, 2, 70, "Item",ExpressionUUID->"25b670a3-590d-f44a-af29-251540b79b9c"],
+Cell[20849, 423, 151, 2, 70, "Item",ExpressionUUID->"7f1f0339-34ab-a044-8434-8ae1a347404b"],
+Cell[21003, 427, 191, 3, 70, "Item",ExpressionUUID->"153242c7-6964-ee45-854d-0813a3e6f2ef"],
+Cell[21197, 432, 193, 3, 70, "Item",ExpressionUUID->"5930b7de-c6e7-c644-8bef-59e73e2e190f"]
+}
+]
+*)
+
+(* End of internal cache information *)

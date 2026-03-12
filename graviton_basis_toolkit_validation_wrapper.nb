@@ -1,0 +1,202 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[      8901,        193]
+NotebookOptionsPosition[      6779,        157]
+NotebookOutlinePosition[      7372,        178]
+CellTagsIndexPosition[      7329,        175]
+WindowTitle->graviton_basis_toolkit_validation_wrapper
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["Graviton Basis Toolkit Validation Notebook", "Title",ExpressionUUID->"302e443f-a849-f446-ab61-5a619d413b64"],
+
+Cell["\<\
+This notebook wraps the reproducible reducer validation stored in \
+graviton_basis_toolkit_validation.wls. It is intended as the notebook \
+counterpart to the script-based test run.\
+\>", "Text",ExpressionUUID->"9de95aeb-60b5-ef48-a4f7-9b8fdc9c077c"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["NetworkGraphics",
+   DynamicModuleBox[{Typeset`graph = HoldComplete[
+     Graph[{
+      "Choose generic\ndelta h", "Build FP image\nShiftFromRedefExpr", 
+       "Expand into a\nmessy scalar", "ReduceLagrangian", 
+       "Expected result:\n0"}, {{{1, 2}, {2, 3}, {3, 4}, {4, 5}}, Null}, {
+      EdgeStyle -> {
+         Directive[
+          GrayLevel[0.45], 
+          Thickness[0.004]]}, 
+       GraphLayout -> {"LayeredDigraphEmbedding", "Orientation" -> Left}, 
+       ImageSize -> 520, VertexLabels -> {
+         Placed["Name", Center]}, VertexSize -> {{0.23, 0.1}}, VertexStyle -> {
+         Directive[
+          RGBColor[0.8032000000000001, 0.9088, 0.8488], 
+          EdgeForm[
+           GrayLevel[0.7]]]}}]]}, 
+    TagBox[GraphicsGroupBox[{
+       {GrayLevel[0.45], Thickness[0.004], Opacity[0.7], CapForm["Round"], 
+        Arrowheads[Medium], 
+        ArrowBox[{{-1.9999999999999993`, 
+         2.000000053589794}, {-0.9999999999999998, 2.000000026794897}}, 0.23],
+         ArrowBox[{{-0.9999999999999998, 2.000000026794897}, {0., 2.}}, 0.23],
+         ArrowBox[{{0., 2.}, {0.9999999999999997, 1.9999999732051028`}}, 
+         0.23], ArrowBox[{{0.9999999999999997, 1.9999999732051028`}, {
+         1.9999999999999993`, 1.9999999464102058`}}, 0.23]}, 
+       {RGBColor[0.8032000000000001, 0.9088, 0.8488], EdgeForm[{GrayLevel[
+        0.7], Opacity[
+        0.7]}], {
+         DiskBox[{-1.9999999999999993`, 2.000000053589794}, {0.23, 0.1}], 
+         InsetBox["\<\"Choose generic\\ndelta h\"\>", {-1.9999999999999993, 2.000000053589794},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-0.9999999999999998, 2.000000026794897}, {0.23, 0.1}], 
+         InsetBox["\<\"Build FP image\\nShiftFromRedefExpr\"\>", {-0.9999999999999998, 2.000000026794897},
+          
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 2.}, {0.23, 0.1}], 
+         InsetBox["\<\"Expand into a\\nmessy scalar\"\>", {0., 2.},
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{0.9999999999999997, 1.9999999732051028`}, {0.23, 0.1}], 
+         InsetBox["\<\"ReduceLagrangian\"\>", {0.9999999999999997, 1.9999999732051028},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{1.9999999999999993`, 1.9999999464102058`}, {0.23, 0.1}], 
+         InsetBox["\<\"Expected result:\\n0\"\>", {1.9999999999999993, 1.9999999464102058},
+          
+          BaseStyle->"Graphics"]}}}],
+     MouseAppearanceTag["NetworkGraphics"]],
+    AllowKernelInitialization->False]],
+  DefaultBaseStyle->"NetworkGraphics",
+  FormatType->TraditionalForm,
+  FrameTicks->None,
+  ImageSize->520]], "Output",ExpressionUUID->"15160c1c-140e-8046-97fe-\
+6410edbed061"],
+
+Cell["Current Stored Results", "Section",ExpressionUUID->"c98ad606-c58a-8f44-9f5b-8ca2fefcef1b"],
+
+Cell["\<\
+The table below is loaded from graviton_basis_toolkit_validation_output.wl, \
+which was produced by the most recent validation run.\
+\>", "Text",ExpressionUUID->"26bb70b6-270e-374e-bcb3-cc16f304814f"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"Sector\"\>", "\<\"IBPCount\"\>", "\<\"RedefRank\"\>", \
+"\<\"PhysicalCount\"\>", "\<\"DeltaBasisLength\"\>", "\<\"LagTermCount\"\>", \
+"\<\"Reduced to 0?\"\>"},
+    {
+     RowBox[{"{", 
+      RowBox[{"3", ",", "2"}], "}"}], "14", "4", "10", "4", "18", "True"},
+    {
+     RowBox[{"{", 
+      RowBox[{"3", ",", "4"}], "}"}], "64", "33", "31", "33", "240", "True"}
+   },
+   AutoDelete->False,
+   GridBoxAlignment->{"Columns" -> {{Left}}},
+   GridBoxBackground->{"Columns" -> {{None}}, "Rows" -> {None, {
+        RGBColor[0.975, 0.975, 0.975]}}},
+   GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+   GridBoxItemStyle->{"Columns" -> {{
+        Directive[FontFamily -> "Source Sans Pro", 11]}}, "Rows" -> {{
+        Directive[FontFamily -> "Source Sans Pro", 11]}}}],
+  "Grid"]], "Output",ExpressionUUID->"56c0b2ed-52a3-c041-9bb5-bc48a7602957"],
+
+Cell["How to Re-run", "Section",ExpressionUUID->"872de79d-b1d4-0b42-8b9c-73e54616f115"],
+
+Cell["\<\
+Evaluate the following input cell from the notebook front end or run the \
+corresponding script directly from the kernel.\
+\>", "Text",ExpressionUUID->"802692fb-3023-8349-89e1-b008761a1821"],
+
+Cell["Get[\"graviton_basis_toolkit_validation.wls\"]", "Input",ExpressionUUID->"6099d09c-3bec-9f4c-b4f1-02418acccfef"],
+
+Cell["\<\
+The script writes graviton_basis_toolkit_validation_output.wl and uses \
+graviton_basis_validation_cache/ for sector caches.\
+\>", "Text",ExpressionUUID->"03e2c013-1ed9-7344-8e02-1c3886413c17"],
+
+Cell["What the Validation Proves", "Section",ExpressionUUID->"17e4d89f-6358-cc48-a514-4d47e2c7bd1f"],
+
+Cell["\<\
+It constructs Lagrangians that are in the image of a field redefinition of \
+the Fierz-Pauli kinetic term.\
+\>", "Item",ExpressionUUID->"d3f32498-3174-274f-af95-3a20731659b9"],
+
+Cell["\<\
+It expands those images so they do not transparently look like EOM times \
+delta h.\
+\>", "Item",ExpressionUUID->"efc5cbef-f57a-364c-bd7e-18e7576d6894"],
+
+Cell["It runs ReduceLagrangian on the expanded expressions.", "Item",ExpressionUUID->"6b483d23-086d-f540-bd79-87630216dd54"],
+
+Cell["\<\
+It checks that the reduced expression and all physical coordinates vanish.\
+\>", "Item",ExpressionUUID->"184f78eb-d084-f044-b20c-16721ead7c42"],
+
+Cell["Useful Follow-up", "Section",ExpressionUUID->"47fd3ddb-e26a-584d-964c-98a031248a9e"],
+
+Cell["Get[\"graviton_basis_toolkit_validation_output.wl\"]", "Input",ExpressionUUID->"8d0ca9fc-3bd5-7a4f-8ad0-e66e4f03fd0e"],
+
+Cell["\<\
+You can inspect the returned association directly, or compare the stored \
+image coefficients against the redefinition basis of the relevant sector.\
+\>", "Text",ExpressionUUID->"4d79d5af-44c5-b04c-97bf-531b48334f8b"]
+},
+Saveable->True,
+WindowTitle->"graviton_basis_toolkit_validation_wrapper",
+PageHeaders->{{
+   Cell["graviton_basis_toolkit_validation_wrapper", "Header"], None, None}, {
+  None, None, 
+   Cell["2026-03-11", "Header"]}},
+PrintingOptions->{"PrintCellBrackets"->False},
+FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"b43b778c-dff3-c545-8d31-35c629bded23"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[609, 21, 114, 0, 70, "Title",ExpressionUUID->"302e443f-a849-f446-ab61-5a619d413b64"],
+Cell[726, 23, 260, 4, 70, "Text",ExpressionUUID->"9de95aeb-60b5-ef48-a4f7-9b8fdc9c077c"],
+Cell[989, 29, 2694, 55, 70, "Output",ExpressionUUID->"15160c1c-140e-8046-97fe-6410edbed061"],
+Cell[3686, 86, 96, 0, 70, "Section",ExpressionUUID->"c98ad606-c58a-8f44-9f5b-8ca2fefcef1b"],
+Cell[3785, 88, 210, 3, 70, "Text",ExpressionUUID->"26bb70b6-270e-374e-bcb3-cc16f304814f"],
+Cell[3998, 93, 968, 21, 70, "Output",ExpressionUUID->"56c0b2ed-52a3-c041-9bb5-bc48a7602957"],
+Cell[4969, 116, 87, 0, 70, "Section",ExpressionUUID->"872de79d-b1d4-0b42-8b9c-73e54616f115"],
+Cell[5059, 118, 200, 3, 70, "Text",ExpressionUUID->"802692fb-3023-8349-89e1-b008761a1821"],
+Cell[5262, 123, 118, 0, 70, "Input",ExpressionUUID->"6099d09c-3bec-9f4c-b4f1-02418acccfef"],
+Cell[5383, 125, 203, 3, 70, "Text",ExpressionUUID->"03e2c013-1ed9-7344-8e02-1c3886413c17"],
+Cell[5589, 130, 100, 0, 70, "Section",ExpressionUUID->"17e4d89f-6358-cc48-a514-4d47e2c7bd1f"],
+Cell[5692, 132, 185, 3, 70, "Item",ExpressionUUID->"d3f32498-3174-274f-af95-3a20731659b9"],
+Cell[5880, 137, 162, 3, 70, "Item",ExpressionUUID->"efc5cbef-f57a-364c-bd7e-18e7576d6894"],
+Cell[6045, 142, 124, 0, 70, "Item",ExpressionUUID->"6b483d23-086d-f540-bd79-87630216dd54"],
+Cell[6172, 144, 153, 2, 70, "Item",ExpressionUUID->"184f78eb-d084-f044-b20c-16721ead7c42"],
+Cell[6328, 148, 90, 0, 70, "Section",ExpressionUUID->"47fd3ddb-e26a-584d-964c-98a031248a9e"],
+Cell[6421, 150, 124, 0, 70, "Input",ExpressionUUID->"8d0ca9fc-3bd5-7a4f-8ad0-e66e4f03fd0e"],
+Cell[6548, 152, 227, 3, 70, "Text",ExpressionUUID->"4d79d5af-44c5-b04c-97bf-531b48334f8b"]
+}
+]
+*)
+
+(* End of internal cache information *)

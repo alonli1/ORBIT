@@ -1,0 +1,244 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     10847,        235]
+NotebookOptionsPosition[      7996,        191]
+NotebookOutlinePosition[      8573,        212]
+CellTagsIndexPosition[      8530,        209]
+WindowTitle->graviton_basis_toolkit_user_guide
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["Graviton Basis Toolkit User Guide", "Title",ExpressionUUID->"be2bb2e8-c954-c44d-ac3e-ebdcb1cb9e62"],
+
+Cell["\<\
+This notebook is the notebook and PDF rendering of \
+graviton_basis_toolkit_user_guide.md. It is the short practical guide for \
+normal use.\
+\>", "Text",ExpressionUUID->"8d44c055-dcd0-8144-ae43-cb02c9b8b90a"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["NetworkGraphics",
+   DynamicModuleBox[{Typeset`graph = HoldComplete[
+     Graph[{
+      "Input Lagrangian", "Canonicalize\nand expand", 
+       "Split into\n{nh, Nd} sectors", "Project each sector\nonto IBP basis", 
+       "Subtract field-\nredefinition image", "Sum sector representatives", 
+       "Reduced Lagrangian"}, {{{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 
+       7}}, Null}, {EdgeStyle -> {
+         Directive[
+          GrayLevel[0.45], 
+          Thickness[0.004]]}, 
+       GraphLayout -> {"LayeredDigraphEmbedding", "Orientation" -> Left}, 
+       ImageSize -> 560, VertexLabels -> {
+         Placed["Name", Center]}, VertexSize -> {{0.24, 0.1}}, VertexStyle -> {
+         Directive[
+          RGBColor[0.967, 0.8768, 0.8064], 
+          EdgeForm[
+           GrayLevel[0.7]]]}}]]}, 
+    TagBox[GraphicsGroupBox[{
+       {GrayLevel[0.45], Thickness[0.004], Opacity[0.7], CapForm["Round"], 
+        Arrowheads[Medium], 
+        ArrowBox[{{-2.999999999999999, 
+         3.0000000803846913`}, {-1.9999999999999991`, 3.0000000535897944`}}, 
+         0.24], ArrowBox[{{-1.9999999999999991`, 
+         3.0000000535897944`}, {-0.9999999999999996, 3.0000000267948974`}}, 
+         0.24], ArrowBox[{{-0.9999999999999996, 3.0000000267948974`}, {0., 
+         3.}}, 0.24], 
+        ArrowBox[{{0., 3.}, {0.9999999999999998, 2.999999973205103}}, 0.24], 
+        ArrowBox[{{0.9999999999999998, 2.999999973205103}, {
+         1.9999999999999996`, 2.999999946410206}}, 0.24], 
+        ArrowBox[{{1.9999999999999996`, 2.999999946410206}, {
+         2.999999999999999, 2.999999919615309}}, 0.24]}, 
+       {RGBColor[0.967, 0.8768, 0.8064], EdgeForm[{GrayLevel[0.7], Opacity[
+        0.7]}], {
+         DiskBox[{-2.999999999999999, 3.0000000803846913`}, {0.24, 0.1}], 
+         InsetBox["\<\"Input Lagrangian\"\>", {-2.999999999999999, 3.0000000803846913},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-1.9999999999999991`, 3.0000000535897944`}, {0.24, 0.1}], 
+         InsetBox["\<\"Canonicalize\\nand expand\"\>", {-1.9999999999999991, 3.0000000535897944},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-0.9999999999999996, 3.0000000267948974`}, {0.24, 0.1}], 
+         InsetBox["\<\"Split into\\n{nh, Nd} sectors\"\>", {-0.9999999999999996, 3.0000000267948974},
+          
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 3.}, {0.24, 0.1}], 
+         InsetBox["\<\"Project each sector\\nonto IBP basis\"\>", {0., 3.},
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{0.9999999999999998, 2.999999973205103}, {0.24, 0.1}], 
+         InsetBox["\<\"Subtract field-\\nredefinition image\"\>", {0.9999999999999998, 2.999999973205103},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{1.9999999999999996`, 2.999999946410206}, {0.24, 0.1}], 
+         InsetBox["\<\"Sum sector representatives\"\>", {1.9999999999999996, 2.999999946410206},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{2.999999999999999, 2.999999919615309}, {0.24, 0.1}], 
+         InsetBox["\<\"Reduced Lagrangian\"\>", {2.999999999999999, 2.999999919615309},
+          
+          BaseStyle->"Graphics"]}}}],
+     MouseAppearanceTag["NetworkGraphics"]],
+    AllowKernelInitialization->False]],
+  DefaultBaseStyle->"NetworkGraphics",
+  FormatType->TraditionalForm,
+  FrameTicks->None,
+  ImageSize->560]], "Output",ExpressionUUID->"a3be9e32-dc91-cb49-8064-\
+7376071cd8b3"],
+
+Cell["Load the Toolkit", "Section",ExpressionUUID->"9e48c826-261e-4846-93cd-dd8c045c5dc1"],
+
+Cell["Get[\"graviton_basis_toolkit.wl\"]", "Input",ExpressionUUID->"5e45ee87-4e15-f842-80f7-16b6d9e6d9c3"],
+
+Cell["Compute Sector Data", "Section",ExpressionUUID->"3246c3ec-c804-e84d-94c0-0451123f5ca0"],
+
+Cell["\<\
+res = RunBasisComputation[
+  \"MaxDimension\" -> 5,
+  \"CacheDirectory\" -> FileNameJoin[{Directory[], \"basis_cache\"}],
+  \"UseCache\" -> True,
+  \"Verbose\" -> True
+];\
+\>", "Input",ExpressionUUID->"ace2620a-5b9f-6742-85f5-e77fe632f102"],
+
+Cell["Once res exists you can inspect individual sectors.", "Text",ExpressionUUID->"a52d7283-1154-f14d-a4e5-c679cae762ef"],
+
+Cell["\<\
+RawBasisOfSector[res, 3, 2]
+IBPBasisOfSector[res, 3, 2]
+PhysicalBasisOfSector[res, 3, 2]
+RedefinitionRulesOfSector[res, 3, 2]\
+\>", "Input",ExpressionUUID->"970c7b36-3ec7-3a48-b98a-7e0cc5587e3a"],
+
+Cell["Reduce a Single Sector", "Section",ExpressionUUID->"517a01f8-4bb2-c74a-a05a-320f0763bfb1"],
+
+Cell["\<\
+red = ReduceSectorLagrangian[lag32, 3, 2,
+  \"CacheDirectory\" -> FileNameJoin[{Directory[], \"basis_cache\"}],
+  \"UseCache\" -> True
+];
+
+red[\"ReducedExpression\"]
+red[\"PhysicalCoordinates\"]\
+\>", "Input",ExpressionUUID->"1d67348f-7af4-7042-af25-604a66946040"],
+
+Cell["Reduce a General Lagrangian", "Section",ExpressionUUID->"e57490ad-44d5-9743-8571-4e354b9eba4b"],
+
+Cell["\<\
+red = ReduceLagrangian[lag,
+  \"CacheDirectory\" -> FileNameJoin[{Directory[], \"basis_cache\"}],
+  \"UseCache\" -> True
+];
+
+red[\"ReducedExpression\"]
+Keys[red[\"SectorReductions\"]]\
+\>", "Input",ExpressionUUID->"9ade0606-8269-404c-ac11-9f423070c252"],
+
+Cell["How to Read the Counts", "Section",ExpressionUUID->"e839ab98-34a8-224e-8525-4f29b11e8d92"],
+
+Cell["RawCount: size of the canonicalized raw spanning set.", "Item",ExpressionUUID->"aad01552-093d-d54b-8e2a-108359899981"],
+
+Cell["IBPCount: dimension after quotienting by total derivatives.", "Item",ExpressionUUID->"e21cdb06-0407-a149-b48a-371ec113f277"],
+
+Cell["\<\
+RedefRank: rank of the field-redefinition image inside the IBP basis.\
+\>", "Item",ExpressionUUID->"835c7570-739f-f844-9dad-456a49ff0ab9"],
+
+Cell["PhysicalCount: final count after removing that image.", "Item",ExpressionUUID->"d22ebd86-a049-3544-8142-d2270f1db477"],
+
+Cell["\<\
+Quadratic sectors are only reduced modulo IBP; interaction sectors are \
+reduced modulo IBP and field redefinitions.\
+\>", "Text",ExpressionUUID->"abac0bfd-7f3e-b245-be24-b77875dbfd3b"],
+
+Cell["Reproducible Validation", "Section",ExpressionUUID->"72fa5166-6ccc-4d4b-9885-b41a255da2e0"],
+
+Cell["\<\
+& 'C:\\Program Files\\Wolfram Research\\Wolfram\\14.2\\WolframKernel.exe' \
+-script graviton_basis_toolkit_validation.wls\
+\>", "Input",ExpressionUUID->"7b7dad9b-1ae8-7c4c-a6b0-d2a69e53c336"],
+
+Cell["\<\
+The validation output is written to \
+graviton_basis_toolkit_validation_output.wl and summarized in the validation \
+report notebook and PDF.\
+\>", "Text",ExpressionUUID->"c48abdad-d056-8148-9109-c11fabeb80e2"],
+
+Cell["Common Pitfalls", "Section",ExpressionUUID->"9858b64d-2a84-da43-9ab7-42806988b0a7"],
+
+Cell["Use the same h, eta, and PD symbols defined by the toolkit.", "Item",ExpressionUUID->"3a6653d4-f88d-3443-b218-b8da3199baa8"],
+
+Cell["\<\
+Do not interpret PhysicalCount as a gauge-invariant count unless you have \
+separately imposed gauge invariance.\
+\>", "Item",ExpressionUUID->"2ca117d3-088f-094c-88c1-1d4e23cd9ed7"],
+
+Cell["\<\
+If the basis-generation logic changes, clear or replace the cache directory \
+before trusting old cache files.\
+\>", "Item",ExpressionUUID->"2039714d-066f-5046-96ad-794bc8b8fd44"]
+},
+Saveable->True,
+WindowTitle->"graviton_basis_toolkit_user_guide",
+PageHeaders->{{
+   Cell["graviton_basis_toolkit_user_guide", "Header"], None, None}, {
+  None, None, 
+   Cell["2026-03-11", "Header"]}},
+PrintingOptions->{"PrintCellBrackets"->False},
+FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"b43b778c-dff3-c545-8d31-35c629bded23"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[601, 21, 105, 0, 70, "Title",ExpressionUUID->"be2bb2e8-c954-c44d-ac3e-ebdcb1cb9e62"],
+Cell[709, 23, 219, 4, 70, "Text",ExpressionUUID->"8d44c055-dcd0-8144-ae43-cb02c9b8b90a"],
+Cell[931, 29, 3458, 68, 70, "Output",ExpressionUUID->"a3be9e32-dc91-cb49-8064-7376071cd8b3"],
+Cell[4392, 99, 90, 0, 70, "Section",ExpressionUUID->"9e48c826-261e-4846-93cd-dd8c045c5dc1"],
+Cell[4485, 101, 106, 0, 70, "Input",ExpressionUUID->"5e45ee87-4e15-f842-80f7-16b6d9e6d9c3"],
+Cell[4594, 103, 93, 0, 70, "Section",ExpressionUUID->"3246c3ec-c804-e84d-94c0-0451123f5ca0"],
+Cell[4690, 105, 250, 7, 70, "Input",ExpressionUUID->"ace2620a-5b9f-6742-85f5-e77fe632f102"],
+Cell[4943, 114, 122, 0, 70, "Text",ExpressionUUID->"a52d7283-1154-f14d-a4e5-c679cae762ef"],
+Cell[5068, 116, 205, 5, 70, "Input",ExpressionUUID->"970c7b36-3ec7-3a48-b98a-7e0cc5587e3a"],
+Cell[5276, 123, 96, 0, 70, "Section",ExpressionUUID->"517a01f8-4bb2-c74a-a05a-320f0763bfb1"],
+Cell[5375, 125, 274, 8, 70, "Input",ExpressionUUID->"1d67348f-7af4-7042-af25-604a66946040"],
+Cell[5652, 135, 101, 0, 70, "Section",ExpressionUUID->"e57490ad-44d5-9743-8571-4e354b9eba4b"],
+Cell[5756, 137, 263, 8, 70, "Input",ExpressionUUID->"9ade0606-8269-404c-ac11-9f423070c252"],
+Cell[6022, 147, 96, 0, 70, "Section",ExpressionUUID->"e839ab98-34a8-224e-8525-4f29b11e8d92"],
+Cell[6121, 149, 124, 0, 70, "Item",ExpressionUUID->"aad01552-093d-d54b-8e2a-108359899981"],
+Cell[6248, 151, 130, 0, 70, "Item",ExpressionUUID->"e21cdb06-0407-a149-b48a-371ec113f277"],
+Cell[6381, 153, 148, 2, 70, "Item",ExpressionUUID->"835c7570-739f-f844-9dad-456a49ff0ab9"],
+Cell[6532, 157, 124, 0, 70, "Item",ExpressionUUID->"d22ebd86-a049-3544-8142-d2270f1db477"],
+Cell[6659, 159, 195, 3, 70, "Text",ExpressionUUID->"abac0bfd-7f3e-b245-be24-b77875dbfd3b"],
+Cell[6857, 164, 97, 0, 70, "Section",ExpressionUUID->"72fa5166-6ccc-4d4b-9885-b41a255da2e0"],
+Cell[6957, 166, 201, 3, 70, "Input",ExpressionUUID->"7b7dad9b-1ae8-7c4c-a6b0-d2a69e53c336"],
+Cell[7161, 171, 220, 4, 70, "Text",ExpressionUUID->"c48abdad-d056-8148-9109-c11fabeb80e2"],
+Cell[7384, 177, 89, 0, 70, "Section",ExpressionUUID->"9858b64d-2a84-da43-9ab7-42806988b0a7"],
+Cell[7476, 179, 130, 0, 70, "Item",ExpressionUUID->"3a6653d4-f88d-3443-b218-b8da3199baa8"],
+Cell[7609, 181, 191, 3, 70, "Item",ExpressionUUID->"2ca117d3-088f-094c-88c1-1d4e23cd9ed7"],
+Cell[7803, 186, 189, 3, 70, "Item",ExpressionUUID->"2039714d-066f-5046-96ad-794bc8b8fd44"]
+}
+]
+*)
+
+(* End of internal cache information *)

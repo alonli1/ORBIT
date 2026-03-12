@@ -1,0 +1,11 @@
+<|"GeneratedOn" -> "2026-03-11 22:37:56", 
+ "Artifacts" -> {"graviton_basis_toolkit_validation_wrapper.nb", 
+   "graviton_basis_toolkit_validation_wrapper.pdf", 
+   "graviton_basis_toolkit_validation_report.nb", 
+   "graviton_basis_toolkit_validation_report.pdf", 
+   "graviton_basis_toolkit_reference.nb", 
+   "graviton_basis_toolkit_reference.pdf", 
+   "graviton_basis_toolkit_mathematical_background.nb", 
+   "graviton_basis_toolkit_mathematical_background.pdf", 
+   "graviton_basis_toolkit_user_guide.nb", 
+   "graviton_basis_toolkit_user_guide.pdf"}|>

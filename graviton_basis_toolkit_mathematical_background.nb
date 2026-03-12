@@ -1,0 +1,410 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     19971,        401]
+NotebookOptionsPosition[     16883,        355]
+NotebookOutlinePosition[     17487,        376]
+CellTagsIndexPosition[     17444,        373]
+WindowTitle->graviton_basis_toolkit_mathematical_background
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["Graviton Basis Toolkit Mathematical Background", "Title",ExpressionUUID->"08538d94-23f4-e84e-8835-8424d178a5c4"],
+
+Cell["\<\
+This notebook is the notebook and PDF rendering of \
+graviton_basis_toolkit_mathematical_background.md. It explains the quotient \
+spaces and linear maps behind the toolkit, independently of the \
+implementation details.\
+\>", "Text",ExpressionUUID->"351053fe-f4cc-d646-ae05-78437e3820ee"],
+
+Cell[BoxData[
+ GraphicsBox[
+  {EdgeForm[{GrayLevel[0.45], Thickness[0.003]}], FaceForm[RGBColor[
+   0.8300000000000001, 0.8900000000000001, 0.944]], 
+   RectangleBox[{0, 0}, {10, 6}], 
+   {FaceForm[RGBColor[0.97, 0.905, 0.7949999999999999]], 
+    RectangleBox[{1.1, 0.9}, {4.7, 2.2}]}, 
+   {FaceForm[RGBColor[0.8, 0.905, 0.8425]], 
+    RectangleBox[{5.8, 2.8}, {8.9, 4.1}], InsetBox[
+     StyleBox["\<\"V_{nh,Nd}\"\>",
+      StripOnInput->False,
+      FontSize->16,
+      FontWeight->Bold], {8.5, 5.3}], InsetBox[
+     StyleBox["\<\"T_{nh,Nd}\\n(total derivatives)\"\>",
+      StripOnInput->False,
+      FontSize->12], {2.9, 1.55}], InsetBox[
+     StyleBox["\<\"R_{nh,Nd}\\n(redefinition image\\ninside V/T)\"\>",
+      StripOnInput->False,
+      FontSize->12], {7.35, 3.45}], InsetBox[
+     StyleBox["\<\"First quotient:\\nV / T\"\>",
+      StripOnInput->False,
+      FontSize->13,
+      FontWeight->Bold], {6.2, 1.2}], ArrowBox[{{4.9, 1.55}, {5.55, 1.55}}], 
+    InsetBox[
+     StyleBox["\<\"Then quotient by R\"\>",
+      StripOnInput->False,
+      FontSize->12], {7.3, 1.55}]}},
+  ImageSize->560,
+  PlotRange->{{-0.2, 10.2}, {-0.2, 6.2}}]], "Output",ExpressionUUID->\
+"bc43a0aa-96b4-7a4b-97e0-5fb5148331ce"],
+
+Cell["Operator Spaces", "Section",ExpressionUUID->"c7f1e801-b14d-ff4f-9ba4-03bd34cbc1e4"],
+
+Cell["\<\
+For each pair {nh, Nd}, the toolkit studies the finite-dimensional vector \
+space V_{nh,Nd} of local scalar operators built from nh gravitons, Nd \
+derivatives, and the flat metric, modulo only canonical tensor identities. \
+The entire computation is organized sector by sector because both IBP and the \
+field-redefinition map preserve this grading.\
+\>", "Text",ExpressionUUID->"6d0996b5-805c-c643-9d6f-dfcd9345d410"],
+
+Cell["Raw Spanning Set", "Subsection",ExpressionUUID->"5ff87f6e-61b0-9442-8a37-17e3cd47d83a"],
+
+Cell["\<\
+A raw spanning set is built by distributing Nd derivatives among nh gravitons \
+in all ordered ways, forming the corresponding monomials, and contracting all \
+indices. Canonicalization then removes duplicates. This produces an explicit \
+spanning set of V_{nh,Nd}.\
+\>", "Text",ExpressionUUID->"49723f6b-869f-d449-8a96-a30532e85779"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["NetworkGraphics",
+   DynamicModuleBox[{Typeset`graph = HoldComplete[
+     Graph[{
+      "Ordered derivative\npartitions", 
+       "All contractions\n+ canonicalization", "Raw scalar basis", 
+       "Euler operator\nfor IBP relations", "IBP quotient basis", 
+       "Field-redefinition\nimage in IBP basis", "Physical basis"}, {{{1, 
+       2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 7}}, Null}, {EdgeStyle -> {
+         Directive[
+          GrayLevel[0.45], 
+          Thickness[0.004]]}, 
+       GraphLayout -> {"LayeredDigraphEmbedding", "Orientation" -> Top}, 
+       ImageSize -> 560, VertexLabels -> {
+         Placed["Name", Center]}, VertexSize -> {{0.26, 0.11}}, VertexStyle -> {
+         Directive[
+          RGBColor[0.78, 0.8625, 0.9299999999999999], 
+          EdgeForm[
+           GrayLevel[0.7]]]}}]]}, 
+    TagBox[GraphicsGroupBox[{
+       {GrayLevel[0.45], Thickness[0.004], Opacity[0.7], CapForm["Round"], 
+        Arrowheads[Medium], ArrowBox[{{0., 6.}, {0., 5.}}, 0.26], 
+        ArrowBox[{{0., 5.}, {0., 4.}}, 0.26], 
+        ArrowBox[{{0., 4.}, {0., 3.}}, 0.26], 
+        ArrowBox[{{0., 3.}, {0., 2.}}, 0.26], 
+        ArrowBox[{{0., 2.}, {0., 1.}}, 0.26], 
+        ArrowBox[{{0., 1.}, {0., 0.}}, 0.26]}, 
+       {RGBColor[0.78, 0.8625, 0.9299999999999999], EdgeForm[{GrayLevel[0.7], 
+        Opacity[0.7]}], {DiskBox[{0., 6.}, {0.26, 0.11}], 
+         InsetBox["\<\"Ordered derivative\\npartitions\"\>", {0., 6.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 5.}, {0.26, 0.11}], 
+         InsetBox["\<\"All contractions\\n+ canonicalization\"\>", {0., 5.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 4.}, {0.26, 0.11}], 
+         InsetBox["\<\"Raw scalar basis\"\>", {0., 4.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 3.}, {0.26, 0.11}], 
+         InsetBox["\<\"Euler operator\\nfor IBP relations\"\>", {0., 3.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 2.}, {0.26, 0.11}], 
+         InsetBox["\<\"IBP quotient basis\"\>", {0., 2.},
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 1.}, {0.26, 0.11}], 
+         InsetBox["\<\"Field-redefinition\\nimage in IBP basis\"\>", {0., 1.},
+          
+          BaseStyle->"Graphics"]}, {DiskBox[{0., 0.}, {0.26, 0.11}], 
+         InsetBox["\<\"Physical basis\"\>", {0., 0.},
+          BaseStyle->"Graphics"]}}}],
+     MouseAppearanceTag["NetworkGraphics"]],
+    AllowKernelInitialization->False]],
+  DefaultBaseStyle->"NetworkGraphics",
+  FormatType->TraditionalForm,
+  FrameTicks->None,
+  ImageSize->560]], "Output",ExpressionUUID->"e52e5424-76e4-ad4e-bbde-\
+69115ef76c42"],
+
+Cell["IBP as a Kernel Quotient", "Section",ExpressionUUID->"b1f7354e-6df4-044c-ac5b-815194cb2174"],
+
+Cell["\<\
+The subspace T_{nh,Nd} of total derivatives is identified using the Euler \
+operator. A local scalar density is a total derivative if and only if its \
+Euler-Lagrange derivative with respect to h_{mu nu} vanishes. Therefore the \
+IBP problem is exactly the kernel problem ker(E), where E is the Euler map \
+from V_{nh,Nd} into a rank-2 tensor space.\
+\>", "Text",ExpressionUUID->"841a01f1-ef44-9041-94a9-8d41dab3c90b"],
+
+Cell["\<\
+The first quotient is therefore V_{nh,Nd} / T_{nh,Nd}. In the code this is \
+the space represented by the IBP basis.\
+\>", "Text",ExpressionUUID->"8a87ddf3-21ca-a549-9d46-b28c2a0052c3"],
+
+Cell["Field Redefinitions as an Image Quotient", "Section",ExpressionUUID->"8b7b9f08-3a33-bf45-b021-761ea6c3377b"],
+
+Cell["\<\
+A local field redefinition h_{mu nu} -> h_{mu nu} + Delta h_{mu nu} changes \
+the Fierz-Pauli action by E_FP^{mu nu} Delta h_{mu nu} plus a total \
+derivative. This means the physically redundant directions form the image of \
+a linear map from rank-2 tensors Delta h into the scalar IBP quotient.\
+\>", "Text",ExpressionUUID->"a42e1999-e024-9e4b-9852-7dff5bce8361"],
+
+Cell["\<\
+For scalar sector {nh, Nd}, the source of this map is the rank-2 space with \
+labels {nh-1, Nd-2}. The quadratic kinetic operator supplies the extra field \
+and the extra two derivatives.\
+\>", "Text",ExpressionUUID->"64070a85-6100-ff4e-951d-318577269631"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["NetworkGraphics",
+   DynamicModuleBox[{Typeset`graph = HoldComplete[
+     Graph[{
+      "Target sector\n{nh, Nd}", "Raw scalar basis\nRawScalarBasis[nh, Nd]", 
+       "Redef basis\nRank2Basis[nh-1, Nd-2]", 
+       "Shift images\nShiftFromRedefExpr", "IBP quotient basis", 
+       "Project onto\nIBP quotient basis", "Physical basis"}, {{{1, 2}, {1, 
+       3}, {3, 4}, {2, 5}, {4, 6}, {5, 6}, {6, 7}}, Null}, {EdgeStyle -> {
+         Directive[
+          GrayLevel[0.45], 
+          Thickness[0.004]]}, 
+       GraphLayout -> {"LayeredDigraphEmbedding", "Orientation" -> Left}, 
+       ImageSize -> 600, VertexLabels -> {
+         Placed["Name", Center]}, VertexSize -> {{0.25, 0.1}}, VertexStyle -> {
+         Directive[
+          RGBColor[
+          0.9099999999999999, 0.8595999999999999, 0.8415999999999999], 
+          EdgeForm[
+           GrayLevel[0.7]]]}}]]}, 
+    TagBox[GraphicsGroupBox[{
+       {GrayLevel[0.45], Thickness[0.004], Opacity[0.7], CapForm["Round"], 
+        Arrowheads[Medium], 
+        ArrowBox[{{-1.5714285790842557`, 
+         1.8571429069048089`}, {-0.5714285522893592, 2.8571428801099112`}}, 
+         0.25], ArrowBox[{{-1.5714285790842557`, 
+         1.8571429069048089`}, {-0.5714285790842561, 1.857142880109912}}, 
+         0.25], ArrowBox[{{-0.5714285522893592, 2.8571428801099112`}, {
+         0.4285714477106406, 2.8571428533150143`}}, 0.25], 
+        ArrowBox[{{-0.5714285790842561, 1.857142880109912}, {
+         0.42857142091574363`, 1.857142853315015}}, 0.25], 
+        ArrowBox[{{0.42857142091574363`, 1.857142853315015}, {
+         1.4285714209157434`, 1.8571428265201178`}}, 0.25], 
+        ArrowBox[{{0.4285714477106406, 2.8571428533150143`}, {
+         1.4285714209157434`, 1.8571428265201178`}}, 0.25], 
+        ArrowBox[{{1.4285714209157434`, 1.8571428265201178`}, {
+         2.428571420915743, 1.8571427997252208`}}, 0.25]}, 
+       {RGBColor[0.9099999999999999, 0.8595999999999999, 0.8415999999999999], 
+        EdgeForm[{GrayLevel[0.7], Opacity[
+        0.7]}], {
+         DiskBox[{-1.5714285790842557`, 1.8571429069048089`}, {0.25, 0.1}], 
+         InsetBox["\<\"Target sector\\n{nh, Nd}\"\>", {-1.5714285790842557, 1.8571429069048089},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-0.5714285522893592, 2.8571428801099112`}, {0.25, 0.1}], 
+         InsetBox["\<\"Raw scalar basis\\nRawScalarBasis[nh, Nd]\"\>", {-0.5714285522893592, 2.8571428801099112},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-0.5714285790842561, 1.857142880109912}, {0.25, 0.1}], 
+         InsetBox["\<\"Redef basis\\nRank2Basis[nh-1, Nd-2]\"\>", {-0.5714285790842561, 1.857142880109912},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{0.42857142091574363`, 1.857142853315015}, {0.25, 0.1}], 
+         InsetBox["\<\"Shift images\\nShiftFromRedefExpr\"\>", {0.42857142091574363, 1.857142853315015},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{0.4285714477106406, 2.8571428533150143`}, {0.25, 0.1}], 
+         InsetBox["\<\"IBP quotient basis\"\>", {0.4285714477106406, 2.8571428533150143},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{1.4285714209157434`, 1.8571428265201178`}, {0.25, 0.1}], 
+         InsetBox["\<\"Project onto\\nIBP quotient basis\"\>", {1.4285714209157434, 1.8571428265201178},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{2.428571420915743, 1.8571427997252208`}, {0.25, 0.1}], 
+         InsetBox["\<\"Physical basis\"\>", {2.428571420915743, 1.8571427997252208},
+          
+          BaseStyle->"Graphics"]}}}],
+     MouseAppearanceTag["NetworkGraphics"]],
+    AllowKernelInitialization->False]],
+  DefaultBaseStyle->"NetworkGraphics",
+  FormatType->TraditionalForm,
+  FrameTicks->None,
+  ImageSize->600]], "Output",ExpressionUUID->"eac72d11-db32-c44e-8c97-\
+f49193672078"],
+
+Cell["Final Quotient Space", "Section",ExpressionUUID->"9a7a2783-6df9-9c48-b111-e07d432ae5bf"],
+
+Cell["\<\
+The final interaction basis is the double quotient (V_{nh,Nd} / T_{nh,Nd}) / \
+R_{nh,Nd}, where R_{nh,Nd} is the field-redefinition image inside the IBP \
+quotient. This is the precise meaning of the toolkit's PhysicalBasis for nh \
+>= 3.\
+\>", "Text",ExpressionUUID->"859bcca9-44de-db43-98a6-dcf6068effe8"],
+
+Cell["Why Quadratic Sectors Are Different", "Section",ExpressionUUID->"54aaaf8c-02a0-a14f-a489-7aef7ee0e478"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["NetworkGraphics",
+   DynamicModuleBox[{Typeset`graph = HoldComplete[
+     Graph[{
+      "Quadratic sector\nnh = 2", "IBP quotient", "Keep kinetic data", 
+       "Interaction sector\nnh >= 3", "Quotient by\nredefinition image", 
+       "Physical basis"}, {{{1, 2}, {2, 3}, {4, 2}, {2, 5}, {5, 6}}, Null}, {
+      EdgeStyle -> {
+         Directive[
+          GrayLevel[0.45], 
+          Thickness[0.004]]}, 
+       GraphLayout -> {"LayeredDigraphEmbedding", "Orientation" -> Left}, 
+       ImageSize -> 560, VertexLabels -> {
+         Placed["Name", Center]}, VertexSize -> {{0.22, 0.1}}, VertexStyle -> {
+         Directive[
+          RGBColor[0.8974, 0.8704, 0.9261999999999999], 
+          EdgeForm[
+           GrayLevel[0.7]]]}}]]}, 
+    TagBox[GraphicsGroupBox[{
+       {GrayLevel[0.45], Thickness[0.004], Opacity[0.7], CapForm["Round"], 
+        Arrowheads[Medium], 
+        ArrowBox[{{-0.6666666845299312, 1.0000000357265297`}, {
+         0.333333342264966, 2.0000000089316323`}}, 0.22], 
+        ArrowBox[{{0.333333342264966, 2.0000000089316323`}, {
+         1.3333333154700684`, 0.9999999821367358}}, 0.22], 
+        ArrowBox[{{0.333333342264966, 2.0000000089316323`}, {
+         1.3333333422649658`, 1.9999999821367354`}}, 0.22], 
+        ArrowBox[{{-0.6666666577350338, 2.0000000357265293`}, {
+         0.333333342264966, 2.0000000089316323`}}, 0.22], 
+        ArrowBox[{{1.3333333422649658`, 1.9999999821367354`}, {
+         2.3333333422649654`, 1.9999999553418384`}}, 0.22]}, 
+       {RGBColor[0.8974, 0.8704, 0.9261999999999999], EdgeForm[{GrayLevel[
+        0.7], Opacity[
+        0.7]}], {
+         DiskBox[{-0.6666666845299312, 1.0000000357265297`}, {0.22, 0.1}], 
+         InsetBox["\<\"Quadratic sector\\nnh = 2\"\>", {-0.6666666845299312, 1.0000000357265297},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{0.333333342264966, 2.0000000089316323`}, {0.22, 0.1}], 
+         InsetBox["\<\"IBP quotient\"\>", {0.333333342264966, 2.0000000089316323},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{1.3333333154700684`, 0.9999999821367358}, {0.22, 0.1}], 
+         InsetBox["\<\"Keep kinetic data\"\>", {1.3333333154700684, 0.9999999821367358},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{-0.6666666577350338, 2.0000000357265293`}, {0.22, 0.1}], 
+         InsetBox["\<\"Interaction sector\\nnh >= 3\"\>", {-0.6666666577350338, 2.0000000357265293},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{1.3333333422649658`, 1.9999999821367354`}, {0.22, 0.1}], 
+         InsetBox["\<\"Quotient by\\nredefinition image\"\>", {1.3333333422649658, 1.9999999821367354},
+          
+          BaseStyle->"Graphics"]}, {
+         DiskBox[{2.3333333422649654`, 1.9999999553418384`}, {0.22, 0.1}], 
+         InsetBox["\<\"Physical basis\"\>", {2.3333333422649654, 1.9999999553418384},
+          
+          BaseStyle->"Graphics"]}}}],
+     MouseAppearanceTag["NetworkGraphics"]],
+    AllowKernelInitialization->False]],
+  DefaultBaseStyle->"NetworkGraphics",
+  FormatType->TraditionalForm,
+  FrameTicks->None,
+  ImageSize->560]], "Output",ExpressionUUID->"63017de4-e893-934f-bd45-\
+0b23ce911e84"],
+
+Cell["\<\
+At quadratic order, quotienting by linear field redefinitions removes \
+directions that act directly on the kinetic operator itself, including simple \
+rescalings. That is mathematically legitimate but usually not the desired \
+equivalence relation for the kinetic term. The toolkit therefore keeps \
+quadratic sectors modulo IBP only.\
+\>", "Text",ExpressionUUID->"98ff24c3-85aa-5641-ab17-d2fb19132934"],
+
+Cell["Relation to Gauge Invariance", "Section",ExpressionUUID->"d564356a-2ac7-474d-8244-e8883da83df6"],
+
+Cell["\<\
+The toolkit does not automatically impose linearized diffeomorphism \
+invariance. Its quotients are by total derivatives and field redefinitions, \
+not by gauge symmetry. This is why the off-shell quadratic four-derivative \
+space is larger than the curvature-squared gauge-invariant subspace.\
+\>", "Text",ExpressionUUID->"b30b90bd-43fa-3443-bd75-86eed1104443"],
+
+Cell["Why the Validation Matters", "Section",ExpressionUUID->"664e141f-a78e-3a4a-ae1f-365ada3c74c7"],
+
+Cell["\<\
+The reducer has been tested on expanded Lagrangians that are known to be of \
+the form E_FP^{mu nu} Delta h_{mu nu}. The strongest stored test builds such \
+an expression in sector {3,4}, expands it to 240 scalar terms, and still \
+reduces it to exactly zero. That confirms that the implemented image quotient \
+matches the mathematical one in a genuinely nontrivial case.\
+\>", "Text",ExpressionUUID->"28146f7f-b6c6-d249-9d7f-eebbf39870d6"],
+
+Cell["Takeaway", "Section",ExpressionUUID->"b26be1c0-0918-ea45-9fb7-da94956623fa"],
+
+Cell["IBP reduction is a kernel quotient.", "Item",ExpressionUUID->"3a56e57b-d894-ef4b-9153-bd8f8211e86f"],
+
+Cell["Field-redefinition removal is an image quotient.", "Item",ExpressionUUID->"8eb548ba-b477-7b4f-a9a5-d3cd9d279977"],
+
+Cell["\<\
+The toolkit is a sector-wise linear algebra realization of those two facts.\
+\>", "Item",ExpressionUUID->"1bd88f83-0975-874f-ad8a-9637a46c8a2c"]
+},
+Saveable->True,
+WindowTitle->"graviton_basis_toolkit_mathematical_background",
+PageHeaders->{{
+   Cell["graviton_basis_toolkit_mathematical_background", "Header"], None, 
+   None}, {None, None, 
+   Cell["2026-03-11", "Header"]}},
+PrintingOptions->{"PrintCellBrackets"->False},
+FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"b43b778c-dff3-c545-8d31-35c629bded23"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[614, 21, 118, 0, 70, "Title",ExpressionUUID->"08538d94-23f4-e84e-8835-8424d178a5c4"],
+Cell[735, 23, 299, 5, 70, "Text",ExpressionUUID->"351053fe-f4cc-d646-ae05-78437e3820ee"],
+Cell[1037, 30, 1211, 29, 70, "Output",ExpressionUUID->"bc43a0aa-96b4-7a4b-97e0-5fb5148331ce"],
+Cell[2251, 61, 89, 0, 70, "Section",ExpressionUUID->"c7f1e801-b14d-ff4f-9ba4-03bd34cbc1e4"],
+Cell[2343, 63, 429, 6, 70, "Text",ExpressionUUID->"6d0996b5-805c-c643-9d6f-dfcd9345d410"],
+Cell[2775, 71, 93, 0, 70, "Subsection",ExpressionUUID->"5ff87f6e-61b0-9442-8a37-17e3cd47d83a"],
+Cell[2871, 73, 344, 5, 70, "Text",ExpressionUUID->"49723f6b-869f-d449-8a96-a30532e85779"],
+Cell[3218, 80, 2605, 51, 70, "Output",ExpressionUUID->"e52e5424-76e4-ad4e-bbde-69115ef76c42"],
+Cell[5826, 133, 98, 0, 70, "Section",ExpressionUUID->"b1f7354e-6df4-044c-ac5b-815194cb2174"],
+Cell[5927, 135, 428, 6, 70, "Text",ExpressionUUID->"841a01f1-ef44-9041-94a9-8d41dab3c90b"],
+Cell[6358, 143, 195, 3, 70, "Text",ExpressionUUID->"8a87ddf3-21ca-a549-9d46-b28c2a0052c3"],
+Cell[6556, 148, 114, 0, 70, "Section",ExpressionUUID->"8b7b9f08-3a33-bf45-b021-761ea6c3377b"],
+Cell[6673, 150, 376, 5, 70, "Text",ExpressionUUID->"a42e1999-e024-9e4b-9852-7dff5bce8361"],
+Cell[7052, 157, 266, 4, 70, "Text",ExpressionUUID->"64070a85-6100-ff4e-951d-318577269631"],
+Cell[7321, 163, 3887, 75, 70, "Output",ExpressionUUID->"eac72d11-db32-c44e-8c97-f49193672078"],
+Cell[11211, 240, 94, 0, 70, "Section",ExpressionUUID->"9a7a2783-6df9-9c48-b111-e07d432ae5bf"],
+Cell[11308, 242, 317, 5, 70, "Text",ExpressionUUID->"859bcca9-44de-db43-98a6-dcf6068effe8"],
+Cell[11628, 249, 109, 0, 70, "Section",ExpressionUUID->"54aaaf8c-02a0-a14f-a489-7aef7ee0e478"],
+Cell[11740, 251, 3212, 65, 70, "Output",ExpressionUUID->"63017de4-e893-934f-bd45-0b23ce911e84"],
+Cell[14955, 318, 414, 6, 70, "Text",ExpressionUUID->"98ff24c3-85aa-5641-ab17-d2fb19132934"],
+Cell[15372, 326, 102, 0, 70, "Section",ExpressionUUID->"d564356a-2ac7-474d-8244-e8883da83df6"],
+Cell[15477, 328, 372, 5, 70, "Text",ExpressionUUID->"b30b90bd-43fa-3443-bd75-86eed1104443"],
+Cell[15852, 335, 100, 0, 70, "Section",ExpressionUUID->"664e141f-a78e-3a4a-ae1f-365ada3c74c7"],
+Cell[15955, 337, 451, 6, 70, "Text",ExpressionUUID->"28146f7f-b6c6-d249-9d7f-eebbf39870d6"],
+Cell[16409, 345, 82, 0, 70, "Section",ExpressionUUID->"b26be1c0-0918-ea45-9fb7-da94956623fa"],
+Cell[16494, 347, 106, 0, 70, "Item",ExpressionUUID->"3a56e57b-d894-ef4b-9153-bd8f8211e86f"],
+Cell[16603, 349, 119, 0, 70, "Item",ExpressionUUID->"8eb548ba-b477-7b4f-a9a5-d3cd9d279977"],
+Cell[16725, 351, 154, 2, 70, "Item",ExpressionUUID->"1bd88f83-0975-874f-ad8a-9637a46c8a2c"]
+}
+]
+*)
+
+(* End of internal cache information *)

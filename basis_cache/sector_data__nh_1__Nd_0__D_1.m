@@ -1,0 +1,10 @@
+<|"nh" -> 1, "Nd" -> 0, "Dimension" -> 1, "RawBasis" -> {h[a, -a]}, 
+ "RawCount" -> 1, "IBPSolution" -> {{c1 -> 0}}, "IBPFreeParameters" -> {}, 
+ "IBPRelationMatrix" -> {}, "IBPRelationExpressions" -> {}, 
+ "IBPPivots" -> {}, "IBPBasis" -> {h[a, -a]}, "IBPCount" -> 1, 
+ "RedefDeltaBasis" -> {}, "RedefShiftImages" -> {}, 
+ "RedefProjectedData" -> {}, "RedefImageVectors" -> {}, 
+ "RedefIndependentRows" -> {}, "RedefIndependentVectors" -> {}, 
+ "RedefIndependentDeltas" -> {}, "RedefRank" -> 0, "RedefPivots" -> {}, 
+ "RedefinitionRules" -> {}, "PhysicalBasis" -> {h[a, -a]}, 
+ "PhysicalCount" -> 1|>
