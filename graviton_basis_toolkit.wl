@@ -100,7 +100,9 @@ ClearAll[
   SaveExpr, LoadExpr, PrettyKey, LogPrint,
   SectorKeyAssociation, NormalizeSectorList,
   SafeSolveConstants, ZeroVectorQ, CoordinatesMatrixQ,
-  DefaultCacheDirectory, TermSectorKey,
+  DefaultCacheDirectory, TermSectorKey, DerivativeFreeExprQ,
+  StripScalarParameterWrappers, DirectProjectToBasis,
+  ReduceCoordinatesModuloRelations, ProjectToIBPUsingSectorData,
   SplitTermsBySector, ReduceCoordinatesModuloRedef
 ];
 
@@ -197,6 +199,66 @@ SafeSolveConstants[eq_, vars_: Automatic] := Module[{sol},
 
 ZeroVectorQ[v_List] := And @@ (TrueQ[# === 0] & /@ v);
 CoordinatesMatrixQ[x_] := MatrixQ[x] || x === {};
+DerivativeFreeExprQ[expr_] := FreeQ[expr, HoldPattern[PD[_][__]], Infinity];
+StripScalarParameterWrappers[expr_] := expr /. HoldPattern[Scalar[s_]] /;
+   FreeQ[s, HoldPattern[h[__] | dh[__] | probe[__] | PD[_][__]], Infinity] :> s;
+
+DirectProjectToBasis[expr_, basis_List] := Module[{ans, cleanExpr, eq, sol, zvars, coeffs},
+  If[basis === {},
+    Return[<|"ProjectedExpr" -> 0, "Coordinates" -> {}, "Solution" -> {{}}|>]
+  ];
+
+  ans = MakeAnsatz[basis, ConstantPrefix -> z];
+  cleanExpr = StripScalarParameterWrappers[expr];
+  zvars = Table[Symbol["z" <> ToString[i]], {i, Length[basis]}];
+  eq = canonExpr[ans - cleanExpr];
+  sol = SafeSolveConstants[eq == 0, zvars];
+  coeffs = (zvars /. First[sol]) /. Thread[zvars -> 0];
+
+  <|
+    "ProjectedExpr" -> canonExpr[(ans /. First[sol]) /. Thread[zvars -> 0]],
+    "Coordinates" -> coeffs,
+    "Solution" -> sol
+  |>
+];
+
+ReduceCoordinatesModuloRelations[coords_List, relMat_, piv_List] := Module[{imageCoeffs, reducedCoords, quotientCoords},
+  If[coords === {} || piv === {} || ! MatrixQ[relMat] || relMat === {},
+    reducedCoords = coords;
+    quotientCoords = coords;
+    imageCoeffs = {};
+    ,
+    imageCoeffs = LinearSolve[Transpose[relMat[[All, piv]]], coords[[piv]]];
+    reducedCoords = coords - imageCoeffs . relMat;
+    quotientCoords = Delete[reducedCoords, List /@ Sort[piv]];
+  ];
+
+  <|
+    "RelationCoefficients" -> imageCoeffs,
+    "ReducedCoordinates" -> reducedCoords,
+    "QuotientCoordinates" -> quotientCoords
+  |>
+];
+
+ProjectToIBPUsingSectorData[expr_, sec_Association] := Module[{rawProj, ibpReduction},
+  rawProj = DirectProjectToBasis[expr, sec["RawBasis"]];
+  ibpReduction = ReduceCoordinatesModuloRelations[
+    rawProj["Coordinates"],
+    sec["IBPRelationMatrix"],
+    sec["IBPPivots"]
+  ];
+
+  <|
+    "RawProjection" -> rawProj,
+    "ProjectedExpr" -> canonExpr @ LinearCombination[
+      ibpReduction["QuotientCoordinates"],
+      sec["IBPBasis"]
+    ],
+    "Coordinates" -> ibpReduction["QuotientCoordinates"],
+    "ReducedRawCoordinates" -> ibpReduction["ReducedCoordinates"],
+    "IBPRelationCoefficients" -> ibpReduction["RelationCoefficients"]
+  |>
+];
 
 TermSectorKey[term_] := {
   Count[term, HoldPattern[h[_, _]], Infinity],
@@ -385,14 +447,19 @@ ShiftFromRedefExpr[deltaExpr_] := Module[{expr},
   canonExpr[expr]
 ];
 
-ProjectModuloIBP[expr_, basis_List] := Module[{ans, eq, sol, qvars, coeffs},
+ProjectModuloIBP[expr_, basis_List] := Module[{ans, cleanExpr, eq, sol, qvars, coeffs},
   If[basis === {},
     Return[<|"ProjectedExpr" -> 0, "Coordinates" -> {}, "Solution" -> {{}}|>]
   ];
 
   ans = MakeAnsatz[basis, ConstantPrefix -> q];
-  eq = canonExpr @ VarD[h[-m, -n], PD][ans - expr];
+  cleanExpr = StripScalarParameterWrappers[expr];
   qvars = Table[Symbol["q" <> ToString[i]], {i, Length[basis]}];
+  eq = If[
+    DerivativeFreeExprQ[ans] && DerivativeFreeExprQ[cleanExpr],
+    canonExpr[ans - cleanExpr],
+    canonExpr @ VarD[h[-m, -n], PD][ans - cleanExpr]
+  ];
   sol = SafeSolveConstants[eq == 0, qvars];
   coeffs = (qvars /. First[sol]) /. Thread[qvars -> 0];
 
@@ -577,7 +644,7 @@ ReduceSectorLagrangian[expr_, nh_Integer, Nd_Integer, opts : OptionsPattern[RunB
 
   inputExpr = canonExpr[expr];
   sec = ComputeSectorData[nh, Nd, opts];
-  ibpProj = ProjectModuloIBP[inputExpr, sec["IBPBasis"]];
+  ibpProj = ProjectToIBPUsingSectorData[inputExpr, sec];
   redefReduction = ReduceCoordinatesModuloRedef[ibpProj["Coordinates"], sec];
 
   reducedExpr = canonExpr @ LinearCombination[
