@@ -16,9 +16,11 @@
 
 ## Current Branch and Latest Relevant Commit
 - Current branch: `ORBIT_BUILD`.
-- Latest ORBIT_BUILD checkpoint commit: `e44b9bf` (`Checkpoint ORBIT_BUILD starting workspace`).
+- Latest committed milestones:
+  - `f61216b` (`Ignore transient vendor and cache folders`)
+  - `1071099` (`Finalize ORBIT_BUILD d5 comparison and reporting`)
 - Branch point / latest committed snapshot before ORBIT_BUILD changes: `2d109af` (`New run - dim 2 UV and dim 6 EFT from matchete`).
-- Current working tree status: dirty again, with new ORBIT_BUILD implementation files not yet committed.
+- Current working tree status: repository reorganization in progress; files have been grouped into `docs/`, `artifacts/`, `cache/`, and `scripts/debug/` and still need to be staged as renames/moves.
 
 ## Implemented Components and Current Status
 - The canonical-normalization layer now supports an explicit user-selected kinetic target sign through `CanonicalKineticSign`. `Automatic` now defaults to `+1`; it no longer silently follows `EHSign`.
@@ -74,38 +76,33 @@
 
 ## Pending Work and Next Concrete Step
 - The main remaining deferred task is the full `d <= 6` rerun in the final chosen convention. It was intentionally not executed in this pass because the symbolic runtime and RAM cost are too high for a routine iteration.
-- If the branch is to be frozen next, the remaining housekeeping step is to review which debug artifacts to keep before committing the ORBIT_BUILD changes.
+- Immediate housekeeping step: finish staging the repository reorganization and commit the new grouped layout.
 
 ## Artifact Inventory
-- Final `d <= 5` convention-fixed artifacts:
-  - `run_orbit_fixed_eh_comparison_d5_final.wls`
-  - `orbit_fixed_eh_comparison_d5_final_result.wl`
-  - `orbit_fixed_eh_comparison_d5_final_report.tex`
-  - `orbit_fixed_eh_comparison_d5_final_report.pdf`
-- New `EHSign` sign-check artifacts:
-  - `run_orbit_fixed_eh_comparison_d5_free_ref_minus_eh.wls`
-  - `orbit_fixed_eh_comparison_d5_free_ref_minus_eh_result.wl`
-  - `run_orbit_fixed_eh_comparison_d5_free_ref_minus_eh_nocanon.wls`
-  - `orbit_fixed_eh_comparison_d5_free_ref_minus_eh_nocanon_result.wl`
-  - `inspect_canonical_d5_equations.wls`
-- New ORBIT_BUILD package files: `MatcheteXActTranslator.m`, `orbit_fixed_eh_comparison.wl`.
-- New ORBIT_BUILD validation script: `validate_orbit_fixed_eh_comparison.wls`.
-- New dimension-5 comparison artifacts: `run_orbit_fixed_eh_comparison_d5.wls`, `orbit_fixed_eh_comparison_d5_v3_result.wl`, `orbit_fixed_eh_comparison_d5_v3.log`, `orbit_fixed_eh_comparison_d5_v3_report.tex`, `orbit_fixed_eh_comparison_d5_v3_report_data.wl`.
-- New symbolic-reference dimension-5 artifacts: `run_orbit_fixed_eh_comparison_d5_free_ref.wls`, `orbit_fixed_eh_comparison_d5_free_ref_result.wl`, `orbit_fixed_eh_comparison_d5_free_ref.log`, `orbit_fixed_eh_comparison_d5_free_ref_report.tex`, `orbit_fixed_eh_comparison_d5_free_ref_report_data.wl`.
-- New ORBIT_BUILD refresh / inspection artifacts from the current debugging session: `refresh_orbit_fixed_eh_result.wls`, `inspect_orbit_fixed_result.wls`, `inspect_input_sector24.wls`, `inspect_match_solution_heads.wls`, `benchmark_parallel_reduce.wls`, and other `debug_*.wls` scratch scripts.
-- Intended validation checkpoint output: `orbit_fixed_eh_validation_checkpoint.wl`.
-- Intended validation summary output: `orbit_fixed_eh_validation_output.wl`.
-- Existing translated input: `LEFT_only_uv_2_eft_6_xact.wl`.
-- Existing reduction outputs: `LEFT_only_uv_2_eft_6_xact_reduced.wl`, `LEFT_only_uv_2_eft_6_xact_reduction_summary.wl`, `LEFT_only_uv_2_eft_6_xact_reduction.mx`.
-- Existing reducer driver: `reduce_left_only_uv_2_eft_6_by_sector.wls`.
-- Existing ORBIT core package: `graviton_basis_toolkit.wl`.
-- Existing report source: `graviton_basis_toolkit_paper_report.tex`.
-- Current fixed-EH comparison artifacts:
-  - result data: `orbit_fixed_eh_comparison_result.wl`
-  - report source: `orbit_fixed_eh_comparison_report.tex`
-  - report data: `orbit_fixed_eh_comparison_report_data.wl`
-  - compiled PDF: `orbit_fixed_eh_comparison_report.pdf`
-  - staged run log: `orbit_fixed_eh_comparison.log`
+- Root source/package entry points:
+  - `graviton_basis_toolkit.wl`
+  - `orbit_fixed_eh_comparison.wl`
+  - `MatcheteXActTranslator.m`
+  - `README.md`
+  - `ORBIT_BUILD_CONTEXT.md`
+- Root build/run drivers:
+  - `run_orbit_fixed_eh_comparison*.wls`
+  - `run_left_only_uv_2_eft_6_reduction.wls`
+  - `reduce_left_only_uv_2_eft_6_by_sector.wls`
+  - `build_graviton_basis_*.wls`
+  - `build_ai_physics_research_presentation.*`
+- Documentation tree:
+  - `docs/reference/`
+  - `docs/graviton_basis/`
+  - `docs/presentations/`
+- Saved run artifacts:
+  - `artifacts/orbit_fixed_eh/`
+  - `artifacts/left_only_uv_2_eft_6/`
+  - `artifacts/debug/`
+- Cached Mathematica/xAct data:
+  - `cache/`
+- Scratch/debug scripts:
+  - `scripts/debug/`
 
 ## Known Issues / Blockers
 - The original ambiguity between `EHSign` and the canonical kinetic sign is now resolved in code, but older intermediate artifacts from before that change remain in the workspace.
@@ -115,9 +112,10 @@
 - The fixed-EH comparison report currently includes very long verbatim equation / expression blocks, so the PDF has several large overfull boxes even though it compiles successfully.
 - The validation summary file still contains stale `$Failed[...]` placeholders for the real-run fields from an earlier interrupted validation path; the comparison PDF therefore needs a cleanup pass if it is meant to be polished.
 - `ToCanonical::noident` warnings still appear on scalar symbols like `hbar` and `\[Kappa]` in some driver/report paths. They are non-fatal but noisy.
-- The repository includes many debug and intermediate files from this debugging session; these are still present in the dirty workspace.
+- The repository still includes many debug and intermediate files, but they are now grouped under `artifacts/debug/` and `scripts/debug/` instead of being mixed into the root.
 
 ## Chronological Session Log
+- 2026-03-17: Reorganized the repository layout. Generated reports and notebooks were moved under `docs/`, saved run outputs under `artifacts/`, caches under `cache/`, and scratch scripts under `scripts/debug/`.
 - 2026-03-17: Changed `CanonicalKineticSign` so it is a true explicit user-controlled convention. `Automatic` now defaults to `+1` instead of inheriting `EHSign`.
 - 2026-03-17: Ran the final lightweight stopping-point comparison at `d <= 5` with `EHSign -> -1` and `CanonicalKineticSign -> -1`. The saved result now gives `ExactMatchQ -> True`, `UnsupportedSectors -> {}`, and `HasSolution -> True`.
 - 2026-03-17: Extracted the stable solved constraints from `orbit_fixed_eh_comparison_d5_final_result.wl` and wrote a clean final paper-style report directly from those saved artifacts.
