@@ -1,0 +1,11 @@
+Get["orbit_fixed_eh_comparison.wl"];
+ref = ExpandFixedEHReferenceLagrangian["MaxDimension" -> 6, "Verbose" -> False];
+secExpr = SplitTermsBySector[ref["ReferenceExpression"]][{2,2}];
+sec = ComputeSectorData[2, 2, "CacheDirectory" -> "left_only_uv_2_eft_6_cache", "UseCache" -> True, "Verbose" -> False, "MaxDimension" -> 6];
+raw1 = DirectProjectToBasis[secExpr, sec["RawBasis"]];
+raw2 = DirectProjectToBasis[canonExpr[secExpr], sec["RawBasis"]];
+Print["raw_ok=" <> ToString[InputForm[raw1["HasSolution"]]] <> ", residual_zero=" <> ToString[InputForm[raw1["Residual"] === 0]]];
+Print["canon_ok=" <> ToString[InputForm[raw2["HasSolution"]]] <> ", residual_zero=" <> ToString[InputForm[raw2["Residual"] === 0]]];
+Print["canon_minus_raw_zero=" <> ToString[InputForm[canonExpr[canonExpr[secExpr] - secExpr] === 0]]];
+Print["canon_short=" <> ToString[InputForm[Short[canonExpr[secExpr], 4]]]];
+Quit[];

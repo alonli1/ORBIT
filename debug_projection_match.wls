@@ -1,0 +1,16 @@
+Get["orbit_fixed_eh_comparison.wl"];
+ref = ExpandFixedEHReferenceLagrangian["MaxDimension" -> 6, "Verbose" -> False];
+secExpr = SplitTermsBySector[ref["ReferenceExpression"]][{2,2}];
+sec = ComputeSectorData[2, 2, "CacheDirectory" -> "left_only_uv_2_eft_6_cache", "UseCache" -> True, "Verbose" -> False, "MaxDimension" -> 6];
+coeffs = {2, -4, 1, 2, -1, -1/2, -2, 2, -1, 3/2};
+combo = canonExpr @ LinearCombination[coeffs, sec["RawBasis"]];
+Print["combo_matches=" <> ToString[InputForm[canonExpr[secExpr - combo] === 0]]];
+Print["combo_residual=" <> ToString[InputForm[Short[canonExpr[secExpr - combo], 4]]]];
+rawProjCombo = DirectProjectToBasis[combo, sec["RawBasis"]];
+Print["combo_proj_ok=" <> ToString[InputForm[rawProjCombo["HasSolution"]]]];
+Print["combo_proj_residual_zero=" <> ToString[InputForm[rawProjCombo["Residual"] === 0]]];
+rawProjExpr = DirectProjectToBasis[secExpr, sec["RawBasis"]];
+Print["expr_proj_ok=" <> ToString[InputForm[rawProjExpr["HasSolution"]]]];
+Print["expr_proj_residual_zero=" <> ToString[InputForm[rawProjExpr["Residual"] === 0]]];
+Print["expr_proj_residual=" <> ToString[InputForm[Short[rawProjExpr["Residual"], 4]]]];
+Quit[];

@@ -1,0 +1,159 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,booktabs,longtable,hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+
+\title{Dimension-5 ORBIT Comparison to a Sign-Flipped Einstein-Hilbert Reference}
+\author{ORBIT}
+\date{2026-03-17}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Setup}
+This report records the final lightweight comparison run carried out after introducing an explicit user-controlled kinetic-sign convention into the ORBIT comparison layer. The comparison was intentionally restricted to mass dimension
+\[
+d \le 5
+\]
+in order to avoid the substantially more expensive full \(d \le 6\) rerun.
+
+The conventions used for this final run are:
+\begin{itemize}
+\item mostly-minus Lorentzian signature;
+\item metric perturbation \(g_{\mu\nu} = \eta_{\mu\nu} + \kappa h_{\mu\nu}\);
+\item reference action
+\[
+\mathcal{L}_{\mathrm{ref}}
+=
+\Lambda_{\mathrm{ref}} \sqrt{-g}
+- \frac{2}{\kappa_{\mathrm{ref}}^2}\sqrt{-g}\,R;
+\]
+\item canonical normalization of the Matchete input to the predetermined quadratic target sign
+\[
+s_{\mathrm{kin}}=-1.
+\]
+\end{itemize}
+
+The Matchete input is normalized before comparison by setting \(hbar \to 1\) and extracting the finite \(\epsilon^0\) part term by term.
+
+\section{Canonical Normalization}
+The quadratic derivative sector of the Matchete result is proportional to the Fierz--Pauli kinetic term,
+\[
+\mathcal{L}^{\mathrm{Matchete}}_{2,2}
+=
+Z_h\,\mathcal{L}_{\mathrm{FP}},
+\qquad
+Z_h=\frac{M^2\kappa^2\bigl(1+\log(\mu^2/M^2)\bigr)}{24}.
+\]
+For the present run, the canonicalization target is chosen directly by user convention rather than inferred from the reference branch. The field rescaling therefore uses
+\[
+\beta^2=\frac{s_{\mathrm{kin}}}{Z_h}=-\frac{1}{Z_h},
+\]
+so that the quadratic sector is mapped to \(-\mathcal{L}_{\mathrm{FP}}\).
+
+\section{Sector Support}
+At \(d \le 5\), the supported reference sectors are
+\[
+\{1,0\},\ \{2,0\},\ \{2,2\},\ \{3,0\},\ \{3,2\},\ \{4,0\},\ \{5,0\}.
+\]
+The final comparison found no unsupported leftover sectors:
+\[
+\texttt{UnsupportedSectors} = \varnothing,
+\qquad
+\texttt{UnsupportedDifference}=0.
+\]
+
+\section{Reduction Summary}
+\subsection{Reduced Matchete Input}
+\begin{longtable}{rrrrr}
+\toprule
+Sector & Input terms & IBP terms & Reduced terms & Physical coordinates \\
+\midrule
+\{1,0\} & 2 & 2 & 2 & 1 \\
+\{2,0\} & 4 & 4 & 4 & 2 \\
+\{2,2\} & 10 & 4 & 4 & 4 \\
+\{3,0\} & 6 & 6 & 6 & 3 \\
+\{3,2\} & 42 & 13 & 6 & 10 \\
+\{4,0\} & 10 & 10 & 10 & 5 \\
+\{5,0\} & 14 & 14 & 14 & 7 \\
+\bottomrule
+\end{longtable}
+
+\subsection{Reduced Reference}
+\begin{longtable}{rrrrr}
+\toprule
+Sector & Input terms & IBP terms & Reduced terms & Physical coordinates \\
+\midrule
+\{1,0\} & 1 & 1 & 1 & 1 \\
+\{1,2\} & 2 & 0 & 0 & 0 \\
+\{2,0\} & 2 & 2 & 2 & 2 \\
+\{2,2\} & 10 & 4 & 4 & 4 \\
+\{3,0\} & 3 & 3 & 3 & 3 \\
+\{3,2\} & 28 & 13 & 6 & 10 \\
+\{4,0\} & 5 & 5 & 5 & 5 \\
+\{5,0\} & 6 & 6 & 6 & 7 \\
+\bottomrule
+\end{longtable}
+
+\section{Solved Matching Constraints}
+The final saved result satisfies
+\[
+\texttt{ExactMatchQ} = \mathrm{True},
+\qquad
+\texttt{HasSolution} = \mathrm{True}.
+\]
+
+The explicit solved branches in the stored result reduce to the following invariant conditions:
+\begin{align}
+\mu^2 &> 0, \\
+M^2 &= e^{3/2}\mu^2, \\
+\Lambda_{\mathrm{ref}} &= 0, \\
+\kappa_{\mathrm{ref}}^2 &= \frac{48}{M^2}.
+\end{align}
+In addition, the sign of \(\kappa_{\mathrm{ref}}\) is correlated with the sign of the input \(\kappa\):
+\[
+\kappa>0 \Rightarrow \kappa_{\mathrm{ref}}>0,
+\qquad
+\kappa<0 \Rightarrow \kappa_{\mathrm{ref}}<0.
+\]
+
+Equivalently, the saved \texttt{Reduce} output is
+\begin{verbatim}
+\[Mu]bar2 > 0 &&
+((M == E^(3/4)*Sqrt[\[Mu]bar2] &&
+  ((\[Kappa] > 0 && LambdaRefFinal == 0 &&
+    KappaRefFinal == 4*Sqrt[3]*Sqrt[M^(-2)]) ||
+   (\[Kappa] < 0 && LambdaRefFinal == 0 &&
+    KappaRefFinal == -4*Sqrt[3]*Sqrt[M^(-2)]))) ||
+ (M == -(E^(3/4)*Sqrt[\[Mu]bar2]) &&
+  ((\[Kappa] > 0 && LambdaRefFinal == 0 &&
+    KappaRefFinal == 4*Sqrt[3]*Sqrt[M^(-2)]) ||
+   (\[Kappa] < 0 && LambdaRefFinal == 0 &&
+    KappaRefFinal == -4*Sqrt[3]*Sqrt[M^(-2)]))))
+\end{verbatim}
+
+\section{Conclusion}
+After fixing the canonical-sign logic so that the kinetic target sign is an explicit user-controlled convention, the ORBIT comparison closes cleanly at \(d \le 5\) in the sign-flipped Einstein--Hilbert branch. In this final run:
+\begin{itemize}
+\item the comparison is exact in the supported sector space;
+\item no unsupported sectors survive;
+\item the cosmological constant is forced to vanish;
+\item the remaining parameter relations are the ones listed above.
+\end{itemize}
+
+The expensive \(d \le 6\) rerun was intentionally deferred. The current evidence therefore supports the statement:
+\begin{quote}
+the canonically normalized Matchete result matches a sign-flipped Einstein--Hilbert reference through mass dimension five, once the user-chosen kinetic sign is fixed to \(s_{\mathrm{kin}}=-1\).
+\end{quote}
+
+\section{Primary Artifact}
+The machine-readable source for this report is the saved comparison result
+\begin{verbatim}
+orbit_fixed_eh_comparison_d5_final_result.wl
+\end{verbatim}
+which contains the full reduced input, reduced reference, solved constraints, and sector-by-sector comparison data.
+
+\end{document}

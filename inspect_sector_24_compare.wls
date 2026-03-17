@@ -1,0 +1,10 @@
+res = Get["orbit_fixed_eh_comparison_result.wl"];
+rec = res["SectorComparison"][{2,4}];
+Print["supportedQ=" <> ToString[InputForm[rec["SupportedQ"]]]];
+Print["diff_zero=" <> ToString[InputForm[rec["DifferenceIsZeroQ"]]]];
+Print["input_coords=" <> ToString[InputForm[rec["InputCoordinates"]]]];
+Print["ref_coords=" <> ToString[InputForm[rec["ReferenceCoordinates"]]]];
+Print["diff_coords=" <> ToString[InputForm[rec["DifferenceCoordinates"]]]];
+Print["diff_expr_zero=" <> ToString[InputForm[rec["DifferenceExpression"] === 0]]];
+Print["diff_expr=" <> ToString[InputForm[Short[rec["DifferenceExpression"], 4]]]];
+Quit[];

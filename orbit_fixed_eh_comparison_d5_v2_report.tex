@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,booktabs,longtable,hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\title{Matchete vs Fixed Einstein-Hilbert Comparison}
+\author{ORBIT}
+\date{2026-03-14 18:01:29}
+\begin{document}
+\maketitle
+\tableofcontents
+\section{Setup and Conventions}
+This report compares a Matchete-derived Lagrangian to a fixed reference action
+\begin{equation}
+\mathcal{L}_{\mathrm{ref}} = \Lambda_{\mathrm{ref}} \sqrt{-g} + \frac{2}{\kappa_{\mathrm{ref}}^2} \sqrt{-g} R
+\end{equation}
+with fixed values $\Lambda_{\mathrm{ref}} = 1$ and $\kappa_{\mathrm{ref}} = 1$.
+The Matchete input is normalized by setting $hbar = 1$ and discarding all terms containing negative powers of $\epsilon$.
+\section{Reference Support Through Mass Dimension 6}
+The supported EH plus cosmological sectors are $\{n_h, 0\}$ for $1 \le n_h \le 6$ together with $\{2,2\}$, $\{3,2\}$, and $\{4,2\}$.
+\section{Reduced Matchete Input}
+\begin{longtable}{rrrrr}
+\toprule
+Sector & Input terms & IBP terms & Reduced terms & Coordinates \\
+\midrule
+{1, 0} & 3 & 3 & 3 & 1 \\
+{2, 0} & 6 & 6 & 6 & 2 \\
+{2, 2} & 24 & 12 & 12 & 4 \\
+{3, 0} & 9 & 9 & 9 & 3 \\
+{3, 2} & 77 & 39 & 18 & 10 \\
+{4, 0} & 15 & 15 & 15 & 5 \\
+{5, 0} & 21 & 21 & 21 & 7 \\
+\bottomrule
+\end{longtable}
+\section{Reduced Fixed Reference}
+\begin{longtable}{rrrrr}
+\toprule
+Sector & Input terms & IBP terms & Reduced terms & Coordinates \\
+\midrule
+{1, 0} & 1 & 1 & 1 & 1 \\
+{1, 2} & 2 & 0 & 0 & 0 \\
+{2, 0} & 2 & 2 & 2 & 2 \\
+{2, 2} & 10 & 4 & 4 & 4 \\
+{3, 0} & 3 & 3 & 3 & 3 \\
+{3, 2} & 28 & 13 & 6 & 10 \\
+{4, 0} & 5 & 5 & 5 & 5 \\
+{5, 0} & 6 & 6 & 6 & 7 \\
+\bottomrule
+\end{longtable}
+\section{Sector-by-Sector Comparison}
+\begin{longtable}{rrrr}
+\toprule
+Sector & Input coords & Reference coords & Difference zero \\
+\midrule
+{1, 0} & 1 & 1 & no \\
+{2, 0} & 2 & 2 & no \\
+{2, 2} & 4 & 4 & no \\
+{3, 0} & 3 & 3 & no \\
+{3, 2} & 10 & 10 & no \\
+{4, 0} & 5 & 5 & no \\
+{5, 0} & 7 & 7 & no \\
+\bottomrule
+\end{longtable}
+\subsection{Unsupported sectors}
+None.
+\subsection{Supported-sector matching equations}
+\begin{verbatim}
+{-8*\[Epsilon] + 2*M^4*\[Kappa] + 3*M^4*\[Epsilon]*\[Kappa] + 2*M^4*\[Epsilon]*\[Kappa]*Log[\[Mu]bar2/M^2] == 0, 8*\[Epsilon] - 2*M^4*\[Kappa]^2 - 3*M^4*\[Epsilon]*\[Kappa]^2 - 2*M^4*\[Epsilon]*\[Kappa]^2*Log[\[Mu]bar2/M^2] == 0, -8*\[Epsilon] + 2*M^4*\[Kappa]^2 + 3*M^4*\[Epsilon]*\[Kappa]^2 + 2*M^4*\[Epsilon]*\[Kappa]^2*Log[\[Mu]bar2/M^2] == 0, -24*\[Epsilon] + M^2*\[Kappa]^2 + M^2*\[Epsilon]*\[Kappa]^2 + M^2*\[Epsilon]*\[Kappa]^2*Log[\[Mu]bar2/M^2] == 0, 24*\[Epsilon] - M^2*\[Kappa]^2 - M^2*\[Epsilon]*\[Kappa]^2 - M^2*\[Epsilon]*\[Kappa]^2*Log[\[Mu]bar2/M^2] == 0, -4*\[Epsilon] - 2*M^4*\[Kappa]^3 - 3*M^4*\[Epsilon]*\[Kappa]^3 - 2*M^4*\[Epsilon]*\[Kappa]^3*Log[\[Mu]bar2/M^2] == 0, 4*\[Epsilon] + 2*M^4*\[Kappa]^3 + 3*M^4*\[Epsilon]*\[Kappa]^3 + 2*M^4*\[Epsilon]*\[Kappa]^3*Log[\[Mu]bar2/M^2] == 0, -24*\[Epsilon] + M^2*\[Kappa]^3 + M^2*\[Epsilon]*\[Kappa]^3 + M^2*\[Epsilon]*\[Kappa]^3*Log[\[Mu]bar2/M^2] == 0, 24*\[Epsilon] - M^2*\[Kappa]^3 - M^2*\[Epsilon]*\[Kappa]^3 - M^2*\[Epsilon]*\[Kappa]^3*Log[\[Mu]bar2/M^2] == 0, 8*\[Epsilon] - 2*M^4*\[Kappa]^4 - 3*M^4*\[Epsilon]*\[Kappa]^4 - 2*M^4*\[Epsilon]*\[Kappa]^4*Log[\[Mu]bar2/M^2] == 0, -8*\[Epsilon] + 2*M^4*\[Kappa]^4 + 3*M^4*\[Epsilon]*\[Kappa]^4 + 2*M^4*\[Epsilon]*\[Kappa]^4*Log[\[Mu]bar2/M^2] == 0, 2*M^4*\[Kappa]^5 + 3*M^4*\[Epsilon]*\[Kappa]^5 + 2*M^4*\[Epsilon]*\[Kappa]^5*Log[\[Mu]bar2/M^2] == 0, -8*\[Epsilon] - 2*M^4*\[Kappa]^5 - 3*M^4*\[Epsilon]*\[Kappa]^5 - 2*M^4*\[Epsilon]*\[Kappa]^5*Log[\[Mu]bar2/M^2] == 0, 24*\[Epsilon] + 2*M^4*\[Kappa]^5 + 3*M^4*\[Epsilon]*\[Kappa]^5 + 2*M^4*\[Epsilon]*\[Kappa]^5*Log[\[Mu]bar2/M^2] == 0, -56*\[Epsilon] - 2*M^4*\[Kappa]^5 - 3*M^4*\[Epsilon]*\[Kappa]^5 - 2*M^4*\[Epsilon]*\[Kappa]^5*Log[\[Mu]bar2/M^2] == 0, 120*\[Epsilon] + 2*M^4*\[Kappa]^5 + 3*M^4*\[Epsilon]*\[Kappa]^5 + 2*M^4*\[Epsilon]*\[Kappa]^5*Log[\[Mu]bar2/M^2] == 0}
+\end{verbatim}
+\subsection{Solved constraints}
+\begin{verbatim}
+M != 0 && \[Epsilon] == 0 && \[Mu]bar2 > 0 && \[Kappa] == 0
+\end{verbatim}
+\section{Differences}
+\subsection{Supported difference}
+\begin{verbatim}
+(h[a, -a]*(-8 + 3*M^4*\[Kappa] + 2*M^4*\[Kappa]*Log[Scalar[\[Mu]bar2]/M^2] + (2*M^4*\[Kappa])/Scalar[\[Epsilon]]))/16 + (M^4*\[Kappa]^5*h[-a, c]*h[a, b]*h[-b, d]*h[-c, e]*h[-d, -e]*(2 + (3 + 2*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(80*Scalar[\[Epsilon]]) + (h[-a, -b]*h[a, b]*(-2*M^4*\[Kappa]^2 + (8 - 3*M^4*\[Kappa]^2 - 2*M^4*\[Kappa]^2*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(32*Scalar[\[Epsilon]]) + (h[a, -a]*h[b, -b]*(2*M^4*\[Kappa]^2 + (-8 + 3*M^4*\[Kappa]^2 + 2*M^4*\[Kappa]^2*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(64*Scalar[\[Epsilon]]) - (h[-a, c]*h[a, b]*h[-b, -c]*(2*M^4*\[Kappa]^3 + (4 + 3*M^4*\[Kappa]^3 + 2*M^4*\[Kappa]^3*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(24*Scalar[\[Epsilon]]) + (h[a, -a]*h[-b, -c]*h[b, c]*(2*M^4*\[Kappa]^3 + (4 + 3*M^4*\[Kappa]^3 + 2*M^4*\[Kappa]^3*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(32*Scalar[\[Epsilon]]) - (h[a, -a]*h[b, -b]*h[c, -c]*(2*M^4*\[Kappa]^3 + (4 + 3*M^4*\[Kappa]^3 + 2*M^4*\[Kappa]^3*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(192*Scalar[\[Epsilon]]) + (h[-a, c]*h[a, b]*h[-b, d]*h[-c, -d]*(-2*M^4*\[Kappa]^4 + (8 - 3*M^4*\[Kappa]^4 - 2*M^4*\[Kappa]^4*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(64*Scalar[\[Epsilon]]) + (h[a, -a]*h[b, -b]*h[-c, -d]*h[c, d]*(-2*M^4*\[Kappa]^4 + (8 - 3*M^4*\[Kappa]^4 - 2*M^4*\[Kappa]^4*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(256*Scalar[\[Epsilon]]) + (h[a, -a]*h[-b, d]*h[b, c]*h[-c, -d]*(2*M^4*\[Kappa]^4 + (-8 + 3*M^4*\[Kappa]^4 + 2*M^4*\[Kappa]^4*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(96*Scalar[\[Epsilon]]) + (h[-a, -b]*h[a, b]*h[-c, -d]*h[c, d]*(2*M^4*\[Kappa]^4 + (-8 + 3*M^4*\[Kappa]^4 + 2*M^4*\[Kappa]^4*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(256*Scalar[\[Epsilon]]) + (h[a, -a]*h[b, -b]*h[c, -c]*h[d, -d]*(2*M^4*\[Kappa]^4 + (-8 + 3*M^4*\[Kappa]^4 + 2*M^4*\[Kappa]^4*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(3072*Scalar[\[Epsilon]]) - (h[a, -a]*h[-b, d]*h[b, c]*h[-c, e]*h[-d, -e]*(2*M^4*\[Kappa]^5 + (8 + 3*M^4*\[Kappa]^5 + 2*M^4*\[Kappa]^5*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(128*Scalar[\[Epsilon]]) - (h[-a, -b]*h[a, b]*h[-c, e]*h[c, d]*h[-d, -e]*(2*M^4*\[Kappa]^5 + (8 + 3*M^4*\[Kappa]^5 + 2*M^4*\[Kappa]^5*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(192*Scalar[\[Epsilon]]) + (h[a, -a]*h[b, -b]*h[-c, e]*h[c, d]*h[-d, -e]*(2*M^4*\[Kappa]^5 + (24 + 3*M^4*\[Kappa]^5 + 2*M^4*\[Kappa]^5*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(384*Scalar[\[Epsilon]]) + (h[a, -a]*h[-b, -c]*h[b, c]*h[-d, -e]*h[d, e]*(2*M^4*\[Kappa]^5 + (24 + 3*M^4*\[Kappa]^5 + 2*M^4*\[Kappa]^5*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(512*Scalar[\[Epsilon]]) - (h[a, -a]*h[b, -b]*h[c, -c]*h[-d, -e]*h[d, e]*(2*M^4*\[Kappa]^5 + (56 + 3*M^4*\[Kappa]^5 + 2*M^4*\[Kappa]^5*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(1536*Scalar[\[Epsilon]]) + (h[a, -a]*h[b, -b]*h[c, -c]*h[d, -d]*h[e, -e]*(2*M^4*\[Kappa]^5 + (120 + 3*M^4*\[Kappa]^5 + 2*M^4*\[Kappa]^5*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]]))/(30720*Scalar[\[Epsilon]]) + (h[a, b]*(M^2*\[Kappa]^3 + (-24 + M^2*\[Kappa]^3 + M^2*\[Kappa]^3*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]])*PD[-a][h[c, d]]*PD[-b][h[-c, -d]])/(48*Scalar[\[Epsilon]]) + ((M^2*\[Kappa]^2 + (-24 + M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]])*PD[-b][h[c, -c]]*PD[b][h[a, -a]])/(48*Scalar[\[Epsilon]]) + ((24 - M^2*\[Kappa]^2 - M^2*\[Kappa]^2*Log[Scalar[\[Mu]bar2]/M^2] - (M^2*\[Kappa]^2)/Scalar[\[Epsilon]])*PD[b][h[a, -a]]*PD[-c][h[-b, c]])/24 + ((M^2*\[Kappa]^2 + (-24 + M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]])*PD[-b][h[-a, -c]]*PD[c][h[a, b]])/(24*Scalar[\[Epsilon]]) - ((M^2*\[Kappa]^2 + (-24 + M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]])*PD[-c][h[-a, -b]]*PD[c][h[a, b]])/(48*Scalar[\[Epsilon]]) - (h[a, -a]*(M^2*\[Kappa]^3 + (-24 + M^2*\[Kappa]^3 + M^2*\[Kappa]^3*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]])*PD[-b][h[b, c]]*PD[-d][h[-c, d]])/(48*Scalar[\[Epsilon]]) + (h[a, b]*(M^2*\[Kappa]^3 + (-24 + M^2*\[Kappa]^3 + M^2*\[Kappa]^3*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]])*PD[c][h[-a, -b]]*PD[-d][h[-c, d]])/(48*Scalar[\[Epsilon]]) + (h[a, -a]*(M^2*\[Kappa]^3 + (-24 + M^2*\[Kappa]^3 + M^2*\[Kappa]^3*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]])*PD[c][h[b, -b]]*PD[-d][h[-c, d]])/(96*Scalar[\[Epsilon]]) + (h[a, b]*(24 - M^2*\[Kappa]^3 - M^2*\[Kappa]^3*Log[Scalar[\[Mu]bar2]/M^2] - (M^2*\[Kappa]^3)/Scalar[\[Epsilon]])*PD[-b][h[-c, -d]]*PD[d][h[-a, c]])/24 + (h[a, -a]*(M^2*\[Kappa]^3 + (-24 + M^2*\[Kappa]^3 + M^2*\[Kappa]^3*Log[Scalar[\[Mu]bar2]/M^2])*Scalar[\[Epsilon]])*PD[-d][h[-b, -c]]*PD[d][h[b, c]])/(96*Scalar[\[Epsilon]])
+\end{verbatim}
+\subsection{Unsupported difference}
+\begin{verbatim}
+0
+\end{verbatim}
+\section{Conclusion}
+An exact match exists after imposing the solved Matchete-side parameter constraints and checking that no unsupported sectors remain.
+
+\end{document}

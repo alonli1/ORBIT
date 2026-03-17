@@ -1,0 +1,9 @@
+\contentsline {section}{\numberline {1}Setup}{1}{section.1}%
+\contentsline {section}{\numberline {2}Canonical Normalization}{1}{section.2}%
+\contentsline {section}{\numberline {3}Sector Support}{2}{section.3}%
+\contentsline {section}{\numberline {4}Reduction Summary}{2}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Reduced Matchete Input}{2}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Reduced Reference}{2}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Solved Matching Constraints}{2}{section.5}%
+\contentsline {section}{\numberline {6}Conclusion}{3}{section.6}%
+\contentsline {section}{\numberline {7}Primary Artifact}{3}{section.7}%

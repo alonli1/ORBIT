@@ -39,6 +39,8 @@ Options[RunBasisComputation] = {
   "CacheDirectory" -> Automatic,
   "UseCache" -> True,
   "ForceRecompute" -> False,
+  "ParallelizeSectors" -> False,
+  "KernelCount" -> Automatic,
   "Verbose" -> True,
   "ExportSummaryCSV" -> False,
   "SummaryCSVFile" -> Automatic,
@@ -50,6 +52,11 @@ Options[ReduceSectorLagrangian] = Options[RunBasisComputation];
 Options[ReduceLagrangian] = Options[RunBasisComputation];
 
 $GravitonBasisCacheDirectory = Automatic;
+$GravitonBasisToolkitFile = If[
+  StringQ[$InputFileName] && $InputFileName =!= "",
+  $InputFileName,
+  FileNameJoin[{Directory[], "graviton_basis_toolkit.wl"}]
+];
 
 SetCacheDirectory[dir_String] := ($GravitonBasisCacheDirectory = dir);
 ClearCacheDirectory[] := ($GravitonBasisCacheDirectory = Automatic);
@@ -64,7 +71,7 @@ Quiet @ Check[
 ];
 
 Quiet @ Check[
-  DefMetric[-1, eta[-a, -b], PD, FlatMetric -> True,
+  DefMetric[{1, 3, 0}, eta[-a, -b], PD, FlatMetric -> True,
     SymbolOfCovD -> {";", "\[PartialD]"}],
   Null
 ];
@@ -103,7 +110,9 @@ ClearAll[
   DefaultCacheDirectory, TermSectorKey, DerivativeFreeExprQ,
   StripScalarParameterWrappers, DirectProjectToBasis,
   ReduceCoordinatesModuloRelations, ProjectToIBPUsingSectorData,
-  SplitTermsBySector, ReduceCoordinatesModuloRedef
+  SplitTermsBySector, ReduceCoordinatesModuloRedef,
+  ParallelKernelCountResolved, EnsureParallelToolkitKernels,
+  ReduceSectorLagrangianCanonicalInput
 ];
 
 canonExpr[expr_] := Module[{tmp},
@@ -167,6 +176,33 @@ LoadExpr[file_String] := Get[file];
 LogPrint[msg_, opts : OptionsPattern[RunBasisComputation]] :=
   If[TrueQ[OptionValue["Verbose"]], Print[msg]];
 
+ParallelKernelCountResolved[taskCount_Integer, opts : OptionsPattern[RunBasisComputation]] := Module[
+  {requested},
+  requested = OptionValue["KernelCount"];
+  Which[
+    taskCount <= 1, 1,
+    IntegerQ[requested] && requested >= 1, Min[requested, taskCount],
+    True, Max[1, Min[taskCount, $ProcessorCount - 1]]
+  ]
+];
+
+EnsureParallelToolkitKernels[taskCount_Integer, opts : OptionsPattern[RunBasisComputation]] := Module[
+  {targetCount, workDir, toolkitFile},
+  targetCount = ParallelKernelCountResolved[taskCount, opts];
+  If[targetCount <= 1, Return[{}]];
+  workDir = Directory[];
+  toolkitFile = $GravitonBasisToolkitFile;
+  If[Length[Kernels[]] < targetCount,
+    LaunchKernels[targetCount - Length[Kernels[]]]
+  ];
+  ParallelEvaluate[
+    SetDirectory[workDir];
+    If[! ValueQ[RunBasisComputation], Get[toolkitFile]];
+    Null
+  ];
+  Kernels[]
+];
+
 LoadOrCompute[type_String, key_Association, compute_, opts : OptionsPattern[RunBasisComputation]] := Module[
   {file, useCache, force, result},
   file = CacheFile[type, key, opts];
@@ -203,22 +239,37 @@ DerivativeFreeExprQ[expr_] := FreeQ[expr, HoldPattern[PD[_][__]], Infinity];
 StripScalarParameterWrappers[expr_] := expr /. HoldPattern[Scalar[s_]] /;
    FreeQ[s, HoldPattern[h[__] | dh[__] | probe[__] | PD[_][__]], Infinity] :> s;
 
-DirectProjectToBasis[expr_, basis_List] := Module[{ans, cleanExpr, eq, sol, zvars, coeffs},
+DirectProjectToBasis[expr_, basis_List] := Module[
+  {ans, cleanExpr, eq, sol, zvars, coeffs, hasSolutionQ, projectedExpr, residual},
   If[basis === {},
-    Return[<|"ProjectedExpr" -> 0, "Coordinates" -> {}, "Solution" -> {{}}|>]
+    Return[<|
+      "ProjectedExpr" -> 0,
+      "Coordinates" -> {},
+      "Solution" -> {{}},
+      "HasSolution" -> TrueQ[canonExpr[expr] === 0],
+      "Residual" -> canonExpr[expr]
+    |>]
   ];
 
   ans = MakeAnsatz[basis, ConstantPrefix -> z];
   cleanExpr = StripScalarParameterWrappers[expr];
   zvars = Table[Symbol["z" <> ToString[i]], {i, Length[basis]}];
   eq = canonExpr[ans - cleanExpr];
-  sol = SafeSolveConstants[eq == 0, zvars];
-  coeffs = (zvars /. First[sol]) /. Thread[zvars -> 0];
+  sol = Quiet[SolveConstants[eq == 0, zvars], Solve::svars];
+  hasSolutionQ = ListQ[sol] && sol =!= {};
+  coeffs = If[hasSolutionQ,
+    (zvars /. First[sol]) /. Thread[zvars -> 0],
+    ConstantArray[0, Length[basis]]
+  ];
+  projectedExpr = canonExpr @ LinearCombination[coeffs, basis];
+  residual = canonExpr[projectedExpr - cleanExpr];
 
   <|
-    "ProjectedExpr" -> canonExpr[(ans /. First[sol]) /. Thread[zvars -> 0]],
+    "ProjectedExpr" -> projectedExpr,
     "Coordinates" -> coeffs,
-    "Solution" -> sol
+    "Solution" -> If[hasSolutionQ, sol, {}],
+    "HasSolution" -> hasSolutionQ,
+    "Residual" -> residual
   |>
 ];
 
@@ -250,6 +301,8 @@ ProjectToIBPUsingSectorData[expr_, sec_Association] := Module[{rawProj, ibpReduc
 
   <|
     "RawProjection" -> rawProj,
+    "ProjectionSucceededQ" -> TrueQ[rawProj["HasSolution"]] && TrueQ[rawProj["Residual"] === 0],
+    "ProjectionResidual" -> rawProj["Residual"],
     "ProjectedExpr" -> canonExpr @ LinearCombination[
       ibpReduction["QuotientCoordinates"],
       sec["IBPBasis"]
@@ -639,10 +692,9 @@ ComputeSectorData[nh_Integer, Nd_Integer, opts : OptionsPattern[RunBasisComputat
 
 ClearAll[ReduceSectorLagrangian, ReduceLagrangian];
 
-ReduceSectorLagrangian[expr_, nh_Integer, Nd_Integer, opts : OptionsPattern[RunBasisComputation]] := Module[
-  {inputExpr, sec, ibpProj, redefReduction, reducedExpr, imageExpr},
+ReduceSectorLagrangianCanonicalInput[inputExpr_, nh_Integer, Nd_Integer, opts : OptionsPattern[RunBasisComputation]] := Module[
+  {sec, ibpProj, redefReduction, reducedExpr, imageExpr},
 
-  inputExpr = canonExpr[expr];
   sec = ComputeSectorData[nh, Nd, opts];
   ibpProj = ProjectToIBPUsingSectorData[inputExpr, sec];
   redefReduction = ReduceCoordinatesModuloRedef[ibpProj["Coordinates"], sec];
@@ -660,6 +712,8 @@ ReduceSectorLagrangian[expr_, nh_Integer, Nd_Integer, opts : OptionsPattern[RunB
   <|
     "Sector" -> {nh, Nd},
     "InputExpression" -> inputExpr,
+    "ProjectionSucceededQ" -> ibpProj["ProjectionSucceededQ"],
+    "ProjectionResidual" -> ibpProj["ProjectionResidual"],
     "ProjectedIBPExpression" -> ibpProj["ProjectedExpr"],
     "ProjectedIBPCoordinates" -> ibpProj["Coordinates"],
     "ReducedIBPExpression" -> canonExpr @ LinearCombination[
@@ -676,21 +730,52 @@ ReduceSectorLagrangian[expr_, nh_Integer, Nd_Integer, opts : OptionsPattern[RunB
   |>
 ];
 
+ReduceSectorLagrangian[expr_, nh_Integer, Nd_Integer, opts : OptionsPattern[RunBasisComputation]] := Module[
+  {inputExpr},
+
+  inputExpr = canonExpr[expr];
+  ReduceSectorLagrangianCanonicalInput[inputExpr, nh, Nd, opts]
+];
+
 ReduceLagrangian[expr_, opts : OptionsPattern[RunBasisComputation]] := Module[
-  {inputExpr, sectorTerms, sectorKeys, sectorReductions, untouchedTerms, reducedExpr},
+  {
+    inputExpr, sectorTerms, sectorKeys, sectorsToReduce, sectorReductions,
+    untouchedTerms, reducedExpr, kernels, localOpts
+  },
 
   inputExpr = Expand[canonExpr[expr]];
   sectorTerms = SplitTermsBySector[inputExpr];
   sectorKeys = Sort @ Keys[sectorTerms];
+  sectorsToReduce = Select[sectorKeys, MatchQ[#, {_Integer?Positive, _Integer?NonNegative}] &];
 
   untouchedTerms = Total @ Values @ KeySelect[
     sectorTerms,
     ! MatchQ[#, {_Integer?Positive, _Integer?NonNegative}] &
   ];
 
-  sectorReductions = Association @ Table[
-    key -> ReduceSectorLagrangian[sectorTerms[key], key[[1]], key[[2]], opts],
-    {key, Select[sectorKeys, MatchQ[#, {_Integer?Positive, _Integer?NonNegative}] &]}
+  localOpts = Join[
+    FilterRules[{opts}, Options[RunBasisComputation]],
+    {"ParallelizeSectors" -> False}
+  ];
+
+  sectorReductions = If[
+    TrueQ[OptionValue["ParallelizeSectors"]] && Length[sectorsToReduce] > 1,
+    kernels = EnsureParallelToolkitKernels[Length[sectorsToReduce], opts];
+    Association @ ParallelMap[
+      Function[key,
+        key -> ReduceSectorLagrangianCanonicalInput[
+          sectorTerms[key],
+          key[[1]],
+          key[[2]],
+          Sequence @@ localOpts
+        ]
+      ],
+      sectorsToReduce
+    ],
+    Association @ Table[
+      key -> ReduceSectorLagrangianCanonicalInput[sectorTerms[key], key[[1]], key[[2]], Sequence @@ localOpts],
+      {key, sectorsToReduce}
+    ]
   ];
 
   reducedExpr = canonExpr @ (
@@ -774,17 +859,33 @@ RedefinitionRulesOfSector[result_Association, nh_Integer, Nd_Integer] :=
 (* ================================================================ *)
 
 RunBasisComputation[opts : OptionsPattern[]] := Module[
-  {dmax, sectors, data, summary, result, csvFile, mxFile},
+  {dmax, sectors, data, summary, result, csvFile, mxFile, localOpts},
 
   dmax = OptionValue["MaxDimension"];
   sectors = NormalizeSectorList[OptionValue["SectorList"], dmax];
   sectors = Select[sectors, #[[1]] >= 1 && #[[2]] >= 0 && Total[#] <= dmax &];
+  localOpts = Join[
+    FilterRules[{opts}, Options[RunBasisComputation]],
+    {"ParallelizeSectors" -> False}
+  ];
 
-  data = Association @ Table[
-    With[{nh = sec[[1]], Nd = sec[[2]]},
-      {nh, Nd} -> ComputeSectorData[nh, Nd, opts]
+  data = If[
+    TrueQ[OptionValue["ParallelizeSectors"]] && Length[sectors] > 1,
+    EnsureParallelToolkitKernels[Length[sectors], opts];
+    Association @ ParallelMap[
+      Function[sec,
+        With[{nh = sec[[1]], Nd = sec[[2]]},
+          {nh, Nd} -> ComputeSectorData[nh, Nd, Sequence @@ localOpts]
+        ]
+      ],
+      sectors
     ],
-    {sec, sectors}
+    Association @ Table[
+      With[{nh = sec[[1]], Nd = sec[[2]]},
+        {nh, Nd} -> ComputeSectorData[nh, Nd, Sequence @@ localOpts]
+      ],
+      {sec, sectors}
+    ]
   ];
 
   summary = Association @ Table[

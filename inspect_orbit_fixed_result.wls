@@ -1,0 +1,12 @@
+res = Get["orbit_fixed_eh_comparison_result.wl"];
+Print["ExactMatchQ=" <> ToString[InputForm[res["ExactMatchQ"]]]];
+Print["UnsupportedSectors=" <> ToString[InputForm[res["UnsupportedSectors"]]]];
+Print["InputProjectionFailures=" <> ToString[InputForm[Lookup[res, "InputProjectionFailures", Missing[]]]]];
+Print["ReferenceProjectionFailures=" <> ToString[InputForm[Lookup[res, "ReferenceProjectionFailures", Missing[]]]]];
+Print["InputSummaryKeys=" <> ToString[InputForm[Keys[res["InputReductionSummary"]]]]];
+Print["ReferenceSummaryKeys=" <> ToString[InputForm[Keys[res["ReferenceReductionSummary"]]]]];
+Print["InputSummary22=" <> ToString[InputForm[Lookup[res["InputReductionSummary"], {2,2}, Missing[]]]]];
+Print["InputSummary24=" <> ToString[InputForm[Lookup[res["InputReductionSummary"], {2,4}, Missing[]]]]];
+Print["ReferenceSummary22=" <> ToString[InputForm[Lookup[res["ReferenceReductionSummary"], {2,2}, Missing[]]]]];
+Print["ReferenceSummary24=" <> ToString[InputForm[Lookup[res["ReferenceReductionSummary"], {2,4}, Missing[]]]]];
+Quit[];

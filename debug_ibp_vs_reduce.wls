@@ -1,0 +1,14 @@
+Get["orbit_fixed_eh_comparison.wl"];
+ref = ExpandFixedEHReferenceLagrangian["MaxDimension" -> 6, "Verbose" -> False];
+secExpr = SplitTermsBySector[ref["ReferenceExpression"]][{2,2}];
+sec = ComputeSectorData[2, 2, "CacheDirectory" -> "left_only_uv_2_eft_6_cache", "UseCache" -> True, "Verbose" -> False, "MaxDimension" -> 6];
+ibp = ProjectToIBPUsingSectorData[canonExpr[secExpr], sec];
+red = ReduceSectorLagrangian[secExpr, 2, 2, "CacheDirectory" -> "left_only_uv_2_eft_6_cache", "UseCache" -> True, "Verbose" -> False, "MaxDimension" -> 6];
+Print["ibp_proj_ok=" <> ToString[InputForm[ibp["ProjectionSucceededQ"]]]];
+Print["ibp_residual_zero=" <> ToString[InputForm[ibp["ProjectionResidual"] === 0]]];
+Print["ibp_raw_has_solution=" <> ToString[InputForm[ibp["RawProjection", "HasSolution"]]]];
+Print["ibp_raw_solution_empty=" <> ToString[InputForm[ibp["RawProjection", "Solution"] === {}]]];
+Print["red_proj_ok=" <> ToString[InputForm[red["ProjectionSucceededQ"]]]];
+Print["red_residual_zero=" <> ToString[InputForm[red["ProjectionResidual"] === 0]]];
+Print["red_residual=" <> ToString[InputForm[Short[red["ProjectionResidual"], 4]]]];
+Quit[];
