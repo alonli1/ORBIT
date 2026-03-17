@@ -1,0 +1,4 @@
+.vendor/
+.vendor_pptx/
+__pycache__/
+*.pyc
