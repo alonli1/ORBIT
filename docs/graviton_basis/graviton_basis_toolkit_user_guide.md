@@ -85,12 +85,12 @@ Important convention:
 To rerun the stored reducer validation:
 
 ```powershell
-& 'C:\Program Files\Wolfram Research\Wolfram\14.2\WolframKernel.exe' -script graviton_basis_toolkit_validation.wls
+wolframscript -file tests/graviton_basis_toolkit_validation.wls
 ```
 
 Then inspect:
 
-- `graviton_basis_toolkit_validation_output.wl`
+- `docs/graviton_basis/graviton_basis_toolkit_validation_output.wl`
 - `graviton_basis_toolkit_validation_report.md`
 
 ## 7. Typical workflow

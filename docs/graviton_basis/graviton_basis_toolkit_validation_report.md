@@ -2,9 +2,9 @@
 
 This repository now includes a reproducible script-based validation run:
 
-- Script: `graviton_basis_toolkit_validation.wls`
-- Output file produced by the script: `graviton_basis_toolkit_validation_output.wl`
-- Cache used by the script: `graviton_basis_validation_cache/`
+- Script: `tests/graviton_basis_toolkit_validation.wls`
+- Output file produced by the script: `docs/graviton_basis/graviton_basis_toolkit_validation_output.wl`
+- Cache used by the script: `cache/graviton_basis_validation_cache/`
 
 There is not currently a front-end `.nb` notebook for the reducer validation. The persistent artifact is a Wolfram script plus a machine-readable output file. That is intentional: it can be rerun from the kernel without depending on the notebook front end.
 
@@ -47,11 +47,11 @@ The `{3, 4}` case is the stronger check. The input Lagrangian is a 240-term expa
 From PowerShell in this directory:
 
 ```powershell
-& 'C:\Program Files\Wolfram Research\Wolfram\14.2\WolframKernel.exe' -script graviton_basis_toolkit_validation.wls
+wolframscript -file tests/graviton_basis_toolkit_validation.wls
 ```
 
 After the run, inspect:
 
-- `graviton_basis_toolkit_validation_output.wl`
+- `docs/graviton_basis/graviton_basis_toolkit_validation_output.wl`
 
 The output file contains a Wolfram association with the exact coefficients and boolean pass/fail checks.

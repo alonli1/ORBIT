@@ -1,10 +1,9 @@
-<|"GeneratedOn" -> "2026-03-12 00:08:00", "CacheDirectory" -> "C:\\Users\\alo\
-nlif2000\\Desktop\\ORBIT\\graviton_basis_comprehensive_report_cache", 
+<|"GeneratedOn" -> "2026-03-12 00:08:00", "CacheDirectory" -> "cache\\graviton_basis_comprehensive_report_cache", 
  "SmallSectorSummary" -> {{{1, 2}, 2, 0, 0, 0}, {{2, 2}, 10, 4, 0, 4}, 
    {{2, 4}, 30, 5, 0, 5}, {{3, 2}, 28, 14, 4, 10}}, 
  "ValidationSummary" -> <|"GeneratedOn" -> "2026-03-10 18:26:28", 
    "CacheDirectory" -> 
-    "C:\\Users\\alonlif2000\\Desktop\\ORBIT\\graviton_basis_validation_cache"\
+    "cache\\graviton_basis_validation_cache"\
 , "Tests" -> {<|"Sector" -> {3, 2}, "IBPCount" -> 14, "RedefRank" -> 4, 
       "PhysicalCount" -> 10, "DeltaBasisLength" -> 4, "LagTermCount" -> 18, 
       "ReducedExpressionZeroQ" -> True, "PhysicalCoordinatesZeroQ" -> True, 

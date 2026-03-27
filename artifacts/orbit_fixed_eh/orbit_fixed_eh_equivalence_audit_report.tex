@@ -1,0 +1,479 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{lmodern}
+
+\usepackage{amsmath,amssymb,booktabs,longtable,hyperref}
+
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+
+\title{Detailed ORBIT Equivalence Audit Through Mass Dimension 6}
+
+\author{ORBIT}
+
+\date{2026-03-23 20:38:09}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Claim Being Verified}
+
+This report audits the statement that the canonically normalized Matchete-derived EFT matches the sign-flipped Einstein-Hilbert reference through mass dimension six after imposing the verified matching branch, reducing modulo IBP, reducing modulo the interaction-sector Fierz--Pauli field-redefinition image, and completing the quadratic four-derivative sector by quadratic higher-derivative field redefinitions.
+
+The stored final summary used for this report is:
+
+\begin{verbatim}
+<|"TimingSeconds" -> <|"InputTruncation" -> 4.544105, "ReferenceExpansion" -> 0.005974, "InputReductionAssembly" -> 7.670811, "ReferenceReductionAssembly" -> 4.142217, "CanonicalNormalization" -> 0.320591, "FinalAssembly" -> 15.149681, "ReportBuild" -> 0.012128|>, "ExactMatchQ" -> True, "ExactMatchUnderSolveQ" -> False, "UnsupportedSectors" -> {}, "CanonicalKineticSign" -> -1, "CanonicalNormalization" -> <|"SucceededQ" -> True, "Reason" -> "OK", "Factor" -> (M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2]))/24, "InputCoordinates" -> {(-(M^2*\[Kappa]^2) - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/32 + (5*(M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2]))/96, (-2*M^2*\[Kappa]^2 - 3*M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/24 + (-2*M^2*\[Kappa]^2 - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/24 + (M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/8, (-(M^2*\[Kappa]^2) - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/8 + (M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/6, (-(M^2*\[Kappa]^2) - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/48}, "FierzPauliCoordinates" -> {1/2, -1, 1, -1/2}, "TargetQuadraticSign" -> -1|>, "MatchEquationCount" -> 29, "SolveSkippedQ" -> True, "VerificationAppliedQ" -> True, "VerifiedSupportedMatchQ" -> True, "QuadraticCompletionSummary" -> <|"ResidualIsZeroQ" -> True, "PureQuadraticRedefinitionQ" -> True, "CurvatureCoefficients" -> <|"R2" -> 0, "Ricci2" -> 0|>|>, "ResultFile" -> "/home/alonli/ag-mirror/ORBIT/artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_final_result.wl", "Report" -> <|"TeXFile" -> "/home/alonli/ag-mirror/ORBIT/artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_final_report.tex", "DataFile" -> "/home/alonli/ag-mirror/ORBIT/artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_final_report_data.wl", "PDFFile" -> "/home/alonli/ag-mirror/ORBIT/artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_final_report.pdf", "PDFLaTeX" -> Missing["NotFound"], "CompileFirstPass" -> Missing["NotRun"], "CompileSecondPass" -> Missing["NotRun"]|>|>
+\end{verbatim}
+
+\section{Stored Inputs to the Audit}
+
+Top-level stored data used in the audit:
+
+\begin{verbatim}
+<|"ReferenceData" -> <|"MaxDimension" -> 6, "LambdaReferenceValue" -> LambdaRefFinal, "KappaReferenceValue" -> KappaRefFinal, "EHSign" -> -1|>, "CanonicalNormalization" -> <|"SucceededQ" -> True, "Reason" -> "OK", "Factor" -> (M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2]))/24, "InputCoordinates" -> {(-(M^2*\[Kappa]^2) - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/32 + (5*(M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2]))/96, (-2*M^2*\[Kappa]^2 - 3*M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/24 + (-2*M^2*\[Kappa]^2 - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/24 + (M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/8, (-(M^2*\[Kappa]^2) - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/8 + (M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/6, (-(M^2*\[Kappa]^2) - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/48}, "FierzPauliCoordinates" -> {1/2, -1, 1, -1/2}, "TargetQuadraticSign" -> -1|>, "SupportedSectors" -> {{1, 0}, {2, 0}, {2, 2}, {3, 0}, {3, 2}, {4, 0}, {4, 2}, {5, 0}, {6, 0}}, "UnsupportedSectors" -> {}, "MatchEquationCount" -> 29|>
+\end{verbatim}
+
+\section{Implemented Comparison Pipeline}
+This section mirrors the code path actually used in the stored run. Every major step below is quoted from the implementation files rather than reconstructed from memory.
+\subsection{Canonical normalization extraction}
+\begin{verbatim}
+"219: kineticNormalizationDataFromReduction[inputReduction_Association, basisOpts_List] := Module[\n220:   {sector22, lfpReduction, inputCoords, lfpCoords, nz, firstIndex, factor, consistentQ},\n221:   sector22 = sectorLookup[inputReduction[\"SectorReductions\"], {2, 2}];\n222:   If[! AssociationQ[sector22],\n223:     Return[<|\"SucceededQ\" -> False, \"Reason\" -> \"NoQuadraticDerivativeSector\"|>]\n224:   ];\n225: \n226:   lfpReduction = ReduceSectorLagrangian[LFP, 2, 2, Sequence @@ basisOpts];\n227:   inputCoords = normalizeMatcheteParameterScalars /@ sector22[\"PhysicalCoordinates\"];\n228:   lfpCoords = lfpReduction[\"PhysicalCoordinates\"];\n229:   nz = Select[Range[Length[lfpCoords]], ! TrueQ[lfpCoords[[#]] === 0] &];\n230: \n231:   If[nz === {},\n232:     Return[<|\"SucceededQ\" -> False, \"Reason\" -> \"ZeroFierzPauliCoordinates\"|>]\n233:   ];\n234: \n235:   firstIndex = First[nz];\n236:   factor = normalizeMatcheteParameterScalars @ Simplify[inputCoords[[firstIndex]]/lfpCoords[[firstIndex]]];\n237:   consistentQ = And @@ Table[\n238:     TrueQ[Simplify[inputCoords[[i]] == factor lfpCoords[[i]]]],\n239:     {i, nz}\n240:   ];\n241: \n242:   <|\n243:     \"SucceededQ\" -> consistentQ,\n244:     \"Reason\" -> If[consistentQ, \"OK\", \"QuadraticSectorNotProportionalToFierzPauli\"],\n245:     \"Factor\" -> factor,\n246:     \"InputCoordinates\" -> inputCoords,\n247:     \"FierzPauliCoordinates\" -> lfpCoords\n248:   |>"
+\end{verbatim}
+\subsection{Raw sector comparison records}
+\begin{verbatim}
+"412: sectorComparisonRecord[key_, inputReduction_, referenceReduction_, sectorData_] := Module[\n413:   {basis, inputCoords, referenceCoords, differenceCoords, inputExpr, referenceExpr, differenceExpr},\n414:   basis = sectorData[\"PhysicalBasis\"];\n415:   inputCoords = If[AssociationQ[inputReduction], inputReduction[\"PhysicalCoordinates\"], ConstantArray[0, Length[basis]]];\n416:   referenceCoords = If[AssociationQ[referenceReduction], referenceReduction[\"PhysicalCoordinates\"], ConstantArray[0, Length[basis]]];\n417:   differenceCoords = inputCoords - referenceCoords;\n418:   inputExpr = If[AssociationQ[inputReduction], inputReduction[\"ReducedExpression\"], 0];\n419:   referenceExpr = If[AssociationQ[referenceReduction], referenceReduction[\"ReducedExpression\"], 0];\n420:   differenceExpr = canonExpr @ LinearCombination[differenceCoords, basis];\n421:   <|\n422:     \"Sector\" -> key,\n423:     \"InputCoordinates\" -> inputCoords,\n424:     \"ReferenceCoordinates\" -> referenceCoords,\n425:     \"DifferenceCoordinates\" -> differenceCoords,\n426:     \"InputReducedExpression\" -> inputExpr,\n427:     \"ReferenceReducedExpression\" -> referenceExpr,\n428:     \"DifferenceExpression\" -> differenceExpr,\n429:     \"DifferenceIsZeroQ\" -> TrueQ[differenceExpr === 0]\n430:   |>"
+\end{verbatim}
+\subsection{Matching-equation extraction}
+\begin{verbatim}
+"433: collectDifferenceEquationRecords[sectorComparisons_Association] := Module[\n434:   {lmu = Lmu, logRule, records},\n435:   logRule = {\n436:     HoldPattern[Log[\\[Mu]bar2/M^2]] :> lmu,\n437:     HoldPattern[Log[Scalar[\\[Mu]bar2]/M^2]] :> lmu\n438:   };\n439:   records = Flatten @ KeyValueMap[\n440:     Function[{sector, record},\n441:       Module[{coords, local},\n442:         coords = record[\"DifferenceCoordinates\"];\n443:         local = Flatten @ Table[\n444:           Module[{expr, numerator, coeffs},\n445:             expr = Together[Expand[normalizeMatcheteParameterScalars[coords[[i]]] /. logRule]];\n446:             If[TrueQ[expr === 0],\n447:               {},\n448:               numerator = Expand[Numerator[expr]];\n449:               If[PolynomialQ[numerator, lmu],\n450:                 coeffs = DeleteCases[CoefficientList[numerator, lmu], 0];\n451:                 Table[\n452:                   <|\n453:                     \"Sector\" -> sector,\n454:                     \"CoordinateIndex\" -> i,\n455:                     \"EquationIndex\" -> j,\n456:                     \"Equation\" -> coeffs[[j]] == 0\n457:                   |>,\n458:                   {j, Length[coeffs]}\n459:                 ],\n460:                 {"
+\end{verbatim}
+\subsection{Final verified exact-match logic}
+\begin{verbatim}
+"581: finalizeComparisonResult[result_Association, basisOpts_List, opts_List] := Module[\n582:   {\n583:     useQuadraticCompletion, verificationSubs, verificationAssumptions,\n584:     supportedComparisons, unsupportedComparisons, verifiedSupportedQ,\n585:     verifiedUnsupportedComparisons, quadraticSector, quadraticCompletion,\n586:     updatedUnsupportedDifference, exactMatchUnderSolveQ, verificationAppliedQ,\n587:     finalExactQ\n588:   },\n589:   useQuadraticCompletion = TrueQ[Lookup[Association[opts], \"UseQuadraticCompletion\", True]];\n590:   verificationSubs = resolveVerificationSubstitutions[\n591:     Lookup[result, \"MatchSolutions\", <||>],\n592:     Lookup[Association[opts], \"VerificationSubstitutions\", Automatic]\n593:   ];\n594:   verificationAssumptions = Lookup[Association[opts], \"VerificationAssumptions\", True];\n595:   verificationAppliedQ = verificationSubs =!= {};\n596:   exactMatchUnderSolveQ = TrueQ[Lookup[result, \"ExactMatchQ\", False]];\n597:   quadraticSector = {2, 4};\n598: \n599:   supportedComparisons = KeySelect[\n600:     Lookup[result, \"SectorComparison\", <||>],\n601:     MemberQ[Lookup[result, \"SupportedSectors\", {}], #] &\n602:   ];\n603:   unsupportedComparisons = KeySelect[\n604:     Lookup[result, \"SectorComparison\", <||>],\n605:     ! MemberQ[Lookup[result, \"SupportedSectors\", {}], #] &\n606:   ];\n607: \n608:   verifiedSupportedQ = If[\n609:     verificationAppliedQ,\n610:     And @@ (exprZeroUnderVerificationQ[#[\"DifferenceExpression\"], verificationSubs, verificationAssumptions] & /@ Values[supportedComparisons]),\n611:     Lookup[Lookup[result, \"MatchSolutions\", <||>], \"HasSolution\", False]\n612:   ];\n613: \n614:   verifiedUnsupportedComparisons = If[\n615:     verificationAppliedQ,\n616:     KeySelect[\n617:       unsupportedComparisons,\n618:       ! exprZeroUnderVerificationQ[unsupportedComparisons[#][\"DifferenceExpression\"], verificationSubs, verificationAssumptions] &\n619:     ],\n620:     KeySelect[\n621:       unsupportedComparisons,\n622:       ! TrueQ[unsupportedComparisons[#][\"DifferenceIsZeroQ\"]] &\n623:     ]\n624:   ];\n625: \n626:   quadraticCompletion = Missing[\"NotApplied\"];\n627:   If[\n628:     useQuadraticCompletion &&\n629:     verificationAppliedQ &&\n630:     KeyExistsQ[verifiedUnsupportedComparisons, quadraticSector],\n631:     quadraticCompletion = AnalyzeQuadraticFourDerivativeDifference[\n632:       result,\n633:       Sequence @@ basisOpts,\n634:       \"Substitutions\" -> verificationSubs,\n635:       \"Verbose\" -> False\n636:     ];\n637:     If[\n638:       AssociationQ[quadraticCompletion] &&\n639:       TrueQ[quadraticCompletion[\"CurvatureSquaredModuloQuadraticRedefinitionsQ\"]] &&\n640:       TrueQ[quadraticCompletion[\"ResidualIsZeroQ\"]],\n641:       verifiedUnsupportedComparisons = KeyDrop[verifiedUnsupportedComparisons, {quadraticSector}]\n642:     ];\n643:   ];\n644: \n645:   updatedUnsupportedDifference = canonExpr @ Total[\n646:     Lookup[Values[verifiedUnsupportedComparisons], \"DifferenceExpression\", {}]\n647:   ];\n648: \n649:   finalExactQ = If[\n650:     verificationAppliedQ,\n651:     TrueQ[\n652:       verifiedSupportedQ &&\n653:       verifiedUnsupportedComparisons === <||> &&\n654:       Lookup[result, \"InputProjectionFailures\", {}] === {} &&\n655:       Lookup[result, \"ReferenceProjectionFailures\", {}] === {}\n656:     ],\n657:     exactMatchUnderSolveQ\n658:   ];\n659: \n660:   Join[\n661:     result,\n662:     <|\n663:       \"ExactMatchUnderSolveQ\" -> exactMatchUnderSolveQ,\n664:       \"VerificationAppliedQ\" -> verificationAppliedQ,\n665:       \"VerificationSubstitutions\" -> verificationSubs,\n666:       \"VerificationAssumptions\" -> verificationAssumptions,\n667:       \"VerifiedSupportedMatchQ\" -> verifiedSupportedQ,\n668:       \"QuadraticCompletion\" -> quadraticCompletion,\n669:       \"UnsupportedSectors\" -> Keys[verifiedUnsupportedComparisons],\n670:       \"UnsupportedDifference\" -> updatedUnsupportedDifference,\n671:       \"ExactMatchQ\" -> finalExactQ\n672:     |>\n673:   ]"
+\end{verbatim}
+\subsection{Quadratic completion logic}
+\begin{verbatim}
+"925: AnalyzeQuadraticFourDerivativeDifference[result_Association, opts : OptionsPattern[]] := Module[\n926:   {\n927:     allOpts, sector, basisOpts, sec, rawExpr, expr, proj, curvatureData,\n928:     redefData, basisVectors, decomposition, ruleAssoc, curvatureVars, redefVars,\n929:     curvatureCoeffs, redefCoeffs, curvatureExpr, redefExpr, residualExpr\n930:   },\n931:   allOpts = {opts};\n932:   sector = OptionValue[\"Sector\"];\n933:   If[sector =!= {2, 4},\n934:     Return[$Failed]\n935:   ];\n936: \n937:   basisOpts = reductionOptionsFrom[allOpts];\n938:   compareLog[\"[quadratic] loading sector data for \" <> ToString[sector], allOpts];\n939:   sec = Which[\n940:     KeyExistsQ[Lookup[result, \"SectorComparison\", <||>], sector],\n941:       Lookup[result[\"SectorComparison\"][sector], \"SectorData\", Missing[\"NotAvailable\"]],\n942:     True,\n943:       Missing[\"NotAvailable\"]\n944:   ];\n945:   If[! AssociationQ[sec],\n946:     sec = ComputeSectorData[sector[[1]], sector[[2]], Sequence @@ basisOpts];\n947:   ];\n948: \n949:   rawExpr = Which[\n950:     KeyExistsQ[Lookup[result, \"SectorComparison\", <||>], sector],\n951:       result[\"SectorComparison\"][sector][\"DifferenceExpression\"],\n952:     KeyExistsQ[Lookup[result, \"UnsupportedDifference\", <||>], sector],\n953:       result[\"UnsupportedDifference\"][sector],\n954:     True,\n955:       0\n956:   ];\n957:   compareLog[\"[quadratic] projecting analyzed expression to IBP basis\", allOpts];\n958:   expr = canonExpr[normalizeMatcheteParameterScalars[rawExpr] /. OptionValue[\"Substitutions\"]];\n959:   proj = ProjectToIBPUsingSectorData[expr, sec];\n960:   compareLog[\"[quadratic] building curvature-squared basis projections\", allOpts];\n961:   curvatureData = curvatureSquaredProjectionData[sec];\n962:   compareLog[\"[quadratic] building quadratic higher-derivative redefinition image\", allOpts];\n963:   redefData = If[TrueQ[OptionValue[\"UseQuadraticRedefinitions\"]],\n964:     quadraticFourDerivativeRedefinitionData[sec, basisOpts],\n965:     <|\"IndependentVectors\" -> {}, \"IndependentDeltas\" -> {}, \"Rank\" -> 0|>\n966:   ];\n967: \n968:   basisVectors = Join[\n969:     curvatureData[\"IndependentGaugeInvariantVectors\"],\n970:     Lookup[redefData, \"IndependentVectors\", {}]\n971:   ];\n972:   compareLog[\"[quadratic] solving decomposition in curvature + redefinition basis\", allOpts];\n973:   decomposition = solveLinearVectorDecomposition[proj[\"Coordinates\"], basisVectors, \"c24\"];\n974:   ruleAssoc = Association[Lookup[decomposition, \"Rules\", {}]];\n975:   curvatureVars = Take[decomposition[\"Variables\"], UpTo[Length[curvatureData[\"IndependentGaugeInvariantVectors\"]]]];\n976:   redefVars = Drop[decomposition[\"Variables\"], Length[curvatureData[\"IndependentGaugeInvariantVectors\"]]];\n977:   curvatureCoeffs = If[decomposition[\"HasSolution\"],\n978:     Lookup[ruleAssoc, curvatureVars, Missing[\"NotAvailable\"]],\n979:     {}\n980:   ];\n981:   redefCoeffs = If[decomposition[\"HasSolution\"],\n982:     Lookup[ruleAssoc, redefVars, Missing[\"NotAvailable\"]],\n983:     {}\n984:   ];\n985:   curvatureExpr = If[decomposition[\"HasSolution\"],\n986:     canonExpr @ LinearCombination[curvatureCoeffs, {\n987:       curvatureData[\"R2\"][\"ProjectedExpr\"],\n988:       curvatureData[\"Ricci2\"][\"ProjectedExpr\"]\n989:     }],\n990:     0\n991:   ];\n992:   redefExpr = If[decomposition[\"HasSolution\"] && redefCoeffs =!= {},\n993:     canonExpr @ LinearCombination[redefCoeffs, Lookup[redefData[\"ProjectedData\"], \"ProjectedExpr\", {}][[Lookup[redefData, \"IndependentRows\", {}]]]],\n994:     0\n995:   ];\n996:   residualExpr = canonExpr[expr - curvatureExpr - redefExpr];\n997: \n998:   <|\n999:     \"Sector\" -> sector,\n1000:     \"AnalyzedExpression\" -> expr,\n1001:     \"ProjectedData\" -> proj,\n1002:     \"CurvatureBasis\" -> <|\n1003:       \"R2Expression\" -> curvatureData[\"R2\"][\"ProjectedExpr\"],\n1004:       \"R2Coordinates\" -> curvatureData[\"R2\"][\"Coordinates\"],\n1005:       \"Ricci2Expression\" -> curvatureData[\"Ricci2\"][\"ProjectedExpr\"],\n1006:       \"Ricci2Coordinates\" -> curvatureData[\"Ricci2\"][\"Coordinates\"],\n1007:       \"Riemann2Expression\" -> If[AssociationQ[curvatureData[\"Riemann2\"]], curvatureData[\"Riemann2\"][\"ProjectedExpr\"], Missing[\"NotComputed\"]],\n1008:       \"Riemann2Coordinates\" -> If[AssociationQ[curvatureData[\"Riemann2\"]], curvatureData[\"Riemann2\"][\"Coordinates\"], Missing[\"NotComputed\"]],\n1009:       \"GaussBonnetExpression\" -> If[AssociationQ[curvatureData[\"GaussBonnet\"]], curvatureData[\"GaussBonnet\"][\"ProjectedExpr\"], Missing[\"NotComputed\"]],\n1010:       \"GaussBonnetCoordinates\" -> If[AssociationQ[curvatureData[\"GaussBonnet\"]], curvatureData[\"GaussBonnet\"][\"Coordinates\"], Missing[\"NotComputed\"]]\n1011:     |>,\n1012:     \"QuadraticRedefinitionData\" -> redefData,\n1013:     \"Decomposition\" -> decomposition,\n1014:     \"CurvatureCoefficients\" -> AssociationThread[curvatureData[\"IndependentGaugeInvariantNames\"], curvatureCoeffs],\n1015:     \"QuadraticRedefinitionCoefficients\" -> AssociationThread[\n1016:       Range[Length[redefCoeffs]],\n1017:       redefCoeffs\n1018:     ],\n1019:     \"CurvatureExpression\" -> curvatureExpr,\n1020:     \"QuadraticRedefinitionExpression\" -> redefExpr,\n1021:     \"ResidualExpression\" -> residualExpr,\n1022:     \"ResidualIsZeroQ\" -> TrueQ[residualExpr === 0],\n1023:     \"PureQuadraticRedefinitionQ\" -> TrueQ[residualExpr === 0] && And @@ (TrueQ[Simplify[# == 0]] & /@ Values[AssociationThread[curvatureData[\"IndependentGaugeInvariantNames\"], curvatureCoeffs]]),\n1024:     \"CurvatureSquaredModuloQuadraticRedefinitionsQ\" -> TrueQ[residualExpr === 0]\n1025:   |>"
+\end{verbatim}
+\subsection{Underlying IBP projection and interaction-sector redefinition image}
+\begin{verbatim}
+"503: ProjectModuloIBP[expr_, basis_List] := Module[{ans, cleanExpr, eq, sol, qvars, coeffs},\n504:   If[basis === {},\n505:     Return[<|\"ProjectedExpr\" -> 0, \"Coordinates\" -> {}, \"Solution\" -> {{}}|>]\n506:   ];\n507: \n508:   ans = MakeAnsatz[basis, ConstantPrefix -> q];\n509:   cleanExpr = StripScalarParameterWrappers[expr];\n510:   qvars = Table[Symbol[\"q\" <> ToString[i]], {i, Length[basis]}];\n511:   eq = If[\n512:     DerivativeFreeExprQ[ans] && DerivativeFreeExprQ[cleanExpr],\n513:     canonExpr[ans - cleanExpr],\n514:     canonExpr @ VarD[h[-m, -n], PD][ans - cleanExpr]\n515:   ];\n516:   sol = SafeSolveConstants[eq == 0, qvars];\n517:   coeffs = (qvars /. First[sol]) /. Thread[qvars -> 0];\n518: \n519:   <|\n520:     \"ProjectedExpr\" -> canonExpr[(ans /. First[sol]) /. Thread[qvars -> 0]],\n521:     \"Coordinates\" -> coeffs,\n522:     \"Solution\" -> sol\n523:   |>"
+\end{verbatim}
+\begin{verbatim}
+"538: RedefinitionImageData[nh_Integer, Nd_Integer, ibpBasis_List, opts : OptionsPattern[RunBasisComputation]] :=\n539:   LoadOrCompute[\n540:     \"redef_image_data\",\n541:     <|\"nh\" -> nh, \"Nd\" -> Nd|>,\n542:     Function[Null,\n543:       Module[{nhRedef, NdRedef, deltaBasis, shifts, proj, vecs, indRows, indVecs},\n544: \n545:         (* Keep quadratic sectors in the IBP basis. Linear field redefinitions\n546:            act on the kinetic operator itself, so the FP-image quotient is only\n547:            applied to interaction sectors with nh >= 3. *)\n548:         If[nh < 3,\n549:           Return[<|\n550:             \"DeltaBasis\" -> {},\n551:             \"ShiftImages\" -> {},\n552:             \"ProjectedData\" -> {},\n553:             \"ImageVectors\" -> {},\n554:             \"IndependentRows\" -> {},\n555:             \"IndependentVectors\" -> {},\n556:             \"IndependentDeltas\" -> {},\n557:             \"Rank\" -> 0\n558:           |>]\n559:         ];\n560: \n561:         nhRedef = nh - 1;\n562:         NdRedef = Nd - 2;\n563: \n564:         If[nhRedef < 1 || NdRedef < 0 || ibpBasis === {},\n565:           Return[<|\n566:             \"DeltaBasis\" -> {},\n567:             \"ShiftImages\" -> {},\n568:             \"ProjectedData\" -> {},\n569:             \"ImageVectors\" -> {},\n570:             \"IndependentRows\" -> {},\n571:             \"IndependentVectors\" -> {},\n572:             \"IndependentDeltas\" -> {},\n573:             \"Rank\" -> 0\n574:           |>]\n575:         ];\n576: \n577:         deltaBasis = Rank2Basis[nhRedef, NdRedef, opts];\n578:         shifts = ShiftFromRedefExpr /@ deltaBasis;\n579:         proj = ProjectModuloIBP[#, ibpBasis] & /@ shifts;\n580:         vecs = proj[[All, \"Coordinates\"]];\n581: \n582:         indRows = IndependentImageRows[vecs];\n583:         indVecs = If[indRows === {}, {}, vecs[[indRows]]];\n584: \n585:         <|\n586:           \"DeltaBasis\" -> deltaBasis,\n587:           \"ShiftImages\" -> shifts,\n588:           \"ProjectedData\" -> proj,\n589:           \"ImageVectors\" -> vecs,\n590:           \"IndependentRows\" -> indRows,\n591:           \"IndependentVectors\" -> indVecs,\n592:           \"IndependentDeltas\" -> If[indRows === {}, {}, deltaBasis[[indRows]]],\n593:           \"Rank\" -> If[MatrixQ[vecs] && vecs =!= {}, MatrixRank[vecs], 0]\n594:         |>"
+\end{verbatim}
+\subsection{Independent cross-check script}
+\begin{verbatim}
+"47: result = Get[resultFile];\n48: sec = ComputeSectorData[\n49:   2,\n50:   4,\n51:   \"MaxDimension\" -> 6,\n52:   \"CacheDirectory\" -> cacheDir,\n53:   \"UseCache\" -> True,\n54:   \"Verbose\" -> False\n55: ];\n56: \n57: targetExpr = canonExpr[result[\"SectorComparison\"][{2, 4}][\"DifferenceExpression\"] /. subs];\n58: targetProj = ProjectToIBPUsingSectorData[targetExpr, sec];\n59: targetCoords = targetProj[\"Coordinates\"];\n60: \n61: deltaBasis = Rank2Basis[\n62:   1,\n63:   2,\n64:   \"MaxDimension\" -> 6,\n65:   \"CacheDirectory\" -> cacheDir,\n66:   \"UseCache\" -> True,\n67:   \"Verbose\" -> False\n68: ];\n69: shiftImages = ShiftFromRedefExpr /@ deltaBasis;\n70: shiftProj = ProjectToIBPUsingSectorData[#, sec] & /@ shiftImages;\n71: shiftVecs = shiftProj[[All, \"Coordinates\"]];\n72: indRows = IndependentImageRows[shiftVecs];\n73: indVecs = shiftVecs[[indRows]];\n74: \n75: pureVars = Array[p, Length[indVecs]];\n76: pureEqns = Thread[Transpose[indVecs].pureVars == targetCoords];\n77: pureSolve = Quiet[Solve[pureEqns, pureVars], Solve::svars];\n78: pureRules = If[ListQ[pureSolve] && pureSolve =!= {}, completeRules[pureVars, First[pureSolve]], {}];\n79: pureReconstructed = If[\n80:   pureRules === {},\n81:   ConstantArray[0, Length[targetCoords]],\n82:   Simplify[FixedPoint[# /. pureRules &, Transpose[indVecs].pureVars, 2]]\n83: ];\n84: \n85: r2Proj = ProjectModuloIBP[\n86:   canonExpr[linRicciScalarExprCheck[] linRicciScalarExprCheck[]],\n87:   sec[\"IBPBasis\"]\n88: ];\n89: \n90: ricci2Expr = Module[{a1, b1, c1, d1},\n91:   a1 = DummyIn[TangentM];\n92:   b1 = DummyIn[TangentM];\n93:   c1 = DummyIn[TangentM];\n94:   d1 = DummyIn[TangentM];\n95:   canonExpr[\n96:     eta[a1, c1] eta[b1, d1] linRicciExprCheck[-a1, -b1] linRicciExprCheck[-c1, -d1]\n97:   ]\n98: ];\n99: ricci2Proj = ProjectModuloIBP[ricci2Expr, sec[\"IBPBasis\"]];\n100: \n101: jointVecs = Join[{r2Proj[\"Coordinates\"], ricci2Proj[\"Coordinates\"]}, indVecs];\n102: jointVars = Join[{cR2, cRicci2}, Array[q, Length[indVecs]]];\n103: jointEqns = Thread[Transpose[jointVecs].jointVars == targetCoords];\n104: jointSolve = Quiet[Solve[jointEqns, jointVars], Solve::svars];\n105: jointRules = If[ListQ[jointSolve] && jointSolve =!= {}, completeRules[jointVars, First[jointSolve]], {}];\n106: jointReconstructed = If[\n107:   jointRules === {},\n108:   ConstantArray[0, Length[targetCoords]],\n109:   Simplify[FixedPoint[# /. jointRules &, Transpose[jointVecs].jointVars, 2]]\n110: ];\n111: \n112: analysis = <|\n113:   \"TargetCoordinates\" -> targetCoords,\n114:   \"IndependentRedefinitionRows\" -> indRows,\n115:   \"IndependentRedefinitionVectors\" -> indVecs,\n116:   \"PureRedefinitionSolve\" -> pureSolve,\n117:   \"PureRedefinitionRules\" -> pureRules,\n118:   \"PureRedefinitionReconstructed\" -> pureReconstructed,\n119:   \"CurvatureBasisVectors\" -> <|\n120:     \"R2\" -> r2Proj[\"Coordinates\"],\n121:     \"Ricci2\" -> ricci2Proj[\"Coordinates\"]\n122:   |>,\n123:   \"JointSolve\" -> jointSolve,\n124:   \"JointRules\" -> jointRules,\n125:   \"JointReconstructed\" -> jointReconstructed\n126: |>;\n127: \n128: summary = <|\n129:   \"PureRedefinitionHasSolutionQ\" -> TrueQ[ListQ[pureSolve] && pureSolve =!= {}],\n130:   \"PureRedefinitionReconstructionMatchesQ\" -> And @@ (TrueQ[Simplify[#]] & /@ Thread[pureReconstructed == targetCoords]),\n131:   \"JointSolveHasSolutionQ\" -> TrueQ[ListQ[jointSolve] && jointSolve =!= {}],\n132:   \"JointReconstructionMatchesQ\" -> And @@ (TrueQ[Simplify[#]] & /@ Thread[jointReconstructed == targetCoords]),\n133:   \"JointCurvatureCoefficients\" -> <|\n134:     \"R2\" -> Lookup[Association[jointRules], cR2, Missing[\"NotAvailable\"]],\n135:     \"Ricci2\" -> Lookup[Association[jointRules], cRicci2, Missing[\"NotAvailable\"]]\n136:   |>\n137: |>;"
+\end{verbatim}
+
+\section{Canonical Normalization Check}
+
+The code compares the reduced $\{2,2\}$ input coordinates to the reduced Fierz--Pauli coordinates and extracts a common factor $Z_h$.
+
+Extracted canonical normalization data:
+
+\begin{verbatim}
+<|"SucceededQ" -> True, "Reason" -> "OK", "Factor" -> (M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2]))/24, "InputCoordinates" -> {(-(M^2*\[Kappa]^2) - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/32 + (5*(M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2]))/96, (-2*M^2*\[Kappa]^2 - 3*M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/24 + (-2*M^2*\[Kappa]^2 - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/24 + (M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/8, (-(M^2*\[Kappa]^2) - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/8 + (M^2*\[Kappa]^2 + M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/6, (-(M^2*\[Kappa]^2) - M^2*\[Kappa]^2*Log[\[Mu]bar2/M^2])/48}, "FierzPauliCoordinates" -> {1/2, -1, 1, -1/2}, "TargetQuadraticSign" -> -1|>
+\end{verbatim}
+
+The resulting factor is:
+
+\begin{verbatim}
+(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2]))/24
+\end{verbatim}
+
+The target kinetic sign used in the final comparison is -1.
+
+\section{Verified Branch Used in the Final Exact-Match Statement}
+
+The exact-match verdict does not come from a generic all-parameter symbolic solve. It comes from the explicit verification substitutions stored in the result object:
+
+\begin{verbatim}
+{Scalar[M] -> M, Scalar[\[Kappa]] -> \[Kappa], Scalar[\[Mu]bar2] -> \[Mu]bar2, Sqrt[1/(M^2*\[Kappa]^2)] -> 1/(M*\[Kappa]), Sqrt[1/(Scalar[M]^2*Scalar[\[Kappa]]^2)] -> 1/(M*\[Kappa]), Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] -> Sqrt[2]/(M*\[Kappa]), Sqrt[-(1/((1 + Log[\[Mu]bar2/M^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))] -> Sqrt[2]/(M*\[Kappa]), Log[\[Mu]bar2/M^2] -> -3/2, Log[Scalar[\[Mu]bar2]/M^2] -> -3/2, Log[Scalar[\[Mu]bar2]/Scalar[M]^2] -> -3/2, LambdaRefFinal -> 0, KappaRefFinal -> (4*Sqrt[3])/M}
+\end{verbatim}
+
+with assumptions
+
+\begin{verbatim}
+M > 0 && \[Kappa] > 0 && \[Mu]bar2 > 0
+\end{verbatim}
+
+The code-level verified supported-sector check returned:
+
+\begin{verbatim}
+True
+\end{verbatim}
+
+\section{Supported-Sector Audit}
+
+For every supported sector, the report now lists the raw difference expression stored in the final result and the same expression after the verified substitutions used by \texttt{finalizeComparisonResult}.
+
+\subsection*{Sector {1, 0}}
+Raw difference expression:
+\begin{verbatim}
+(h[a, -a]*(-4*KappaRefFinal*LambdaRefFinal + 3*Sqrt[6]*M^4*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))] + 2*Sqrt[6]*M^4*\[Kappa]*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))]))/8
+\end{verbatim}
+Difference after the verified substitutions used by \texttt{finalizeComparisonResult}:
+\begin{verbatim}
+0
+\end{verbatim}
+Verified zero check: True.
+
+\subsection*{Sector {2, 0}}
+Raw difference expression:
+\begin{verbatim}
+(h[-a, -b]*h[a, b]*(KappaRefFinal^2*LambdaRefFinal + 9*M^2 + (KappaRefFinal^2*LambdaRefFinal + 6*M^2)*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/(4*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])) - (h[a, -a]*h[b, -b]*(KappaRefFinal^2*LambdaRefFinal + 9*M^2 + (KappaRefFinal^2*LambdaRefFinal + 6*M^2)*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/(8*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))
+\end{verbatim}
+Difference after the verified substitutions used by \texttt{finalizeComparisonResult}:
+\begin{verbatim}
+0
+\end{verbatim}
+Verified zero check: True.
+
+\subsection*{Sector {2, 2}}
+Raw difference expression:
+\begin{verbatim}
+0
+\end{verbatim}
+Difference after the verified substitutions used by \texttt{finalizeComparisonResult}:
+\begin{verbatim}
+0
+\end{verbatim}
+Verified zero check: True.
+
+\subsection*{Sector {3, 0}}
+Raw difference expression:
+\begin{verbatim}
+(h[a, -a]*h[-b, -c]*h[b, c]*(KappaRefFinal^3*LambdaRefFinal + Log[Scalar[\[Mu]bar2]/Scalar[M]^2]*(KappaRefFinal^3*LambdaRefFinal - 24*Sqrt[6]*M^2*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))]) - 36*Sqrt[6]*M^2*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))]))/(8*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])) + (h[-a, c]*h[a, b]*h[-b, -c]*(-(KappaRefFinal^3*LambdaRefFinal) + Log[Scalar[\[Mu]bar2]/Scalar[M]^2]*(-(KappaRefFinal^3*LambdaRefFinal) + 24*Sqrt[6]*M^2*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))]) + 36*Sqrt[6]*M^2*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))]))/(6*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])) + (h[a, -a]*h[b, -b]*h[c, -c]*(-(KappaRefFinal^3*LambdaRefFinal) + Log[Scalar[\[Mu]bar2]/Scalar[M]^2]*(-(KappaRefFinal^3*LambdaRefFinal) + 24*Sqrt[6]*M^2*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))]) + 36*Sqrt[6]*M^2*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))]))/(48*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))
+\end{verbatim}
+Difference after the verified substitutions used by \texttt{finalizeComparisonResult}:
+\begin{verbatim}
+0
+\end{verbatim}
+Verified zero check: True.
+
+\subsection*{Sector {3, 2}}
+Raw difference expression:
+\begin{verbatim}
+(h[a, b]*(KappaRefFinal - 2*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])*PD[-a][h[c, d]]*PD[-b][h[-c, -d]])/2 + h[a, -a]*(-1/2*KappaRefFinal + Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])*PD[-b][h[b, c]]*PD[-d][h[-c, d]] + (h[a, b]*(KappaRefFinal - 2*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])*PD[c][h[-a, -b]]*PD[-d][h[-c, d]])/2 + (h[a, -a]*(KappaRefFinal - 2*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])*PD[c][h[b, -b]]*PD[-d][h[-c, d]])/4 + h[a, b]*(-KappaRefFinal + 2*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])*PD[-b][h[-c, -d]]*PD[d][h[-a, c]] + (h[a, -a]*(KappaRefFinal - 2*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])*PD[-d][h[-b, -c]]*PD[d][h[b, c]])/4
+\end{verbatim}
+Difference after the verified substitutions used by \texttt{finalizeComparisonResult}:
+\begin{verbatim}
+0
+\end{verbatim}
+Verified zero check: True.
+
+\subsection*{Sector {4, 0}}
+Raw difference expression:
+\begin{verbatim}
+h[-a, c]*h[a, b]*h[-b, d]*h[-c, -d]*((KappaRefFinal^4*LambdaRefFinal)/8 - 27/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2 - (18*Log[Scalar[\[Mu]bar2]/Scalar[M]^2])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2) + h[a, -a]*h[-b, d]*h[b, c]*h[-c, -d]*(-1/12*(KappaRefFinal^4*LambdaRefFinal) + 18/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2 + (12*Log[Scalar[\[Mu]bar2]/Scalar[M]^2])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2) + (h[-a, -b]*h[a, b]*h[-c, -d]*h[c, d]*(216 + 144*Log[Scalar[\[Mu]bar2]/Scalar[M]^2] - KappaRefFinal^4*LambdaRefFinal*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2))/(32*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2) + (h[a, -a]*h[b, -b]*h[c, -c]*h[d, -d]*(216 + 144*Log[Scalar[\[Mu]bar2]/Scalar[M]^2] - KappaRefFinal^4*LambdaRefFinal*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2))/(384*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2) + (h[a, -a]*h[b, -b]*h[-c, -d]*h[c, d]*(-216 - 144*Log[Scalar[\[Mu]bar2]/Scalar[M]^2] + KappaRefFinal^4*LambdaRefFinal*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2))/(32*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2)
+\end{verbatim}
+Difference after the verified substitutions used by \texttt{finalizeComparisonResult}:
+\begin{verbatim}
+0
+\end{verbatim}
+Verified zero check: True.
+
+\subsection*{Sector {4, 2}}
+Raw difference expression:
+\begin{verbatim}
+h[-a, c]*h[a, b]*(-1/2*KappaRefFinal^2 - 12/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-b][h[d, e]]*PD[-c][h[-d, -e]] + h[a, -a]*h[b, c]*(KappaRefFinal^2/4 + 6/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-b][h[d, e]]*PD[-c][h[-d, -e]] + h[a, b]*h[c, d]*(-KappaRefFinal^2 - 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-c][h[-a, e]]*PD[-d][h[-b, -e]] + h[a, b]*h[c, d]*(KappaRefFinal^2 + 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-b][h[-a, e]]*PD[-d][h[-c, -e]] + h[a, -a]*h[b, c]*(-1/2*KappaRefFinal^2 - 12/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-c][h[-b, d]]*PD[-d][h[e, -e]] + h[-a, c]*h[a, b]*(KappaRefFinal^2 + 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-c][h[-b, d]]*PD[-d][h[e, -e]] + h[a, b]*h[c, d]*(KappaRefFinal^2 + 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-b][h[-a, -c]]*PD[-e][h[-d, e]] + h[-a, c]*h[a, b]*(-KappaRefFinal^2 - 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-c][h[-b, d]]*PD[-e][h[-d, e]] + h[-a, -b]*h[a, b]*(KappaRefFinal^2/2 + 12/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-c][h[c, d]]*PD[-e][h[-d, e]] + h[-a, c]*h[a, b]*(-1/2*KappaRefFinal^2 - 12/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[d][h[-b, -c]]*PD[-e][h[-d, e]] + h[a, -a]*h[b, c]*(KappaRefFinal^2/4 + 6/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[d][h[-b, -c]]*PD[-e][h[-d, e]] + h[-a, -b]*h[a, b]*((-3*KappaRefFinal^2)/8 - 9/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[d][h[c, -c]]*PD[-e][h[-d, e]] + (h[a, -a]*h[b, -b]*(KappaRefFinal^2 + 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[d][h[c, -c]]*PD[-e][h[-d, e]])/16 + h[a, b]*h[c, d]*(-1/2*KappaRefFinal^2 - 12/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-e][h[-c, -d]]*PD[e][h[-a, -b]] + h[a, b]*h[c, d]*(-KappaRefFinal^2 - 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-d][h[-b, -e]]*PD[e][h[-a, -c]] + h[a, b]*h[c, d]*(KappaRefFinal^2/2 + 12/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-e][h[-b, -d]]*PD[e][h[-a, -c]] + h[-a, c]*h[a, b]*(KappaRefFinal^2 + 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-c][h[-d, -e]]*PD[e][h[-b, d]] + h[-a, c]*h[a, b]*(-KappaRefFinal^2 - 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-d][h[-c, -e]]*PD[e][h[-b, d]] + h[a, -a]*h[b, c]*(KappaRefFinal^2/2 + 12/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-d][h[-c, -e]]*PD[e][h[-b, d]] + h[a, -a]*h[b, c]*(-1/2*KappaRefFinal^2 - 12/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-e][h[-c, -d]]*PD[e][h[-b, d]] + h[-a, c]*h[a, b]*(KappaRefFinal^2 + 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-e][h[-c, -d]]*PD[e][h[-b, d]] + h[a, -a]*h[b, -b]*(-1/8*KappaRefFinal^2 - 3/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-d][h[-c, -e]]*PD[e][h[c, d]] + h[-a, -b]*h[a, b]*(KappaRefFinal^2/4 + 6/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-d][h[-c, -e]]*PD[e][h[c, d]] + h[-a, -b]*h[a, b]*((-3*KappaRefFinal^2)/8 - 9/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-e][h[-c, -d]]*PD[e][h[c, d]] + (h[a, -a]*h[b, -b]*(KappaRefFinal^2 + 24/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2))*PD[-e][h[-c, -d]]*PD[e][h[c, d]])/16
+\end{verbatim}
+Difference after the verified substitutions used by \texttt{finalizeComparisonResult}:
+\begin{verbatim}
+0
+\end{verbatim}
+Verified zero check: True.
+
+\subsection*{Sector {5, 0}}
+Raw difference expression:
+\begin{verbatim}
+-1/192*(h[a, -a]*h[b, -b]*h[c, -c]*h[-d, -e]*h[d, e]*(7*KappaRefFinal^5*LambdaRefFinal*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2 + 432*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))] + 288*Sqrt[6]*\[Kappa]*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))]))/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2 + h[a, -a]*h[-b, d]*h[b, c]*h[-c, e]*h[-d, -e]*(-1/16*(KappaRefFinal^5*LambdaRefFinal) - (27*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2 - (18*Sqrt[6]*\[Kappa]*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2) + h[-a, -b]*h[a, b]*h[-c, e]*h[c, d]*h[-d, -e]*(-1/24*(KappaRefFinal^5*LambdaRefFinal) - (18*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2 - (12*Sqrt[6]*\[Kappa]*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2) + h[a, -a]*h[b, -b]*h[-c, e]*h[c, d]*h[-d, -e]*((KappaRefFinal^5*LambdaRefFinal)/16 + (9*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2 + (6*Sqrt[6]*\[Kappa]*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2) + (3*h[a, -a]*h[-b, -c]*h[b, c]*h[-d, -e]*h[d, e]*(KappaRefFinal^5*LambdaRefFinal + (144*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2 + (96*Sqrt[6]*\[Kappa]*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2))/64 + (h[a, -a]*h[b, -b]*h[c, -c]*h[d, -d]*h[e, -e]*(5*KappaRefFinal^5*LambdaRefFinal + (144*Sqrt[6]*\[Kappa]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2 + (96*Sqrt[6]*\[Kappa]*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2))/1280 + (72*Sqrt[6]*\[Kappa]*h[-a, c]*h[a, b]*h[-b, d]*h[-c, e]*h[-d, -e]*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Sqrt[-(1/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])*Scalar[M]^2*Scalar[\[Kappa]]^2))])/(5*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^2)
+\end{verbatim}
+Difference after the verified substitutions used by \texttt{finalizeComparisonResult}:
+\begin{verbatim}
+0
+\end{verbatim}
+Verified zero check: True.
+
+\subsection*{Sector {6, 0}}
+Raw difference expression:
+\begin{verbatim}
+h[a, -a]*h[b, -b]*h[-c, e]*h[c, d]*h[-d, f]*h[-e, -f]*((KappaRefFinal^6*LambdaRefFinal)/64 - (189*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2)) + h[-a, c]*h[a, b]*h[-b, -c]*h[-d, f]*h[d, e]*h[-e, -f]*((KappaRefFinal^6*LambdaRefFinal)/72 - (96*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2)) + h[-a, -b]*h[a, b]*h[-c, -d]*h[c, d]*h[-e, -f]*h[e, f]*(-1/128*(KappaRefFinal^6*LambdaRefFinal) - (45*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/(2*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2)) + h[a, -a]*h[b, -b]*h[-c, -d]*h[c, d]*h[-e, -f]*h[e, f]*(-1/256*(KappaRefFinal^6*LambdaRefFinal) - (81*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/(4*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2)) + h[a, -a]*h[b, -b]*h[c, -c]*h[d, -d]*h[e, -e]*h[f, -f]*((-13*KappaRefFinal^6*LambdaRefFinal)/9216 - (93*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/(80*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2)) + h[a, -a]*h[b, -b]*h[c, -c]*h[d, -d]*h[-e, -f]*h[e, f]*((17*KappaRefFinal^6*LambdaRefFinal)/1536 + (63*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/(8*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2)) + h[a, -a]*h[b, -b]*h[c, -c]*h[-d, f]*h[d, e]*h[-e, -f]*((-5*KappaRefFinal^6*LambdaRefFinal)/288 + (30*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2)) + h[a, -a]*h[-b, -c]*h[b, c]*h[-d, f]*h[d, e]*h[-e, -f]*(-1/48*(KappaRefFinal^6*LambdaRefFinal) + (36*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2)) + h[-a, -b]*h[a, b]*h[-c, e]*h[c, d]*h[-d, f]*h[-e, -f]*((KappaRefFinal^6*LambdaRefFinal)/32 + (162*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2)) - (288*h[-a, c]*h[a, b]*h[-b, d]*h[-c, e]*h[-d, f]*h[-e, -f]*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/((1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2) + (1728*h[a, -a]*h[-b, d]*h[b, c]*h[-c, e]*h[-d, f]*h[-e, -f]*(3 + 2*Log[Scalar[\[Mu]bar2]/Scalar[M]^2]))/(5*(1 + Log[Scalar[\[Mu]bar2]/Scalar[M]^2])^3*Scalar[M]^2)
+\end{verbatim}
+Difference after the verified substitutions used by \texttt{finalizeComparisonResult}:
+\begin{verbatim}
+0
+\end{verbatim}
+Verified zero check: True.
+
+\section{Exact Matching Equations Extracted by the Code}
+
+The function \texttt{collectDifferenceEquationRecords} expands each supported-sector coordinate difference, clears denominators with \texttt{Together}, and sets each coefficient of $L_\mu = \log(\bar\mu^2/M^2)$ to zero. The resulting stored equations are:
+
+Sector {1, 0}, coordinate 1, polynomial equation 1:
+\begin{verbatim}
+-4*KappaRefFinal*LambdaRefFinal + 3*Sqrt[6]*M^4*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] + 2*Sqrt[6]*M^4*\[Kappa]*Log[\[Mu]bar2/M^2]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {2, 0}, coordinate 1, polynomial equation 1:
+\begin{verbatim}
+KappaRefFinal^2*LambdaRefFinal + 9*M^2 + KappaRefFinal^2*LambdaRefFinal*Log[\[Mu]bar2/M^2] + 6*M^2*Log[\[Mu]bar2/M^2] == 0
+\end{verbatim}
+
+Sector {2, 0}, coordinate 2, polynomial equation 1:
+\begin{verbatim}
+-(KappaRefFinal^2*LambdaRefFinal) - 9*M^2 - KappaRefFinal^2*LambdaRefFinal*Log[\[Mu]bar2/M^2] - 6*M^2*Log[\[Mu]bar2/M^2] == 0
+\end{verbatim}
+
+Sector {3, 0}, coordinate 1, polynomial equation 1:
+\begin{verbatim}
+-(KappaRefFinal^3*LambdaRefFinal) - KappaRefFinal^3*LambdaRefFinal*Log[\[Mu]bar2/M^2] + 36*Sqrt[6]*M^2*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] + 24*Sqrt[6]*M^2*\[Kappa]*Log[\[Mu]bar2/M^2]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {3, 0}, coordinate 2, polynomial equation 1:
+\begin{verbatim}
+KappaRefFinal^3*LambdaRefFinal + KappaRefFinal^3*LambdaRefFinal*Log[\[Mu]bar2/M^2] - 36*Sqrt[6]*M^2*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] - 24*Sqrt[6]*M^2*\[Kappa]*Log[\[Mu]bar2/M^2]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {3, 2}, coordinate 1, polynomial equation 1:
+\begin{verbatim}
+KappaRefFinal - 2*Sqrt[6]*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {3, 2}, coordinate 3, polynomial equation 1:
+\begin{verbatim}
+-KappaRefFinal + 2*Sqrt[6]*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {4, 0}, coordinate 1, polynomial equation 1:
+\begin{verbatim}
+-216 + KappaRefFinal^4*LambdaRefFinal - 144*Log[\[Mu]bar2/M^2] + 2*KappaRefFinal^4*LambdaRefFinal*Log[\[Mu]bar2/M^2] + KappaRefFinal^4*LambdaRefFinal*Log[\[Mu]bar2/M^2]^2 == 0
+\end{verbatim}
+
+Sector {4, 0}, coordinate 2, polynomial equation 1:
+\begin{verbatim}
+216 - KappaRefFinal^4*LambdaRefFinal + 144*Log[\[Mu]bar2/M^2] - 2*KappaRefFinal^4*LambdaRefFinal*Log[\[Mu]bar2/M^2] - KappaRefFinal^4*LambdaRefFinal*Log[\[Mu]bar2/M^2]^2 == 0
+\end{verbatim}
+
+Sector {4, 2}, coordinate 1, polynomial equation 1:
+\begin{verbatim}
+-24 - KappaRefFinal^2*M^2 - KappaRefFinal^2*M^2*Log[\[Mu]bar2/M^2] == 0
+\end{verbatim}
+
+Sector {4, 2}, coordinate 2, polynomial equation 1:
+\begin{verbatim}
+24 + KappaRefFinal^2*M^2 + KappaRefFinal^2*M^2*Log[\[Mu]bar2/M^2] == 0
+\end{verbatim}
+
+Sector {4, 2}, coordinate 16, polynomial equation 1:
+\begin{verbatim}
+-72 - 3*KappaRefFinal^2*M^2 - 3*KappaRefFinal^2*M^2*Log[\[Mu]bar2/M^2] == 0
+\end{verbatim}
+
+Sector {5, 0}, coordinate 1, polynomial equation 1:
+\begin{verbatim}
+216*Sqrt[6]*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] + 144*Sqrt[6]*\[Kappa]*Log[\[Mu]bar2/M^2]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {5, 0}, coordinate 2, polynomial equation 1:
+\begin{verbatim}
+-(KappaRefFinal^5*LambdaRefFinal) - 2*KappaRefFinal^5*LambdaRefFinal*Log[\[Mu]bar2/M^2] - KappaRefFinal^5*LambdaRefFinal*Log[\[Mu]bar2/M^2]^2 - 432*Sqrt[6]*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] - 288*Sqrt[6]*\[Kappa]*Log[\[Mu]bar2/M^2]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {5, 0}, coordinate 4, polynomial equation 1:
+\begin{verbatim}
+KappaRefFinal^5*LambdaRefFinal + 2*KappaRefFinal^5*LambdaRefFinal*Log[\[Mu]bar2/M^2] + KappaRefFinal^5*LambdaRefFinal*Log[\[Mu]bar2/M^2]^2 + 144*Sqrt[6]*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] + 96*Sqrt[6]*\[Kappa]*Log[\[Mu]bar2/M^2]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {5, 0}, coordinate 5, polynomial equation 1:
+\begin{verbatim}
+3*KappaRefFinal^5*LambdaRefFinal + 6*KappaRefFinal^5*LambdaRefFinal*Log[\[Mu]bar2/M^2] + 3*KappaRefFinal^5*LambdaRefFinal*Log[\[Mu]bar2/M^2]^2 + 432*Sqrt[6]*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] + 288*Sqrt[6]*\[Kappa]*Log[\[Mu]bar2/M^2]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {5, 0}, coordinate 6, polynomial equation 1:
+\begin{verbatim}
+-7*KappaRefFinal^5*LambdaRefFinal - 14*KappaRefFinal^5*LambdaRefFinal*Log[\[Mu]bar2/M^2] - 7*KappaRefFinal^5*LambdaRefFinal*Log[\[Mu]bar2/M^2]^2 - 432*Sqrt[6]*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] - 288*Sqrt[6]*\[Kappa]*Log[\[Mu]bar2/M^2]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {5, 0}, coordinate 7, polynomial equation 1:
+\begin{verbatim}
+5*KappaRefFinal^5*LambdaRefFinal + 10*KappaRefFinal^5*LambdaRefFinal*Log[\[Mu]bar2/M^2] + 5*KappaRefFinal^5*LambdaRefFinal*Log[\[Mu]bar2/M^2]^2 + 144*Sqrt[6]*\[Kappa]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] + 96*Sqrt[6]*\[Kappa]*Log[\[Mu]bar2/M^2]*Sqrt[-(1/(M^2*\[Kappa]^2*(1 + Log[\[Mu]bar2/M^2])))] == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 1, polynomial equation 1:
+\begin{verbatim}
+-864 - 576*Log[\[Mu]bar2/M^2] == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 2, polynomial equation 1:
+\begin{verbatim}
+5184 + 3456*Log[\[Mu]bar2/M^2] == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 3, polynomial equation 1:
+\begin{verbatim}
+15552 + KappaRefFinal^6*LambdaRefFinal*M^2 + 10368*Log[\[Mu]bar2/M^2] + 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2] + 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^2 + KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^3 == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 4, polynomial equation 1:
+\begin{verbatim}
+-36288 + KappaRefFinal^6*LambdaRefFinal*M^2 - 24192*Log[\[Mu]bar2/M^2] + 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2] + 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^2 + KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^3 == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 5, polynomial equation 1:
+\begin{verbatim}
+-20736 + KappaRefFinal^6*LambdaRefFinal*M^2 - 13824*Log[\[Mu]bar2/M^2] + 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2] + 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^2 + KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^3 == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 6, polynomial equation 1:
+\begin{verbatim}
+5184 - KappaRefFinal^6*LambdaRefFinal*M^2 + 3456*Log[\[Mu]bar2/M^2] - 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2] - 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^2 - KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^3 == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 7, polynomial equation 1:
+\begin{verbatim}
+25920 - 5*KappaRefFinal^6*LambdaRefFinal*M^2 + 17280*Log[\[Mu]bar2/M^2] - 15*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2] - 15*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^2 - 5*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^3 == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 8, polynomial equation 1:
+\begin{verbatim}
+-8640 - KappaRefFinal^6*LambdaRefFinal*M^2 - 5760*Log[\[Mu]bar2/M^2] - 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2] - 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^2 - KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^3 == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 9, polynomial equation 1:
+\begin{verbatim}
+-15552 - KappaRefFinal^6*LambdaRefFinal*M^2 - 10368*Log[\[Mu]bar2/M^2] - 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2] - 3*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^2 - KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^3 == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 10, polynomial equation 1:
+\begin{verbatim}
+36288 + 17*KappaRefFinal^6*LambdaRefFinal*M^2 + 24192*Log[\[Mu]bar2/M^2] + 51*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2] + 51*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^2 + 17*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^3 == 0
+\end{verbatim}
+
+Sector {6, 0}, coordinate 11, polynomial equation 1:
+\begin{verbatim}
+-160704 - 65*KappaRefFinal^6*LambdaRefFinal*M^2 - 107136*Log[\[Mu]bar2/M^2] - 195*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2] - 195*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^2 - 65*KappaRefFinal^6*LambdaRefFinal*M^2*Log[\[Mu]bar2/M^2]^3 == 0
+\end{verbatim}
+
+\section{Quadratic Four-Derivative Completion}
+The final exact-match statement requires the completed treatment of the leftover sector $\{2,4\}$. The code path is \texttt{AnalyzeQuadraticFourDerivativeDifference}, which projects the verified remainder to the IBP basis, constructs a curvature-squared basis, constructs the quadratic higher-derivative redefinition image, and solves the resulting linear decomposition problem.
+\subsection{Verified \{2,4\} difference}
+\begin{verbatim}
+(9*PD[c][PD[b][h[a, -a]]]*PD[-d][PD[d][h[-b, -c]]])/(10*Scalar[M]^2) - (9*PD[-b][PD[b][h[a, -a]]]*PD[-d][PD[d][h[c, -c]]])/(20*Scalar[M]^2) - (3*PD[-b][PD[-a][h[-c, -d]]]*PD[d][PD[c][h[a, b]]])/(5*Scalar[M]^2) + (3*PD[-d][PD[-b][h[-a, -c]]]*PD[d][PD[c][h[a, b]]])/(10*Scalar[M]^2) - (3*PD[-d][PD[-c][h[-a, -b]]]*PD[d][PD[c][h[a, b]]])/(20*Scalar[M]^2)
+\end{verbatim}
+\subsection{Projected \{2,4\} coordinates}
+\begin{verbatim}
+{9/(10*Scalar[M]^2), -9/(20*Scalar[M]^2), -3/(5*Scalar[M]^2), 3/(10*Scalar[M]^2), -3/(20*Scalar[M]^2)}
+\end{verbatim}
+\subsection{Curvature-squared basis}
+Projected $R^{(1)2}$ expression:
+\begin{verbatim}
+-2*PD[c][PD[b][h[a, -a]]]*PD[-d][PD[d][h[-b, -c]]] + PD[-b][PD[b][h[a, -a]]]*PD[-d][PD[d][h[c, -c]]] + PD[-b][PD[-a][h[-c, -d]]]*PD[d][PD[c][h[a, b]]]
+\end{verbatim}
+Projected $R^{(1)2}$ coordinates:
+\begin{verbatim}
+{-2, 1, 1, 0, 0}
+\end{verbatim}
+Projected $R^{(1)}_{\mu\nu}R^{(1)\mu\nu}$ expression:
+\begin{verbatim}
+-1/2*(PD[c][PD[b][h[a, -a]]]*PD[-d][PD[d][h[-b, -c]]]) + (PD[-b][PD[b][h[a, -a]]]*PD[-d][PD[d][h[c, -c]]])/4 + (PD[-b][PD[-a][h[-c, -d]]]*PD[d][PD[c][h[a, b]]])/2 - (PD[-d][PD[-b][h[-a, -c]]]*PD[d][PD[c][h[a, b]]])/2 + (PD[-d][PD[-c][h[-a, -b]]]*PD[d][PD[c][h[a, b]]])/4
+\end{verbatim}
+Projected $R^{(1)}_{\mu\nu}R^{(1)\mu\nu}$ coordinates:
+\begin{verbatim}
+{-1/2, 1/4, 1/2, -1/2, 1/4}
+\end{verbatim}
+\subsection{Quadratic higher-derivative field redefinition image}
+Independent rank-2 source basis elements selected by the code:
+\begin{verbatim}
+{eta[u, v]*PD[-z$32101][PD[-z$32100][h[z$32100, z$32101]]], PD[-z$32143][PD[z$32143][h[u, v]]], eta[u, v]*PD[-z$32195][PD[z$32195][h[z$32194, -z$32194]]]}
+\end{verbatim}
+Independent projected image vectors:
+\begin{verbatim}
+{{-2, 0, 2, 0, 0}, {2, -1, 0, -2, 1}, {2, -2, 0, 0, 0}}
+\end{verbatim}
+\subsection{Solved decomposition}
+Linear solve output:
+\begin{verbatim}
+<|"HasSolution" -> True, "Variables" -> {c241, c242, c243, c244, c245}, "Solution" -> {{c243 -> -1/2*c241 - c242/4 - 3/(10*Scalar[M]^2), c244 -> -1/4*c242 - 3/(20*Scalar[M]^2), c245 -> c241/2 + c242/4 + 3/(10*Scalar[M]^2)}}, "Rules" -> {c243 -> -3/(10*Scalar[M]^2), c244 -> -3/(20*Scalar[M]^2), c245 -> 3/(10*Scalar[M]^2), c241 -> 0, c242 -> 0}, "Reconstructed" -> {9/(10*Scalar[M]^2), -9/(20*Scalar[M]^2), -3/(5*Scalar[M]^2), 3/(10*Scalar[M]^2), -3/(20*Scalar[M]^2)}|>
+\end{verbatim}
+Curvature coefficients:
+\begin{verbatim}
+<|"R2" -> 0, "Ricci2" -> 0|>
+\end{verbatim}
+Quadratic redefinition coefficients:
+\begin{verbatim}
+<|1 -> -3/(10*Scalar[M]^2), 2 -> -3/(20*Scalar[M]^2), 3 -> 3/(10*Scalar[M]^2)|>
+\end{verbatim}
+Reconstructed quadratic redefinition expression:
+\begin{verbatim}
+(9*PD[c][PD[b][h[a, -a]]]*PD[-d][PD[d][h[-b, -c]]])/(10*Scalar[M]^2) - (9*PD[-b][PD[b][h[a, -a]]]*PD[-d][PD[d][h[c, -c]]])/(20*Scalar[M]^2) - (3*PD[-b][PD[-a][h[-c, -d]]]*PD[d][PD[c][h[a, b]]])/(5*Scalar[M]^2) + (3*PD[-d][PD[-b][h[-a, -c]]]*PD[d][PD[c][h[a, b]]])/(10*Scalar[M]^2) - (3*PD[-d][PD[-c][h[-a, -b]]]*PD[d][PD[c][h[a, b]]])/(20*Scalar[M]^2)
+\end{verbatim}
+Residual expression:
+\begin{verbatim}
+0
+\end{verbatim}
+Residual zero check: True.
+Pure quadratic redefinition check: True.
+
+\section{Independent Cross-Check}
+A second script reproduced the $\{2,4\}$ statement directly from the saved vectors, without calling the main analyzer helper.
+\subsection{Target coordinates}
+\begin{verbatim}
+{9/(10*Scalar[M]^2), -9/(20*Scalar[M]^2), -3/(5*Scalar[M]^2), 3/(10*Scalar[M]^2), -3/(20*Scalar[M]^2)}
+\end{verbatim}
+\subsection{Independent redefinition rows and vectors}
+\begin{verbatim}
+{3, 4, 5}
+\end{verbatim}
+\begin{verbatim}
+{{-2, 0, 2, 0, 0}, {2, -1, 0, -2, 1}, {2, -2, 0, 0, 0}}
+\end{verbatim}
+\subsection{Pure redefinition solve}
+\begin{verbatim}
+{{p[1] -> -3/(10*Scalar[M]^2), p[2] -> -3/(20*Scalar[M]^2), p[3] -> 3/(10*Scalar[M]^2)}}
+\end{verbatim}
+\begin{verbatim}
+{p[1] -> -3/(10*Scalar[M]^2), p[2] -> -3/(20*Scalar[M]^2), p[3] -> 3/(10*Scalar[M]^2)}
+\end{verbatim}
+\begin{verbatim}
+{9/(10*Scalar[M]^2), -9/(20*Scalar[M]^2), -3/(5*Scalar[M]^2), 3/(10*Scalar[M]^2), -3/(20*Scalar[M]^2)}
+\end{verbatim}
+\subsection{Curvature basis vectors}
+\begin{verbatim}
+<|"R2" -> {-2, 1, 1, 0, 0}, "Ricci2" -> {-1/2, 1/4, 1/2, -1/2, 1/4}|>
+\end{verbatim}
+\subsection{Joint curvature plus redefinition solve}
+\begin{verbatim}
+{{q[1] -> -1/2*cR2 - cRicci2/4 - 3/(10*Scalar[M]^2), q[2] -> -1/4*cRicci2 - 3/(20*Scalar[M]^2), q[3] -> cR2/2 + cRicci2/4 + 3/(10*Scalar[M]^2)}}
+\end{verbatim}
+\begin{verbatim}
+{q[1] -> -1/2*cR2 - cRicci2/4 - 3/(10*Scalar[M]^2), q[2] -> -1/4*cRicci2 - 3/(20*Scalar[M]^2), q[3] -> cR2/2 + cRicci2/4 + 3/(10*Scalar[M]^2), cR2 -> 0, cRicci2 -> 0}
+\end{verbatim}
+\begin{verbatim}
+{9/(10*Scalar[M]^2), -9/(20*Scalar[M]^2), -3/(5*Scalar[M]^2), 3/(10*Scalar[M]^2), -3/(20*Scalar[M]^2)}
+\end{verbatim}
+\subsection{Cross-check summary}
+\begin{verbatim}
+<|"PureRedefinitionHasSolutionQ" -> True, "PureRedefinitionReconstructionMatchesQ" -> True, "JointSolveHasSolutionQ" -> True, "JointReconstructionMatchesQ" -> True, "JointCurvatureCoefficients" -> <|"R2" -> 0, "Ricci2" -> 0|>|>
+\end{verbatim}
+
+\section{Final Verdict}
+
+The stored final result satisfies:
+
+\begin{verbatim}
+<|"ExactMatchQ" -> True, "UnsupportedSectors" -> {}, "VerifiedSupportedMatchQ" -> True, "QuadraticCompletionResidualIsZeroQ" -> True, "PureQuadraticRedefinitionQ" -> True|>
+\end{verbatim}
+
+Therefore, using the exact stored branch and the exact implemented quotient operations, the mass-dimension-six EFT is equivalent to the sign-flipped Einstein--Hilbert reference.
+
+\end{document}

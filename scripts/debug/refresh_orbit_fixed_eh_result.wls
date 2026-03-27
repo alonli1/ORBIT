@@ -1,9 +1,23 @@
+scriptDir = DirectoryName[$InputFileName];
+repoRoot = NestWhile[
+  DirectoryName,
+  scriptDir,
+  ! FileExistsQ[FileNameJoin[{#, "orbit_fixed_eh_comparison.wl"}]] &
+];
+SetDirectory[repoRoot];
+
 Get["graviton_basis_toolkit.wl"];
 Get["orbit_fixed_eh_comparison.wl"];
-cacheDir = If[DirectoryQ[FileNameJoin[{Directory[], "left_only_uv_2_eft_6_cache"}]], FileNameJoin[{Directory[], "left_only_uv_2_eft_6_cache"}], FileNameJoin[{Directory[], "orbit_fixed_eh_cache"}]];
-inputMX = "C:\\Users\\alonlif2000\\Desktop\\xActMatcheteDictionary\\LEFT_only_uv_2_eft_6.mx";
-resultFile = "orbit_fixed_eh_comparison_result.wl";
-reportBase = "orbit_fixed_eh_comparison_report";
+cacheDir = If[
+  DirectoryQ[FileNameJoin[{Directory[], "cache", "left_only_uv_2_eft_6_cache"}]],
+  FileNameJoin[{Directory[], "cache", "left_only_uv_2_eft_6_cache"}],
+  FileNameJoin[{Directory[], "cache", "orbit_fixed_eh_cache"}]
+];
+inputMX = FileNameJoin[{"examples", "left_only_uv_2_eft_6", "LEFT_only_uv_2_eft_6.mx"}];
+outputDir = FileNameJoin[{Directory[], "artifacts", "orbit_fixed_eh", "legacy_runs"}];
+If[! DirectoryQ[outputDir], CreateDirectory[outputDir, CreateIntermediateDirectories -> True]];
+resultFile = FileNameJoin[{outputDir, "orbit_fixed_eh_comparison_result.wl"}];
+reportBase = FileNameJoin[{outputDir, "orbit_fixed_eh_comparison_report"}];
 old = Get[resultFile];
 translated = old["TranslatedExpression"];
 normalized = old["NormalizedExpression"];
@@ -77,7 +91,11 @@ buildComparisonFromReductions[translatedExpr_, normalizedExpr_, referenceData_, 
 ];
 
 comparison = buildComparisonFromReductions[translated, normalized, referenceData, inputReduction, referenceReduction, 6];
-validationSummary = If[FileExistsQ["orbit_fixed_eh_validation_output.wl"], Get["orbit_fixed_eh_validation_output.wl"], Missing["NotAvailable"]];
+validationSummary = If[
+  FileExistsQ[FileNameJoin[{Directory[], "artifacts", "orbit_fixed_eh", "orbit_fixed_eh_validation_output.wl"}]],
+  Get[FileNameJoin[{Directory[], "artifacts", "orbit_fixed_eh", "orbit_fixed_eh_validation_output.wl"}]],
+  Missing["NotAvailable"]
+];
 comparisonWithMeta = Append[comparison, "InputMX" -> inputMX];
 comparisonWithMeta = Append[comparisonWithMeta, "ValidationSummary" -> validationSummary];
 comparisonWithMeta = Append[comparisonWithMeta, "StageTimings" -> timings];

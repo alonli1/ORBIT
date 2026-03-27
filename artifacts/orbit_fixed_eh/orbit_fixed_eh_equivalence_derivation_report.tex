@@ -1,0 +1,500 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,mathtools,booktabs,longtable,array,hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+
+\newcommand{\Lmu}{L_\mu}
+\newcommand{\Span}{\operatorname{span}}
+\newcommand{\dd}{\mathrm{d}}
+
+\title{Step-by-Step Derivation of the ORBIT Order-6 Equivalence}
+\author{ORBIT}
+\date{2026-03-23}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Purpose}
+
+This note rewrites the stored ORBIT order-6 comparison as a paper-style derivation. The point is not to quote the code, but to repeat the same algorithm mathematically:
+\begin{enumerate}
+\item reduce both Lagrangians sector by sector to the same IBP / field-redefinition quotient basis,
+\item canonically normalize the quadratic kinetic term,
+\item solve the reduced-coordinate matching equations,
+\item isolate the only leftover sector $\{2,4\}$,
+\item show explicitly that this leftover is a quadratic higher-derivative field-redefinition image.
+\end{enumerate}
+
+The companion raw audit report
+\texttt{orbit\_fixed\_eh\_equivalence\_audit\_report.pdf}
+contains the verbatim stored expressions, source excerpts, and exact zero checks used below.
+
+\section{Setup}
+
+The comparison is between:
+\begin{itemize}
+\item the Matchete-derived EFT, translated to xAct and then reduced by ORBIT,
+\item the reference sign-flipped Einstein--Hilbert Lagrangian with cosmological term,
+\[
+\mathcal{L}_{\mathrm{ref}}
+=
+\Lambda_{\mathrm{ref}}\sqrt{-g}
+-\frac{2}{\kappa_{\mathrm{ref}}^2}\sqrt{-g}\,R,
+\]
+expanded around mostly-minus flat space with
+\[
+g_{\mu\nu}=\eta_{\mu\nu}+\kappa_{\mathrm{ref}} h_{\mu\nu}.
+\]
+\end{itemize}
+
+Throughout, define
+\[
+\Lmu := \log\!\frac{\bar\mu^2}{M^2}.
+\]
+
+ORBIT decomposes the scalar operator space into sectors
+\[
+V_{n_h,N_\partial},
+\]
+where $n_h$ is the graviton number and $N_\partial$ is the derivative number. In each sector one chooses a reduced basis
+\[
+B_{n_h,N_\partial}=\{b_1,\dots,b_r\},
+\]
+after quotienting by:
+\begin{itemize}
+\item integration by parts in every sector,
+\item the Fierz--Pauli field-redefinition image in interaction sectors.
+\end{itemize}
+
+If the reduced coordinates of the input and reference are
+\[
+v^{\mathrm{in}}_{n_h,N_\partial},
+\qquad
+v^{\mathrm{ref}}_{n_h,N_\partial},
+\]
+then the reduced difference is
+\[
+\Delta v_{n_h,N_\partial}
+:=
+v^{\mathrm{in}}_{n_h,N_\partial}
+-v^{\mathrm{ref}}_{n_h,N_\partial}.
+\]
+Equality in the implemented quotient means $\Delta v_{n_h,N_\partial}=0$ in every supported sector.
+
+\section{Step 1: Canonical Normalization}
+
+The reduced quadratic two-derivative coordinates of the input are proportional to the Fierz--Pauli coordinates. ORBIT stores
+\[
+v^{\mathrm{FP}}_{2,2}
+=
+\left(\frac12,-1,1,-\frac12\right),
+\]
+and the input coordinates simplify exactly to
+\[
+v^{\mathrm{in}}_{2,2}
+=
+Z_h\,v^{\mathrm{FP}}_{2,2},
+\qquad
+Z_h=\frac{M^2\kappa^2(1+\Lmu)}{24}.
+\]
+
+The final comparison uses target kinetic sign $-1$, so the canonically normalized field is defined by
+\[
+h_{\mu\nu}=\beta\,\widehat h_{\mu\nu},
+\qquad
+Z_h\,\beta^2=-1.
+\]
+Therefore
+\[
+\beta
+=
+\sqrt{-\frac{1}{Z_h}}
+=
+\sqrt{-\frac{24}{M^2\kappa^2(1+\Lmu)}}.
+\]
+
+It is convenient to define
+\[
+s:=\sqrt{-\frac{1}{M^2\kappa^2(1+\Lmu)}},
+\]
+so that
+\[
+\beta=2\sqrt6\,s.
+\]
+
+\section{Step 2: Reduced Matching Equations}
+
+The full stored run produces 29 reduced-coordinate equations. For the actual derivation, only a small independent subset is needed.
+
+\subsection{The equations that determine the branch}
+
+From the reduced $\{6,0\}$ sector one obtains an equation with no reference parameters:
+\begin{equation}
+-864-576\Lmu=0.
+\end{equation}
+Hence
+\begin{equation}
+\boxed{\Lmu=-\frac32.}
+\end{equation}
+
+From the reduced $\{1,0\}$ sector:
+\begin{equation}
+-4\kappa_{\mathrm{ref}}\Lambda_{\mathrm{ref}}
+\sqrt6\,M^4\kappa\,s\,(3+2\Lmu)=0.
+\end{equation}
+Using $\Lmu=-3/2$, the second term vanishes, so
+\begin{equation}
+\kappa_{\mathrm{ref}}\Lambda_{\mathrm{ref}}=0.
+\end{equation}
+The reference graviton coupling is nonzero on the branch of interest, therefore
+\begin{equation}
+\boxed{\Lambda_{\mathrm{ref}}=0.}
+\end{equation}
+
+From the reduced $\{4,2\}$ sector:
+\begin{equation}
+-24-\kappa_{\mathrm{ref}}^2 M^2(1+\Lmu)=0.
+\end{equation}
+Substituting $\Lmu=-3/2$ gives
+\[
+-24+\frac12 \kappa_{\mathrm{ref}}^2 M^2=0,
+\]
+hence
+\begin{equation}
+\boxed{\kappa_{\mathrm{ref}}^2=\frac{48}{M^2}.}
+\end{equation}
+
+From the reduced $\{3,2\}$ sector:
+\begin{equation}
+\kappa_{\mathrm{ref}}-2\sqrt6\,\kappa\,s=0.
+\end{equation}
+Since $\beta=2\sqrt6\,s$, this is
+\[
+\kappa_{\mathrm{ref}}=\kappa\beta.
+\]
+On the positive branch used in the stored verification,
+\[
+s=\sqrt{-\frac{1}{M^2\kappa^2(1+\Lmu)}}\Bigg|_{\Lmu=-3/2}
+=
+\frac{\sqrt2}{M\kappa},
+\]
+so
+\begin{equation}
+\boxed{
+\beta=\frac{4\sqrt3}{M\kappa},
+\qquad
+\kappa_{\mathrm{ref}}=\frac{4\sqrt3}{M}.}
+\end{equation}
+
+Equivalently,
+\begin{equation}
+\boxed{M^2=e^{3/2}\bar\mu^2,}
+\end{equation}
+since $\Lmu=-3/2$ means $\bar\mu^2/M^2=e^{-3/2}$.
+
+\subsection{Consistency of the remaining supported-sector equations}
+
+Once
+\[
+\Lmu=-\frac32,\qquad
+\Lambda_{\mathrm{ref}}=0,\qquad
+\kappa_{\mathrm{ref}}=\frac{4\sqrt3}{M},
+\]
+are imposed, all remaining supported-sector equations vanish identically.
+
+The reason is structural:
+\begin{itemize}
+\item the zero-derivative sectors $\{1,0\},\{2,0\},\{3,0\},\{4,0\},\{5,0\},\{6,0\}$ reduce to combinations of the factors $(3+2\Lmu)$ and $\Lambda_{\mathrm{ref}}$,
+\item the derivative interaction sectors $\{3,2\},\{4,2\}$ reduce to combinations of
+\[
+\kappa_{\mathrm{ref}}-\kappa\beta,
+\qquad
+\kappa_{\mathrm{ref}}^2-\frac{48}{M^2},
+\]
+\item the quadratic kinetic sector $\{2,2\}$ was already made identical by canonical normalization.
+\end{itemize}
+
+\section{Step 3: Sector-by-Sector Vanishing After the Branch Is Imposed}
+
+The stored exact zero checks in the companion audit report confirm that every supported sector vanishes after the substitutions
+\[
+\Lmu\to -\frac32,
+\qquad
+\Lambda_{\mathrm{ref}}\to 0,
+\qquad
+\kappa_{\mathrm{ref}}\to \frac{4\sqrt3}{M}.
+\]
+
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{1.3in}>{\raggedright\arraybackslash}p{4.8in}@{}}
+\toprule
+Sector & Reason the difference vanishes \\
+\midrule
+\endhead
+$\{1,0\}$ & proportional to $-4\kappa_{\mathrm{ref}}\Lambda_{\mathrm{ref}}+\sqrt6 M^4\kappa s(3+2\Lmu)$ \\[3pt]
+$\{2,0\}$ & proportional to $\kappa_{\mathrm{ref}}^2\Lambda_{\mathrm{ref}}(1+\Lmu)+3M^2(3+2\Lmu)$ \\[3pt]
+$\{2,2\}$ & exactly equal after canonical normalization \\[3pt]
+$\{3,0\}$ & proportional to $-\kappa_{\mathrm{ref}}^3\Lambda_{\mathrm{ref}}(1+\Lmu)+12\sqrt6 M^2\kappa s(3+2\Lmu)$ \\[3pt]
+$\{3,2\}$ & proportional to $\kappa_{\mathrm{ref}}-\kappa\beta$ \\[3pt]
+$\{4,0\}$ & proportional to $\kappa_{\mathrm{ref}}^4\Lambda_{\mathrm{ref}}(1+\Lmu)^2-72(3+2\Lmu)$ \\[3pt]
+$\{4,2\}$ & proportional to $\kappa_{\mathrm{ref}}^2M^2(1+\Lmu)+24$ \\[3pt]
+$\{5,0\}$ & every coordinate contains $(3+2\Lmu)$ and/or $\Lambda_{\mathrm{ref}}$ \\[3pt]
+$\{6,0\}$ & every coordinate contains $(3+2\Lmu)$ and/or $\Lambda_{\mathrm{ref}}$ \\[3pt]
+\bottomrule
+\end{longtable}
+
+Thus, after canonical normalization and the solved branch, every supported sector agrees with pure Einstein--Hilbert.
+
+\section{Step 4: The Only Leftover Sector \texorpdfstring{$\{2,4\}$}{\{2,4\}}}
+
+Before the final completion, the only unsupported difference is the quadratic four-derivative sector. ORBIT reduces it to a five-dimensional coordinate vector
+\begin{equation}
+v_{2,4}
+=
+\frac{1}{M^2}
+\left(
+\frac{9}{10},
+-\frac{9}{20},
+-\frac35,
+\frac{3}{10},
+-\frac{3}{20}
+\right).
+\end{equation}
+
+To decide whether this is a genuine curvature-squared invariant or only a quadratic higher-derivative redefinition, ORBIT compares it against:
+\begin{itemize}
+\item the linearized curvature-squared vectors,
+\item the quadratic higher-derivative redefinition-image vectors.
+\end{itemize}
+
+\subsection{Curvature-squared basis}
+
+In the same reduced basis, ORBIT finds
+\begin{align}
+v_{R^2} &= (-2,1,1,0,0),\\
+v_{R_{\mu\nu}^2} &= \left(-\frac12,\frac14,\frac12,-\frac12,\frac14\right).
+\end{align}
+
+\subsection{Independent quadratic redefinition vectors}
+
+The independent quadratic higher-derivative image vectors are
+\begin{align}
+r_1 &= (-2,0,2,0,0),\\
+r_2 &= (2,-1,0,-2,1),\\
+r_3 &= (2,-2,0,0,0).
+\end{align}
+
+These come from the three independent quadratic redefinitions
+\begin{align}
+\delta h^{(1)}_{\mu\nu} &= \eta_{\mu\nu}\,\partial_\alpha\partial_\beta h^{\alpha\beta},\\
+\delta h^{(2)}_{\mu\nu} &= \Box h_{\mu\nu},\\
+\delta h^{(3)}_{\mu\nu} &= \eta_{\mu\nu}\,\Box h.
+\end{align}
+
+\subsection{The linear system}
+
+We now solve
+\begin{equation}
+v_{2,4}
+=
+c_{R^2}v_{R^2}
+c_{R_{\mu\nu}^2}v_{R_{\mu\nu}^2}
+\alpha r_1+\beta r_2+\gamma r_3.
+\end{equation}
+
+The stored solution is
+\begin{equation}
+\boxed{
+c_{R^2}=0,\qquad
+c_{R_{\mu\nu}^2}=0,\qquad
+\alpha=-\frac{3}{10M^2},\qquad
+\beta=-\frac{3}{20M^2},\qquad
+\gamma=\frac{3}{10M^2}.}
+\end{equation}
+
+Therefore
+\begin{equation}
+v_{2,4}
+=
+-\frac{3}{10M^2}r_1
+-\frac{3}{20M^2}r_2
++\frac{3}{10M^2}r_3.
+\end{equation}
+
+The reconstruction can be checked directly:
+\begin{align}
+-\frac{3}{10}r_1
+-\frac{3}{20}r_2
++\frac{3}{10}r_3
+&=
+\left(
+\frac{6}{10},0,-\frac{6}{10},0,0
+\right)
+\nonumber\\
+&\quad+
+\left(
+-\frac{3}{10},
+\frac{3}{20},
+0,
+\frac{3}{10},
+-\frac{3}{20}
+\right)
+\nonumber\\
+&\quad+
+\left(
+\frac{6}{10},
+-\frac{6}{10},
+0,0,0
+\right)
+\nonumber\\
+&=
+\left(
+\frac{9}{10},
+-\frac{9}{20},
+-\frac35,
+\frac{3}{10},
+-\frac{3}{20}
+\right).
+\end{align}
+After restoring the overall factor $1/M^2$, this is exactly $v_{2,4}$.
+
+Since the curvature coefficients are zero, there is no surviving $R^2$ or $R_{\mu\nu}^2$ component. The entire leftover lies in the quadratic redefinition image.
+
+\subsection{Explicit removing field redefinition}
+
+One convenient removing redefinition is therefore
+\begin{equation}
+\boxed{
+\delta h_{\mu\nu}
+=
+-\frac{3}{10M^2}\eta_{\mu\nu}\partial_\alpha\partial_\beta h^{\alpha\beta}
+-\frac{3}{20M^2}\Box h_{\mu\nu}
++\frac{3}{10M^2}\eta_{\mu\nu}\Box h.}
+\end{equation}
+
+Applying the induced quadratic variation of the Fierz--Pauli action removes the full $\{2,4\}$ remainder.
+
+\subsection{Direct operator-level cancellation}
+
+To make the last step completely explicit, introduce the five reduced-basis operators
+\begin{align}
+O_1 &:= \partial^\gamma\partial^\beta h^\alpha{}_\alpha\,
+\partial_\delta\partial^\delta h_{\beta\gamma},\\
+O_2 &:= \partial_\beta\partial^\beta h^\alpha{}_\alpha\,
+\partial_\delta\partial^\delta h^\gamma{}_\gamma,\\
+O_3 &:= \partial_\beta\partial_\alpha h_{\gamma\delta}\,
+\partial^\delta\partial^\gamma h^{\alpha\beta},\\
+O_4 &:= \partial_\delta\partial_\beta h_{\alpha\gamma}\,
+\partial^\delta\partial^\gamma h^{\alpha\beta},\\
+O_5 &:= \partial_\delta\partial_\gamma h_{\alpha\beta}\,
+\partial^\delta\partial^\gamma h^{\alpha\beta}.
+\end{align}
+These are exactly the five reduced basis elements in which ORBIT stores the $\{2,4\}$ coordinates.
+
+After substituting the matched branch, the leftover unsupported difference is
+\begin{equation}
+\Delta\mathcal L_{2,4}
+=
+\frac{1}{M^2}\left(
+\frac{9}{10}O_1
+-\frac{9}{20}O_2
+-\frac35 O_3
++\frac{3}{10}O_4
+-\frac{3}{20}O_5
+\right).
+\end{equation}
+
+Now split the removing redefinition into three pieces,
+\begin{align}
+\delta h_{\mu\nu}^{(1)} &:= \eta_{\mu\nu}\partial_\alpha\partial_\beta h^{\alpha\beta},\\
+\delta h_{\mu\nu}^{(2)} &:= \Box h_{\mu\nu},\\
+\delta h_{\mu\nu}^{(3)} &:= \eta_{\mu\nu}\Box h,
+\end{align}
+so that
+\[
+\delta h_{\mu\nu}
+=
+-\frac{3}{10M^2}\delta h_{\mu\nu}^{(1)}
+-\frac{3}{20M^2}\delta h_{\mu\nu}^{(2)}
++\frac{3}{10M^2}\delta h_{\mu\nu}^{(3)}.
+\]
+
+For the quadratic action,
+\[
+\delta\mathcal L_{\mathrm{FP}}
+\simeq
+E_{\mathrm{FP}}^{\mu\nu}\delta h_{\mu\nu},
+\]
+where $\simeq$ means equality modulo total derivatives. Reducing each image to the same $\{2,4\}$ basis gives
+\begin{align}
+E_{\mathrm{FP}}^{\mu\nu}\delta h_{\mu\nu}^{(1)}
+&\simeq
+-2O_1+2O_3,\\
+E_{\mathrm{FP}}^{\mu\nu}\delta h_{\mu\nu}^{(2)}
+&\simeq
+2O_1-O_2-2O_4+O_5,\\
+E_{\mathrm{FP}}^{\mu\nu}\delta h_{\mu\nu}^{(3)}
+&\simeq
+2O_1-2O_2.
+\end{align}
+
+Therefore
+\begin{align}
+\delta\mathcal L_{\mathrm{FP}}
+&\simeq
+-\frac{3}{10M^2}(-2O_1+2O_3)
+-\frac{3}{20M^2}(2O_1-O_2-2O_4+O_5)
++\frac{3}{10M^2}(2O_1-2O_2)\\
+&=
+\frac{1}{M^2}\left(
+\frac{9}{10}O_1
+-\frac{9}{20}O_2
+-\frac35 O_3
++\frac{3}{10}O_4
+-\frac{3}{20}O_5
+\right)\\
+&=
+\Delta\mathcal L_{2,4}.
+\end{align}
+
+Hence the transformed leftover is
+\begin{equation}
+\Delta\mathcal L_{2,4}-\delta\mathcal L_{\mathrm{FP}} \simeq 0.
+\end{equation}
+
+This is the direct ``on paper'' statement that the apparent curvature-squared remainder does not survive: every operator in the $\{2,4\}$ remainder is cancelled by the explicit quadratic higher-derivative field redefinition above.
+
+\section{Final Conclusion}
+
+The comparison is therefore complete.
+
+\subsection*{Supported sectors}
+After canonical normalization and the solved branch
+\[
+\boxed{
+\Lmu=-\frac32,\qquad
+\Lambda_{\mathrm{ref}}=0,\qquad
+\kappa_{\mathrm{ref}}=\frac{4\sqrt3}{M},
+\qquad
+M^2=e^{3/2}\bar\mu^2,}
+\]
+all supported reduced sectors
+\[
+\{1,0\},\{2,0\},\{2,2\},\{3,0\},\{3,2\},\{4,0\},\{4,2\},\{5,0\},\{6,0\}
+\]
+match the sign-flipped Einstein--Hilbert reference exactly.
+
+\subsection*{Quadratic four-derivative sector}
+The only apparent leftover sector, $\{2,4\}$, has zero curvature-squared component and is entirely a quadratic higher-derivative field-redefinition image.
+
+\subsection*{The completed statement}
+Hence the canonically normalized Matchete-derived EFT is equivalent through mass dimension six to the sign-flipped Einstein--Hilbert action with vanishing cosmological constant, once one quotients by:
+\begin{itemize}
+\item integration by parts,
+\item the interaction-sector Fierz--Pauli field-redefinition image already implemented by ORBIT,
+\item the quadratic higher-derivative redefinitions needed to remove the $\{2,4\}$ remainder.
+\end{itemize}
+
+\end{document}

@@ -1,4 +1,10 @@
-SetDirectory["c:/Users/alonlif2000/Desktop/ORBIT"];
+scriptDir = DirectoryName[$InputFileName];
+repoRoot = NestWhile[
+  DirectoryName,
+  scriptDir,
+  ! FileExistsQ[FileNameJoin[{#, "graviton_basis_toolkit.wl"}]] &
+];
+SetDirectory[repoRoot];
 
 log = OpenWrite["compare_curvature_squared.log", PageWidth -> Infinity];
 $Output = {log};

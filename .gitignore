@@ -2,3 +2,72 @@
 .vendor_pptx/
 __pycache__/
 *.pyc
+
+# Generated caches and Mathematica intermediates
+cache/
+basis_cache/
+orbit_fixed_eh_cache/
+graviton_basis_validation_cache/
+graviton_basis_comprehensive_report_cache/
+
+# Local scratch and sync state
+temp/
+.ag-mutagen-data/
+mutagen-data-test/
+compare_editable/
+compare_exact_wrapper/
+compare_paper060226v1/
+migration/
+remote-tools/
+remote_tools_validation*
+remote_tools_nb_eval_validation.wls
+ORBIT_BUILD_CONTEXT.md
+docs/presentations/
+docs/reference/
+build_ai_physics_research_presentation.ps1
+build_ai_physics_research_presentation.py
+
+# Generated report noise
+*.aux
+*.log
+*.out
+*.toc
+*.synctex*
+*.synctex(busy)
+/orbit_fixed_eh_comparison_final_report.*
+/orbit_fixed_eh_equivalence_audit_report.*
+/orbit_fixed_eh_equivalence_derivation_report.*
+
+# One-off paper conversion outputs
+paper060226v1_test*
+paper060226v1_test_media/
+
+# Debug and local investigation outputs
+artifacts/debug/
+scripts/__pycache__/
+scripts/buildup_word_equations.ps1
+scripts/convert_appendix_markdown_to_docx.ps1
+scripts/convert_appendix_markdown_to_docx.py
+scripts/convert_appendix_markdown_to_word.ps1
+scripts/convert_docx_to_latex.py
+scripts/validate_docx_latex_structure.py
+scripts/debug/probe_orbit_d6_verified_supported_match.wls
+
+# Final-result checkpoints and transient run products
+artifacts/orbit_fixed_eh/*checkpoint*.wl
+artifacts/orbit_fixed_eh/*.log
+artifacts/orbit_fixed_eh/*.aux
+artifacts/orbit_fixed_eh/*.out
+artifacts/orbit_fixed_eh/*.toc
+artifacts/orbit_fixed_eh/*.synctex*
+
+# Legacy exploratory ORBIT result files not kept in the paper-facing repo
+artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_result.wl
+artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_report.pdf
+artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_report.tex
+artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_report_data.wl
+artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_d5_report.tex
+artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_d5_report_data.wl
+artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_d5_result.wl
+artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_d5_v*
+artifacts/orbit_fixed_eh/orbit_fixed_eh_comparison_d5_free_ref*
