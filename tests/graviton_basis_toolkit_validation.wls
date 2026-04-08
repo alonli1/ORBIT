@@ -77,4 +77,26 @@ results = <|
 
 Put[results, FileNameJoin[{Directory[], "docs", "graviton_basis", "graviton_basis_toolkit_validation_output.wl"}]];
 
+(* === Pass/fail assertions === *)
+
+allPassed = True;
+Do[
+  Module[{test = results["Tests"][[i]], label, passQ},
+    label = ToString[test["Sector"]];
+    passQ = TrueQ[test["ReducedExpressionZeroQ"]] && TrueQ[test["PhysicalCoordinatesZeroQ"]];
+    If[passQ,
+      Print["PASS: sector " <> label <> " — redundant image reduces to zero."],
+      Print["FAIL: sector " <> label <> " — ReducedExpressionZeroQ=" <> ToString[test["ReducedExpressionZeroQ"]]
+        <> ", PhysicalCoordinatesZeroQ=" <> ToString[test["PhysicalCoordinatesZeroQ"]]];
+      allPassed = False;
+    ];
+  ],
+  {i, Length[results["Tests"]]}
+];
+
+If[allPassed,
+  Print["\nAll validation tests PASSED."],
+  Print["\nSome validation tests FAILED."]; Exit[1]
+];
+
 results

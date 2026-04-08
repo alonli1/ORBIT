@@ -20,7 +20,11 @@ log[msg_] := PutAppend[
 Get["graviton_basis_toolkit.wl"];
 
 termCount[expr_] := Module[{expanded = Expand[expr]},
-  If[expanded === 0, 0, Length[List @@ expanded]]
+  Which[
+    expanded === 0, 0,
+    Head[expanded] === Plus, Length[List @@ expanded],
+    True, 1
+  ]
 ];
 
 lag = Get[FileNameJoin[{outputDir, "LEFT_only_uv_2_eft_6_xact.wl"}]];

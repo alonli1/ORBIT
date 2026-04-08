@@ -16,7 +16,10 @@ Quiet[Needs["xAct`xTras`"], PacletDataRebuild::lock];
 (* xAct's Invar package flips this off during load, but the toolkit works on a
    flat-space scalar-density basis where partial derivatives on scalars should
    commute. Restoring it is necessary for the Euler-operator IBP test to
-   recognize expanded total derivatives. *)
+   recognize expanded total derivatives.
+   WARNING: this is a global xAct setting. Loading this toolkit may affect
+   other xAct computations in the same session that rely on non-commuting
+   scalar covariant derivatives (e.g. curved-space calculations). *)
 $CommuteCovDsOnScalars = True;
 
 (* ================================================================ *)
@@ -273,15 +276,23 @@ DirectProjectToBasis[expr_, basis_List] := Module[
   |>
 ];
 
-ReduceCoordinatesModuloRelations[coords_List, relMat_, piv_List] := Module[{imageCoeffs, reducedCoords, quotientCoords},
+ReduceCoordinatesModuloRelations[coords_List, relMat_, piv_List] := Module[{imageCoeffs, reducedCoords, quotientCoords, pivotMat},
   If[coords === {} || piv === {} || ! MatrixQ[relMat] || relMat === {},
     reducedCoords = coords;
     quotientCoords = coords;
     imageCoeffs = {};
     ,
-    imageCoeffs = LinearSolve[Transpose[relMat[[All, piv]]], coords[[piv]]];
-    reducedCoords = coords - imageCoeffs . relMat;
-    quotientCoords = Delete[reducedCoords, List /@ Sort[piv]];
+    pivotMat = Transpose[relMat[[All, piv]]];
+    If[Det[pivotMat] === 0,
+      Message[ReduceCoordinatesModuloRelations::singular, "pivot submatrix is singular"];
+      reducedCoords = coords;
+      quotientCoords = Delete[coords, List /@ Sort[piv]];
+      imageCoeffs = {};
+      ,
+      imageCoeffs = LinearSolve[pivotMat, coords[[piv]]];
+      reducedCoords = coords - imageCoeffs . relMat;
+      quotientCoords = Delete[reducedCoords, List /@ Sort[piv]];
+    ];
   ];
 
   <|
@@ -313,6 +324,10 @@ ProjectToIBPUsingSectorData[expr_, sec_Association] := Module[{rawProj, ibpReduc
   |>
 ];
 
+(* NOTE: term must be an expanded monomial (no Power[PD[...], n] structures).
+   SplitTermsBySector calls Expand before dispatching, so this is safe when
+   used through the standard API. Direct calls on unexpanded input may give
+   incorrect sector labels. *)
 TermSectorKey[term_] := {
   Count[term, HoldPattern[h[_, _]], Infinity],
   Count[term, HoldPattern[PD[_][__]], Infinity]
@@ -338,9 +353,19 @@ ReduceCoordinatesModuloRedef[coords_List, sec_Association] := Module[
     physCoords = coords;
     imageCoeffs = {};
     ,
-    imageCoeffs = LinearSolve[Transpose[indVecs[[All, piv]]], coords[[piv]]];
-    reducedCoords = coords - imageCoeffs . indVecs;
-    physCoords = Delete[reducedCoords, List /@ Sort[piv]];
+    Module[{pivotMat},
+      pivotMat = Transpose[indVecs[[All, piv]]];
+      If[Det[pivotMat] === 0,
+        Message[ReduceCoordinatesModuloRedef::singular, "pivot submatrix is singular"];
+        reducedCoords = coords;
+        physCoords = Delete[coords, List /@ Sort[piv]];
+        imageCoeffs = {};
+        ,
+        imageCoeffs = LinearSolve[pivotMat, coords[[piv]]];
+        reducedCoords = coords - imageCoeffs . indVecs;
+        physCoords = Delete[reducedCoords, List /@ Sort[piv]];
+      ];
+    ];
   ];
 
   <|
@@ -508,6 +533,10 @@ ProjectModuloIBP[expr_, basis_List] := Module[{ans, cleanExpr, eq, sol, qvars, c
   ans = MakeAnsatz[basis, ConstantPrefix -> q];
   cleanExpr = StripScalarParameterWrappers[expr];
   qvars = Table[Symbol["q" <> ToString[i]], {i, Length[basis]}];
+  (* For derivative-free sectors ({nh, 0}), the Euler operator reduces to pure
+     algebraic differentiation, and there are no IBP relations. Direct expression
+     matching is therefore equivalent to matching modulo IBP. We skip VarD in
+     this case to avoid unnecessary computation. *)
   eq = If[
     DerivativeFreeExprQ[ans] && DerivativeFreeExprQ[cleanExpr],
     canonExpr[ans - cleanExpr],
