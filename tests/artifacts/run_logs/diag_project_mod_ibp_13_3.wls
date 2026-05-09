@@ -1,0 +1,11 @@
+scriptDir = DirectoryName[$InputFileName];
+repoRoot = NestWhile[DirectoryName, scriptDir, ! FileExistsQ[FileNameJoin[{#, "graviton_basis_toolkit.wl"}]] &];
+SetDirectory[repoRoot];
+Get["graviton_basis_toolkit.wl"];
+$RecursionLimit = 4096;
+opts = {"CacheDirectory" -> FileNameJoin[{Directory[], "cache", "diag_cache"}], "UseCache" -> True, "ForceRecompute" -> False, "Verbose" -> False};
+sec = ComputeSectorData[3, 2, Sequence @@ opts];
+b = First[sec["PhysicalBasis"]];
+proj = ProjectModuloIBP[b, sec["IBPBasis"]];
+Export["tests\\artifacts\\run_logs\\diag_project_mod_ibp_result.txt", ToString[<|"coordLen" -> Length[proj["Coordinates"]], "projectedEq" -> (canonExpr[proj["ProjectedExpr"] - b] === 0)|>, InputForm], "Text"];
+Quit[];

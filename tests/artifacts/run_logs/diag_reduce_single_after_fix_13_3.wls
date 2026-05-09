@@ -1,0 +1,13 @@
+scriptDir = DirectoryName[$InputFileName];
+repoRoot = NestWhile[DirectoryName, scriptDir, ! FileExistsQ[FileNameJoin[{#, "graviton_basis_toolkit.wl"}]] &];
+SetDirectory[repoRoot];
+Get["graviton_basis_toolkit.wl"];
+$RecursionLimit = 4096;
+opts = {"CacheDirectory" -> FileNameJoin[{Directory[], "cache", "diag_cache"}], "UseCache" -> True, "ForceRecompute" -> False, "Verbose" -> False};
+sec = ComputeSectorData[3, 2, Sequence @@ opts];
+b = First[sec["PhysicalBasis"]];
+red = ReduceSectorLagrangian[b, 3, 2, Sequence @@ opts];
+WriteString[$Output, ToString[canonExpr[red["ReducedExpression"] - b] === 0, InputForm] <> "\n"];
+WriteString[$Output, ToString[red["PhysicalCoordinates"] === UnitVector[Length[sec["PhysicalBasis"]], 1], InputForm] <> "\n"];
+WriteString[$Output, ToString[red["ProjectedIBPCoordinates"] === UnitVector[Length[sec["IBPBasis"]], First @ FirstPosition[sec["IBPBasis"], b]], InputForm] <> "\n"];
+Quit[];

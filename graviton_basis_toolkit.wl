@@ -111,11 +111,12 @@ ClearAll[
   SectorKeyAssociation, NormalizeSectorList,
   SafeSolveConstants, ZeroVectorQ, CoordinatesMatrixQ,
   DefaultCacheDirectory, TermSectorKey, DerivativeFreeExprQ,
-  StripScalarParameterWrappers, DirectProjectToBasis,
+  StripScalarParameterWrappers, BasisMatchCoordinates,
+  ProjectionResidualModuloIBP, DirectProjectToBasis,
   ReduceCoordinatesModuloRelations, ProjectToIBPUsingSectorData,
   SplitTermsBySector, ReduceCoordinatesModuloRedef,
   ParallelKernelCountResolved, EnsureParallelToolkitKernels,
-  ReduceSectorLagrangianCanonicalInput
+  ReduceSectorLagrangianWithSectorData, ReduceSectorLagrangianCanonicalInput
 ];
 
 canonExpr[expr_] := Module[{tmp},
@@ -242,8 +243,24 @@ DerivativeFreeExprQ[expr_] := FreeQ[expr, HoldPattern[PD[_][__]], Infinity];
 StripScalarParameterWrappers[expr_] := expr /. HoldPattern[Scalar[s_]] /;
    FreeQ[s, HoldPattern[h[__] | dh[__] | probe[__] | PD[_][__]], Infinity] :> s;
 
+BasisMatchCoordinates[expr_, basis_List] := Module[{pos},
+  Which[
+    expr === 0, ConstantArray[0, Length[basis]],
+    basis === {}, Missing["NotFound"],
+    True,
+      pos = FirstPosition[basis, expr, Missing["NotFound"], {1}, Heads -> False];
+      If[ListQ[pos], UnitVector[Length[basis], pos[[1]]], Missing["NotFound"]]
+  ]
+];
+
+ProjectionResidualModuloIBP[projectedExpr_, cleanExpr_] := If[
+  DerivativeFreeExprQ[projectedExpr] && DerivativeFreeExprQ[cleanExpr],
+  canonExpr[projectedExpr - cleanExpr],
+  canonExpr @ VarD[h[-m, -n], PD][projectedExpr - cleanExpr]
+];
+
 DirectProjectToBasis[expr_, basis_List] := Module[
-  {ans, cleanExpr, eq, sol, zvars, coeffs, hasSolutionQ, projectedExpr, residual},
+  {ans, cleanExpr, eq, sol, zvars, coeffs, hasSolutionQ, projectedExpr, residual, directCoords},
   If[basis === {},
     Return[<|
       "ProjectedExpr" -> 0,
@@ -254,9 +271,22 @@ DirectProjectToBasis[expr_, basis_List] := Module[
     |>]
   ];
 
-  ans = MakeAnsatz[basis, ConstantPrefix -> z];
   cleanExpr = StripScalarParameterWrappers[expr];
   zvars = Table[Symbol["z" <> ToString[i]], {i, Length[basis]}];
+  directCoords = BasisMatchCoordinates[cleanExpr, basis];
+  If[directCoords =!= Missing["NotFound"],
+    projectedExpr = canonExpr @ LinearCombination[directCoords, basis];
+    residual = canonExpr[projectedExpr - cleanExpr];
+    Return[<|
+      "ProjectedExpr" -> projectedExpr,
+      "Coordinates" -> directCoords,
+      "Solution" -> {Thread[zvars -> directCoords]},
+      "HasSolution" -> True,
+      "Residual" -> residual
+    |>]
+  ];
+
+  ans = MakeAnsatz[basis, ConstantPrefix -> z];
   eq = canonExpr[ans - cleanExpr];
   sol = Quiet[SolveConstants[eq == 0, zvars], Solve::svars];
   hasSolutionQ = ListQ[sol] && sol =!= {};
@@ -302,7 +332,24 @@ ReduceCoordinatesModuloRelations[coords_List, relMat_, piv_List] := Module[{imag
   |>
 ];
 
-ProjectToIBPUsingSectorData[expr_, sec_Association] := Module[{rawProj, ibpReduction},
+ProjectToIBPUsingSectorData[expr_, sec_Association] := Module[
+  {cleanExpr, directCoords, projectedExpr, residual, rawProj, ibpReduction},
+  cleanExpr = StripScalarParameterWrappers[expr];
+  directCoords = BasisMatchCoordinates[cleanExpr, sec["IBPBasis"]];
+  If[directCoords =!= Missing["NotFound"],
+    projectedExpr = canonExpr @ LinearCombination[directCoords, sec["IBPBasis"]];
+    residual = ProjectionResidualModuloIBP[projectedExpr, cleanExpr];
+    Return[<|
+      "RawProjection" -> Missing["SkippedExactIBPMatch"],
+      "ProjectionSucceededQ" -> TrueQ[residual === 0],
+      "ProjectionResidual" -> residual,
+      "ProjectedExpr" -> projectedExpr,
+      "Coordinates" -> directCoords,
+      "ReducedRawCoordinates" -> Missing["NotComputed"],
+      "IBPRelationCoefficients" -> Missing["NotComputed"]
+    |>]
+  ];
+
   rawProj = DirectProjectToBasis[expr, sec["RawBasis"]];
   ibpReduction = ReduceCoordinatesModuloRelations[
     rawProj["Coordinates"],
@@ -525,14 +572,28 @@ ShiftFromRedefExpr[deltaExpr_] := Module[{expr},
   canonExpr[expr]
 ];
 
-ProjectModuloIBP[expr_, basis_List] := Module[{ans, cleanExpr, eq, sol, qvars, coeffs},
+ProjectModuloIBP[expr_, basis_List] := Module[
+  {ans, cleanExpr, eq, sol, qvars, coeffs, projectedExpr, residual, directCoords},
   If[basis === {},
     Return[<|"ProjectedExpr" -> 0, "Coordinates" -> {}, "Solution" -> {{}}|>]
   ];
 
-  ans = MakeAnsatz[basis, ConstantPrefix -> q];
   cleanExpr = StripScalarParameterWrappers[expr];
   qvars = Table[Symbol["q" <> ToString[i]], {i, Length[basis]}];
+  directCoords = BasisMatchCoordinates[cleanExpr, basis];
+  If[directCoords =!= Missing["NotFound"],
+    projectedExpr = canonExpr @ LinearCombination[directCoords, basis];
+    residual = ProjectionResidualModuloIBP[projectedExpr, cleanExpr];
+    Return[<|
+      "ProjectedExpr" -> projectedExpr,
+      "Coordinates" -> directCoords,
+      "Solution" -> {Thread[qvars -> directCoords]},
+      "HasSolution" -> True,
+      "Residual" -> residual
+    |>]
+  ];
+
+  ans = MakeAnsatz[basis, ConstantPrefix -> q];
   (* For derivative-free sectors ({nh, 0}), the Euler operator reduces to pure
      algebraic differentiation, and there are no IBP relations. Direct expression
      matching is therefore equivalent to matching modulo IBP. We skip VarD in
@@ -544,11 +605,15 @@ ProjectModuloIBP[expr_, basis_List] := Module[{ans, cleanExpr, eq, sol, qvars, c
   ];
   sol = SafeSolveConstants[eq == 0, qvars];
   coeffs = (qvars /. First[sol]) /. Thread[qvars -> 0];
+  projectedExpr = canonExpr[(ans /. First[sol]) /. Thread[qvars -> 0]];
+  residual = ProjectionResidualModuloIBP[projectedExpr, cleanExpr];
 
   <|
-    "ProjectedExpr" -> canonExpr[(ans /. First[sol]) /. Thread[qvars -> 0]],
+    "ProjectedExpr" -> projectedExpr,
     "Coordinates" -> coeffs,
-    "Solution" -> sol
+    "Solution" -> sol,
+    "HasSolution" -> TrueQ[residual === 0],
+    "Residual" -> residual
   |>
 ];
 
@@ -721,10 +786,9 @@ ComputeSectorData[nh_Integer, Nd_Integer, opts : OptionsPattern[RunBasisComputat
 
 ClearAll[ReduceSectorLagrangian, ReduceLagrangian];
 
-ReduceSectorLagrangianCanonicalInput[inputExpr_, nh_Integer, Nd_Integer, opts : OptionsPattern[RunBasisComputation]] := Module[
-  {sec, ibpProj, redefReduction, reducedExpr, imageExpr},
+ReduceSectorLagrangianWithSectorData[inputExpr_, sec_Association] := Module[
+  {ibpProj, redefReduction, reducedExpr, imageExpr},
 
-  sec = ComputeSectorData[nh, Nd, opts];
   ibpProj = ProjectToIBPUsingSectorData[inputExpr, sec];
   redefReduction = ReduceCoordinatesModuloRedef[ibpProj["Coordinates"], sec];
 
@@ -739,7 +803,7 @@ ReduceSectorLagrangianCanonicalInput[inputExpr_, nh_Integer, Nd_Integer, opts : 
   ];
 
   <|
-    "Sector" -> {nh, Nd},
+    "Sector" -> {sec["nh"], sec["Nd"]},
     "InputExpression" -> inputExpr,
     "ProjectionSucceededQ" -> ibpProj["ProjectionSucceededQ"],
     "ProjectionResidual" -> ibpProj["ProjectionResidual"],
@@ -759,11 +823,24 @@ ReduceSectorLagrangianCanonicalInput[inputExpr_, nh_Integer, Nd_Integer, opts : 
   |>
 ];
 
+ReduceSectorLagrangianCanonicalInput[inputExpr_, nh_Integer, Nd_Integer, opts : OptionsPattern[RunBasisComputation]] := Module[
+  {sec},
+  sec = ComputeSectorData[nh, Nd, opts];
+  ReduceSectorLagrangianWithSectorData[inputExpr, sec]
+];
+
 ReduceSectorLagrangian[expr_, nh_Integer, Nd_Integer, opts : OptionsPattern[RunBasisComputation]] := Module[
-  {inputExpr},
+  {sec, cleanExpr, directCoords, inputExpr},
+
+  sec = ComputeSectorData[nh, Nd, opts];
+  cleanExpr = StripScalarParameterWrappers[expr];
+  directCoords = BasisMatchCoordinates[cleanExpr, sec["IBPBasis"]];
+  If[directCoords =!= Missing["NotFound"],
+    Return[ReduceSectorLagrangianWithSectorData[cleanExpr, sec]]
+  ];
 
   inputExpr = canonExpr[expr];
-  ReduceSectorLagrangianCanonicalInput[inputExpr, nh, Nd, opts]
+  ReduceSectorLagrangianWithSectorData[inputExpr, sec]
 ];
 
 ReduceLagrangian[expr_, opts : OptionsPattern[RunBasisComputation]] := Module[

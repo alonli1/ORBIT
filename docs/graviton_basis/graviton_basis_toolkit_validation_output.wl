@@ -1,5 +1,5 @@
-<|"GeneratedOn" -> "2026-03-10 18:26:28", "CacheDirectory" -> 
-  "cache\\graviton_basis_validation_cache", 
+<|"GeneratedOn" -> "2026-04-22 02:16:18", "CacheDirectory" -> 
+  "D:\\ORBIT\\cache\\graviton_basis_validation_cache", 
  "Tests" -> {<|"Sector" -> {3, 2}, "IBPCount" -> 14, "RedefRank" -> 4, 
     "PhysicalCount" -> 10, "DeltaBasisLength" -> 4, "LagTermCount" -> 18, 
     "ReducedExpressionZeroQ" -> True, "PhysicalCoordinatesZeroQ" -> True, 

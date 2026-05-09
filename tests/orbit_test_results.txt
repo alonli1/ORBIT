@@ -1,0 +1,124 @@
+ORBIT Comprehensive Test Results
+Generated: 2026-04-23 00:05:20
+================================================
+
+
+=== Stage 1: Utility Functions ===
+  PASS: 1.1a CompositionList[0,1]
+  PASS: 1.1b CompositionList[2,2]
+  PASS: 1.1c CompositionList length = Binomial[n+k-1,k-1] for 0<=n<=6, 1<=k<=5
+  PASS: 1.2a PivotColumns identity 3x3
+  PASS: 1.2b PivotColumns {{1,0,1},{0,1,1}}
+  PASS: 1.2c PivotColumns rank-1 {{1,2,3},{2,4,6}}
+  PASS: 1.2d PivotRows == PivotColumns[Transpose]
+  PASS: 1.3a LinearCombination unit vector
+  PASS: 1.3b LinearCombination general
+  PASS: 1.4a NormalizeSectorList Automatic d=3
+  PASS: 1.4b NormalizeSectorList dedup
+  PASS: 1.5a ZeroVectorQ all zeros
+  PASS: 1.5b ZeroVectorQ non-zero
+  PASS: 1.5c ZeroVectorQ empty
+  PASS: 1.6a SplitTermsBySector[0] empty
+  PASS: 1.6b SplitTermsBySector multi-sector has >=1 key
+  PASS: 1.6c SplitTermsBySector has exactly 2 sector keys
+  PASS: 1.7 PrettyKey
+  PASS: 1.8a SafeSolveConstants trivial returns {{}}
+
+=== Stage 2: Raw Basis Generation ===
+  PASS: 2.1a RawScalarBasis[2,1] empty
+  PASS: 2.1b RawScalarBasis[3,3] empty
+  PASS: 2.1c RawScalarBasis[1,1] empty
+  PASS: 2.2a {2,2} basis elements canonical
+  PASS: 2.2b {2,2} no hidden duplicates
+  PASS: 2.2c {3,2} basis elements canonical
+  PASS: 2.2d {3,2} no hidden duplicates
+  PASS: 2.3 Independent raw count {2,2} matches
+  PASS: 2.4a Rank2Basis[1,1] empty
+  PASS: 2.4b Rank2Basis[2,1] empty
+
+=== Stage 3: IBP Quotient ===
+  PASS: 3.1 Independent IBP count {2,2} matches toolkit
+  PASS: 3.2 IBP relations in {2,2} are total derivatives
+  PASS: 3.3 IBP basis elements in {2,2} are independent (no further IBP relations)
+  PASS: 3.4 IBPData[{}] has empty relations
+  PASS: 3.5 Sector {1,2} has IBPCount=0 (all total derivatives)
+
+=== Stage 4: Field-Redefinition Image ===
+  PASS: 4.1a LFP is nonzero
+  PASS: 4.1b LFP is canonical
+  PASS: 4.1c LFP lies in sector {2,2}
+  PASS: 4.2 Shift images from Rank2Basis[2,0] land in {3,2}
+  PASS: 4.3a Redundant image {3,2} reduces to zero
+  PASS: 4.3b Redundant image {3,4} reduces to zero
+  PASS: 4.4a {2,0} RedefRank=0
+  PASS: 4.4b {2,2} RedefRank=0
+  PASS: 4.4c {1,0} RedefRank=0
+  PASS: 4.5 PhysicalCount = IBPCount - RedefRank for all nh>=3 sectors (D<=5)
+  PASS: 4.6 Independent redef rank {3,2} matches toolkit
+
+=== Stage 5: Full Sector Assembly ===
+  PASS: 5.1 Internal consistency for all sectors D<=5
+  PASS: 5.2a {2,4} IBPCount >= 2 (must contain curvature-squared subspace)
+  PASS: 5.2b Curvature-squared subspace in {2,4} has rank 2 (Gauss-Bonnet in 4D)
+  PASS: 5.3 Sector data has all required keys
+  PASS: 5.4 Cache round-trip: counts match
+
+=== Stage 6: Lagrangian Reduction ===
+  PASS: 6.1a ReduceSectorLagrangian completes on LFP
+  PASS: 6.1b Reduced LFP representative is idempotent
+  PASS: 6.1c LFP projection residual is zero
+  PASS: 6.1d LFP physical coordinates are nonzero
+  PASS: 6.2 Zero input reduces to zero
+  PASS: 6.3 IBP-trivial expression {3,2} reduces to zero
+  PASS: 6.4 Mixed expression: reduced == physical part only
+  PASS: 6.5a Multi-sector split has expected keys
+  PASS: 6.5b Multi-sector reduced expression reconstructs input
+  PASS: 6.6 Idempotency: Reduce(Reduce(L)) == Reduce(L)
+  PASS: 6.7 Projection residual is zero for valid sector expression
+
+=== Stage 7: Matchete-xAct Translator ===
+  PASS: 7.1a sanitizeIndices[{a,a}] -> {a,-a}
+  PASS: 7.1b sanitizeIndices[{a,b}] unchanged
+  PASS: 7.2a stripMinus[-a] = a
+  PASS: 7.2b stripMinus[a] = a
+  PASS: 7.3 LoadMatcheteMXExpression succeeds
+  PASS: 7.4a Normalized has no hbar
+  PASS: 7.4b Normalized has no negative epsilon powers
+  PASS: 7.4c Normalized is nonzero
+  PASS: 7.5 Translation matches stored baseline
+
+=== Stage 8: EH Comparison Workflow ===
+  PASS: 8.1a Reference expression is nonzero
+  PASS: 8.1b Reference contains {1,0} sector
+  PASS: 8.1c Reference contains {2,0} sector
+  PASS: 8.1d Reference contains {2,2} sector
+  PASS: 8.2 Reference self-comparison: ExactMatchQ
+  PASS: 8.3 R^2 and R_{Î¼Î½}R^{Î¼Î½} are linearly independent in {2,4} IBP basis
+  PASS: 8.4a Canonical normalization succeeds
+  PASS: 8.4b Extracted factor equals scaling
+  PASS: 8.5a Curvature-squared analysis: residual is zero
+  PASS: 8.5b Extracted R^2 coefficient matches input
+  PASS: 8.5c Extracted Ricci^2 coefficient matches input
+
+=== Stage 9: Solution-Case Proof Validation ===
+  PASS: 9.1a Mathematica 13.3 kernel is available for solution-case proof validation
+  INFO: launching solution-case validator in a fresh Mathematica 13.3 kernel
+  PASS: 9.1b Solution-case validator exits successfully under 13.3
+  PASS: 9.1c Solution-case validator writes its output artifact
+  PASS: 9.1d Solution-case artifact is an Association
+  PASS: 9.1e Solution-case validator reports Mathematica 13.3
+  PASS: 9.1f Solution-case validator reports all checks passed
+  PASS: 9.1g D5 proof case has a symbolic solution
+  PASS: 9.1h D5 proof case has vanishing supported differences
+  PASS: 9.1i D6 proof case satisfies all witness equations
+  PASS: 9.1j D6 proof case preserves stored supported-sector verification
+  PASS: 9.1k D6 quadratic completion leaves zero residual
+  PASS: 9.1l D6 quadratic completion removes curvature-squared content
+  PASS: 9.1m D6 quadratic image reconstruction matches the projected difference
+
+========================================
+=== RESULTS ===
+========================================
+94 passed, 0 failed, 0 skipped out of 94
+
+All tests passed.

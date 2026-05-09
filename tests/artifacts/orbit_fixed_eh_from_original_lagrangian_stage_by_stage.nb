@@ -1,0 +1,902 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+
+Notebook[{
+Cell["ORBIT Fixed-EH Original-Lagrangian Validation Notebook", "Title"],
+
+Cell["\<\
+This notebook turns the step-0 original-lagrangian validation into a stage-by-stage GUI workflow.
+
+It is meant to be run in a fresh Mathematica 13.3 notebook kernel. Evaluate the code cells from top to bottom. Each stage stores its output in orbitNotebookState and returns a compact summary association so you can compare it against the expected checkpoint written below the cell.\
+\>", "Text"],
+
+Cell["\<\
+What this notebook checks:
+- Start from the original LEFT-only EFT input.
+- Rebuild the d <= 6 truncation from scratch.
+- Apply the witness solution found earlier.
+- Rebuild the fixed Einstein-Hilbert reference.
+- Verify that the supported reduced sectors match GR.
+- Verify that the only remaining reduced discrepancy is the quadratic {2,4} sector.
+- Verify that this residual matches the projected Fierz-Pauli image of the validated higher-derivative field redefinition.
+
+Important nuance:
+- The raw unreduced full-reference shift does not directly reproduce the residual.
+- The statement ORBIT proves here is the reduced / IBP statement.\
+\>", "Text"],
+
+Cell["\<\
+Reading guide for the code:
+
+- orbitNotebookState is just a shared Association used as a notebook-local cache. Each stage writes a small summary there so later stages can reuse the result without recomputing the explanation logic.
+- canonExpr is the main xAct canonicalization step. Whenever you see it, the code is trying to put dummy indices and tensor expressions into a stable form before comparison.
+- Quiet[..., ToCanonical::noident] suppresses a common xAct message that is expected in this workflow and is not, by itself, evidence of a failure.
+- A projected coordinate vector means: write the answer in the chosen IBP basis of that sector and keep only the coefficient list. This is the cleanest way to compare two expressions modulo integration by parts.
+- A reduced expression means: the expression after ORBIT has reduced it against the chosen sector basis and field-redefinition image. This is the physically relevant comparison used here.
+- The code often stores both an expression and its coordinates. The expression is easier to read conceptually; the coordinates are easier to compare exactly.\
+\>", "Text"],
+
+Cell["Stage 0. Setup", "Section"],
+
+Cell["\<\
+This stage finds the repo root relative to the saved notebook, forces a Mathematica 13.3 check, loads the ORBIT packages, and prepares a shared state association for later stages.
+
+If the version check fails, stop there and restart the notebook in Mathematica 13.3.\
+\>", "Text"],
+
+Cell["\<\
+What the setup code is doing, line by line:
+
+- ClearAll[\"Global`*\"] removes stale symbols from earlier notebook experiments.
+- NotebookDirectory[] gives the folder of the saved notebook. From there, the code walks upward until it finds orbit_fixed_eh_comparison.wl, which is used as a marker for the repo root.
+- SetDirectory[repoRoot] makes later relative paths predictable.
+- The explicit 13.3 guard matters because you asked that all validation be done only with Mathematica 13.3.
+- inputMX points at the original EFT source.
+- cacheDir tells ORBIT where to reuse precomputed sector data if available.
+- basisOpts is the common option bundle passed into later reducer calls.\
+\>", "Text"],
+
+Cell["\<\
+(* Start from a clean Global` context so old notebook symbols do not leak in. *)
+ClearAll[\"Global`*\"];
+
+(* Shared notebook-side state. Each stage writes a compact Association here. *)
+orbitNotebookState = <||>;
+
+(* Find the directory containing this notebook, then walk upward until the repo marker file appears. *)
+notebookDir = Quiet @ Check[NotebookDirectory[], Directory[]];
+repoRoot = NestWhile[
+  DirectoryName,
+  notebookDir,
+  ! FileExistsQ[FileNameJoin[{#, \"orbit_fixed_eh_comparison.wl\"}]] &
+];
+
+(* Make relative paths like examples/... and cache/... resolve from the repo root. *)
+SetDirectory[repoRoot];
+
+(* Hard-stop if the front end is attached to the wrong Mathematica version. *)
+If[! StringStartsQ[System`$Version, \"13.3\"],
+  Print[
+    \"ERROR: This notebook must be run under Mathematica 13.3. Current kernel: \" <>
+    System`$Version
+  ];
+  Abort[]
+];
+
+(* Load the ORBIT toolkit and the fixed-EH comparison helpers used by the validator. *)
+Get[\"graviton_basis_toolkit.wl\"];
+Get[\"orbit_fixed_eh_comparison.wl\"];
+
+(* Original EFT input and preferred cache directory. *)
+inputMX = FileNameJoin[{Directory[], \"examples\", \"left_only_uv_2_eft_6\", \"LEFT_only_uv_2_eft_6.mx\"}];
+cacheDir = If[
+  DirectoryQ[FileNameJoin[{Directory[], \"cache\", \"left_only_uv_2_eft_6_cache\"}]],
+  FileNameJoin[{Directory[], \"cache\", \"left_only_uv_2_eft_6_cache\"}],
+  FileNameJoin[{Directory[], \"cache\", \"orbit_fixed_eh_cache\"}]
+];
+
+(* Common reducer options reused throughout the notebook. *)
+basisOpts = {
+  \"MaxDimension\" -> 6,
+  \"CacheDirectory\" -> cacheDir,
+  \"UseCache\" -> True,
+  \"Verbose\" -> False
+};
+
+(* Save a compact summary so later stages and exported artifacts know how the session was configured. *)
+orbitNotebookState[\"Setup\"] = <|
+  \"NotebookDirectory\" -> notebookDir,
+  \"RepoRoot\" -> repoRoot,
+  \"KernelVersion\" -> System`$Version,
+  \"InputSource\" -> inputMX,
+  \"InputExistsQ\" -> FileExistsQ[inputMX],
+  \"CacheDirectory\" -> cacheDir,
+  \"BasisOptions\" -> basisOpts
+|>;
+
+orbitNotebookState[\"Setup\"]\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- KernelVersion starts with 13.3.
+- InputExistsQ is True.
+- RepoRoot points to the ORBIT checkout.
+- CacheDirectory points to either cache/left_only_uv_2_eft_6_cache or cache/orbit_fixed_eh_cache.\
+\>", "Text"],
+
+Cell["Stage 1. Witness and Helper Definitions", "Section"],
+
+Cell["\<\
+This stage copies the exact witness substitution, the validated quadratic field redefinition, and the same helper functions used by the passing script validator.
+
+This cell should finish without visible errors. Its main job is to seed the later computational stages.\
+\>", "Text"],
+
+Cell["\<\
+How to read the helper layer:
+
+- witnessSubstitutions is the solved branch that turns the original EFT parameters into the specific point that should match GR up to the validated residual.
+- witnessAssumptions is passed into FullSimplify so equalities are tested under the intended positivity assumptions.
+- quadraticFieldRedefinitionFriendly is the human-readable delta h written with fixed dummy names.
+- quadraticFieldRedefinitionExpr[x,y] is the same object packaged as a function that generates fresh dummy indices every time it is inserted into a larger expression. That avoids index-collision bugs.
+- parameterDerivativeRules enforces the fact that M, kappa, and similar symbols are treated as constants, not spacetime fields.
+- zeroExprQ and zeroVectorQWithAssumptions are the notebook's standard yes/no comparison tests.
+- The comparison-builder functions at the end package sector-by-sector comparisons into Associations so the later cells stay readable.\
+\>", "Text"],
+
+Cell["\<\
+(* Witness branch: this is the specific solution that should reproduce the fixed-EH claim. *)
+witnessSubstitutions = {
+  Scalar[M] -> M,
+  Scalar[\\[Kappa]] -> \\[Kappa],
+  Scalar[\\[Mu]bar2] -> \\[Mu]bar2,
+  Sqrt[1/(M^2*\\[Kappa]^2)] -> 1/(M*\\[Kappa]),
+  Sqrt[1/(Scalar[M]^2*Scalar[\\[Kappa]]^2)] -> 1/(M*\\[Kappa]),
+  Sqrt[-(1/(M^2*\\[Kappa]^2*(1 + Log[\\[Mu]bar2/M^2])))] -> Sqrt[2]/(M*\\[Kappa]),
+  Sqrt[-(1/((1 + Log[\\[Mu]bar2/M^2])*Scalar[M]^2*Scalar[\\[Kappa]]^2))] -> Sqrt[2]/(M*\\[Kappa]),
+  Log[\\[Mu]bar2/M^2] -> -3/2,
+  Log[Scalar[\\[Mu]bar2]/M^2] -> -3/2,
+  Log[Scalar[\\[Mu]bar2]/Scalar[M]^2] -> -3/2,
+  LambdaRefFinal -> 0,
+  KappaRefFinal -> (4*Sqrt[3])/M
+};
+
+(* Assumptions used when a result is tested with FullSimplify. *)
+witnessAssumptions = M > 0 && \\[Kappa] > 0 && \\[Mu]bar2 > 0;
+
+(* Human-friendly version of the validated quadratic field redefinition. *)
+quadraticFieldRedefinitionFriendly =
+  (-3*PD[-i1][PD[i1][h[u, v]]])/(20*M^2) -
+  (3*eta[u, v]*PD[-i2][PD[-i1][h[i1, i2]]])/(10*M^2) +
+  (3*eta[u, v]*PD[-i2][PD[i2][h[i1, -i1]]])/(10*M^2);
+
+(* Function version of the same delta h that refreshes dummy indices on each use. *)
+quadraticFieldRedefinitionExpr[x_, y_] := Module[{j1, j2},
+  j1 = DummyIn[TangentM];
+  j2 = DummyIn[TangentM];
+  canonExpr[
+    (-3*PD[-j1][PD[j1][h[x, y]]])/(20*M^2) -
+    (3*eta[x, y]*PD[-j2][PD[-j1][h[j1, j2]]])/(10*M^2) +
+    (3*eta[x, y]*PD[-j2][PD[j2][h[j1, -j1]]])/(10*M^2)
+  ]
+];
+
+(* Tell the symbolic derivative operator that the EFT parameters are constants. *)
+parameterDerivativeRules = {
+  HoldPattern[PD[_][M]] :> 0,
+  HoldPattern[PD[_][\\[Kappa]]] :> 0,
+  HoldPattern[PD[_][\\[Mu]bar2]] :> 0,
+  HoldPattern[PD[_][LambdaRefFinal]] :> 0,
+  HoldPattern[PD[_][KappaRefFinal]] :> 0,
+  HoldPattern[PD[_][Scalar[M]]] :> 0,
+  HoldPattern[PD[_][Scalar[\\[Kappa]]]] :> 0,
+  HoldPattern[PD[_][Scalar[\\[Mu]bar2]]] :> 0
+};
+
+(* Collapse Scalar[...] wrappers to the standard symbols used in the witness branch. *)
+normalizeScalarExpr[expr_] := normalizeMatcheteParameterScalars[expr];
+
+(* Canonicalize an expression and then test whether it vanishes under the witness assumptions. *)
+zeroExprQ[expr_, assumptions_ : True] := Module[{checked},
+  checked = Quiet[canonExpr[normalizeScalarExpr[expr]], ToCanonical::noident];
+  TrueQ[checked === 0] || TrueQ[FullSimplify[checked == 0, assumptions]]
+];
+
+(* Same idea as zeroExprQ, but for a whole coordinate vector. *)
+zeroVectorQWithAssumptions[list_List, assumptions_ : True] := And @@ (
+  TrueQ[FullSimplify[normalizeScalarExpr[#] == 0, assumptions]] & /@ list
+);
+
+(* Repeatedly remove derivatives of the constant parameters until nothing changes. *)
+removeParameterDerivatives[expr_] := FixedPoint[
+  Expand[# /. parameterDerivativeRules] &,
+  expr
+];
+
+(* Build the first-order change in expr under h -> h + lam delta h and extract the lam coefficient. *)
+firstOrderShiftFromExpression[expr_, deltaExprBuilder_] := Module[{shiftExpr, shiftedDelta},
+  shiftExpr = Expand[expr /. HoldPattern[h[x_, y_]] :> (h[x, y] + lam dh[x, y])];
+  shiftExpr = Coefficient[shiftExpr, lam, 1];
+  shiftExpr = shiftExpr /. HoldPattern[dh[x_, y_]] :> (
+    shiftedDelta = ReplaceDummies[deltaExprBuilder[x, y]];
+    shiftedDelta
+  );
+  Quiet[
+    canonExpr @ removeParameterDerivatives @ ReplaceDummies[shiftExpr],
+    ToCanonical::noident
+  ]
+];
+
+(* Compare one sector at the level of projected IBP-basis coordinates. *)
+projectedSectorComparisonRecord[key_, inputSector_, referenceSector_, sectorData_] := Module[
+  {basis, inputCoords, referenceCoords, differenceCoords, inputExpr, referenceExpr, differenceExpr},
+  basis = sectorData[\"IBPBasis\"];
+  inputCoords = If[AssociationQ[inputSector], inputSector[\"ProjectedIBPCoordinates\"], ConstantArray[0, Length[basis]]];
+  referenceCoords = If[AssociationQ[referenceSector], referenceSector[\"ProjectedIBPCoordinates\"], ConstantArray[0, Length[basis]]];
+  differenceCoords = inputCoords - referenceCoords;
+  inputExpr = If[AssociationQ[inputSector], inputSector[\"ProjectedIBPExpression\"], 0];
+  referenceExpr = If[AssociationQ[referenceSector], referenceSector[\"ProjectedIBPExpression\"], 0];
+  differenceExpr = canonExpr @ LinearCombination[differenceCoords, basis];
+  <|
+    \"Sector\" -> key,
+    \"InputProjectedCoordinates\" -> inputCoords,
+    \"ReferenceProjectedCoordinates\" -> referenceCoords,
+    \"DifferenceProjectedCoordinates\" -> differenceCoords,
+    \"InputProjectedExpression\" -> inputExpr,
+    \"ReferenceProjectedExpression\" -> referenceExpr,
+    \"DifferenceProjectedExpression\" -> differenceExpr,
+    \"DifferenceIsZeroQ\" -> zeroExprQ[differenceExpr, witnessAssumptions],
+    \"DifferenceCoordinatesZeroQ\" -> zeroVectorQWithAssumptions[differenceCoords, witnessAssumptions]
+  |>
+];
+
+(* Build the projected comparison table for every sector present in either reduction. *)
+buildProjectedSectorComparisons[inputReduction_Association, referenceReduction_Association] := Module[
+  {allSectors},
+  allSectors = Sort @ Union[
+    Keys[inputReduction[\"SectorReductions\"]],
+    Keys[referenceReduction[\"SectorReductions\"]]
+  ];
+  Association @ Table[
+    With[
+      {
+        key = sector,
+        inputSector = sectorLookup[inputReduction[\"SectorReductions\"], sector],
+        referenceSector = sectorLookup[referenceReduction[\"SectorReductions\"], sector],
+        sectorData = Which[
+          AssociationQ[sectorLookup[inputReduction[\"SectorReductions\"], sector]],
+            inputReduction[\"SectorReductions\"][sector][\"SectorData\"],
+          AssociationQ[sectorLookup[referenceReduction[\"SectorReductions\"], sector]],
+            referenceReduction[\"SectorReductions\"][sector][\"SectorData\"],
+          True,
+            ComputeSectorData[sector[[1]], sector[[2]], Sequence @@ basisOpts]
+        ]
+      },
+      key -> projectedSectorComparisonRecord[key, inputSector, referenceSector, sectorData]
+    ],
+    {sector, allSectors}
+  ]
+];
+
+(* Build the reduced-expression comparison table for every sector present in either reduction. *)
+buildReducedSectorComparisons[inputReduction_Association, referenceReduction_Association] := Module[
+  {allSectors},
+  allSectors = Sort @ Union[
+    Keys[inputReduction[\"SectorReductions\"]],
+    Keys[referenceReduction[\"SectorReductions\"]]
+  ];
+  Association @ Table[
+    With[
+      {
+        key = sector,
+        inputSector = sectorLookup[inputReduction[\"SectorReductions\"], sector],
+        referenceSector = sectorLookup[referenceReduction[\"SectorReductions\"], sector],
+        sectorData = Which[
+          AssociationQ[sectorLookup[inputReduction[\"SectorReductions\"], sector]],
+            inputReduction[\"SectorReductions\"][sector][\"SectorData\"],
+          AssociationQ[sectorLookup[referenceReduction[\"SectorReductions\"], sector]],
+            referenceReduction[\"SectorReductions\"][sector][\"SectorData\"],
+          True,
+            ComputeSectorData[sector[[1]], sector[[2]], Sequence @@ basisOpts]
+        ]
+      },
+      key -> Join[
+        sectorComparisonRecord[key, inputSector, referenceSector, sectorData],
+        <|
+          \"DifferenceZeroQ\" -> zeroExprQ[
+            sectorComparisonRecord[key, inputSector, referenceSector, sectorData][\"DifferenceExpression\"],
+            witnessAssumptions
+          ],
+          \"DifferenceCoordinatesZeroQ\" -> zeroVectorQWithAssumptions[
+            sectorComparisonRecord[key, inputSector, referenceSector, sectorData][\"DifferenceCoordinates\"],
+            witnessAssumptions
+          ]
+        |>
+      ]
+    ],
+    {sector, allSectors}
+  ]
+];
+
+(* Convenience helpers for extracting the sectors whose differences do not vanish. *)
+nonZeroProjectedSectors[comparisons_Association] := Keys @ KeySelect[
+  comparisons,
+  ! TrueQ[comparisons[#][\"DifferenceIsZeroQ\"]] &
+];
+
+nonZeroReducedSectors[comparisons_Association] := Keys @ KeySelect[
+  comparisons,
+  ! TrueQ[comparisons[#][\"DifferenceZeroQ\"]] &
+];
+
+comparisonSummary[comparisons_Association] := <|
+  \"Sectors\" -> Keys[comparisons],
+  \"NonZeroProjectedDifferenceSectors\" -> nonZeroProjectedSectors[comparisons],
+  \"AllProjectedDifferencesZeroQ\" -> And @@ Lookup[Values[comparisons], \"DifferenceIsZeroQ\", {}],
+  \"AllProjectedCoordinateDifferencesZeroQ\" -> And @@ Lookup[Values[comparisons], \"DifferenceCoordinatesZeroQ\", {}],
+  \"DifferenceExpressions\" -> Association @ KeyValueMap[#1 -> #2[\"DifferenceProjectedExpression\"] &, comparisons],
+  \"DifferenceCoordinates\" -> Association @ KeyValueMap[#1 -> #2[\"DifferenceProjectedCoordinates\"] &, comparisons]
+|>;
+
+reducedComparisonSummary[comparisons_Association] := <|
+  \"Sectors\" -> Keys[comparisons],
+  \"NonZeroReducedDifferenceSectors\" -> nonZeroReducedSectors[comparisons],
+  \"AllReducedDifferencesZeroQ\" -> And @@ Lookup[Values[comparisons], \"DifferenceZeroQ\", {}],
+  \"AllReducedCoordinateDifferencesZeroQ\" -> And @@ Lookup[Values[comparisons], \"DifferenceCoordinatesZeroQ\", {}],
+  \"DifferenceExpressions\" -> Association @ KeyValueMap[#1 -> #2[\"DifferenceExpression\"] &, comparisons],
+  \"DifferenceCoordinates\" -> Association @ KeyValueMap[#1 -> #2[\"DifferenceCoordinates\"] &, comparisons]
+|>;
+
+orbitNotebookState[\"Definitions\"] = <|
+  \"WitnessSubstitutionCount\" -> Length[witnessSubstitutions],
+  \"WitnessAssumptions\" -> witnessAssumptions,
+  \"QuadraticFieldRedefinition\" -> quadraticFieldRedefinitionFriendly
+|>;
+
+orbitNotebookState[\"Definitions\"]\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- WitnessSubstitutionCount is 12.
+- The displayed quadratic field redefinition is
+  delta h_uv = -(3/(20 M^2)) Box h_uv
+               -(3/(10 M^2)) eta_uv d_a d_b h_ab
+               +(3/(10 M^2)) eta_uv Box h^a_a.
+- No warnings or failures should appear here.\
+\>", "Text"],
+
+Cell["Stage 2. Load and Normalize the Original EFT", "Section"],
+
+Cell["\<\
+This is the heavy front-loaded stage. It translates the original Matchete .mx input to xAct, keeps the finite part, truncates to d <= 6, and applies the witness solution.
+
+This was the slowest part of the script run, about 206 seconds on the recorded passing run. Small timing differences are normal.\
+\>", "Text"],
+
+Cell["\<\
+Why these four intermediate expressions matter:
+
+- translatedInput is the raw xAct translation of the original .mx file.
+- normalizedInput removes pieces that are outside the finite part convention used in the comparison pipeline.
+- truncatedInput discards terms above mass dimension 6, because this is the truncation being tested.
+- witnessInputExpr is the actual EFT expression we compare to GR: same truncation, but now evaluated on the solved witness branch and cleaned into canonical form.\
+\>", "Text"],
+
+Cell["\<\
+(* Translate the original Matchete file into the xAct language used by ORBIT. *)
+{translationTime, translatedInput} = AbsoluteTiming[LoadMatcheteToXAct[inputMX]];
+
+(* Keep only the finite part in the normalization convention used by the validator. *)
+normalizedInput = NormalizeMatcheteFinitePart[translatedInput];
+
+(* Throw away all terms above mass dimension 6. *)
+truncatedInput = selectTermsByMassDimension[normalizedInput, 6];
+
+(* Apply the solved witness branch and clean the result into a stable canonical representative. *)
+witnessInputExpr = Quiet[
+  canonExpr @ removeParameterDerivatives @ (normalizeScalarExpr[truncatedInput] /. witnessSubstitutions),
+  ToCanonical::noident
+];
+
+(* Store only the key checkpoints, not the full giant expressions. *)
+orbitNotebookState[\"InputPipeline\"] = <|
+  \"TranslationTimeSeconds\" -> translationTime,
+  \"TranslatedExpressionTermCount\" -> expressionTermCount[translatedInput],
+  \"NormalizedExpressionTermCount\" -> expressionTermCount[normalizedInput],
+  \"TruncatedExpressionTermCount\" -> expressionTermCount[truncatedInput],
+  \"WitnessExpressionTermCount\" -> expressionTermCount[witnessInputExpr]
+|>;
+
+orbitNotebookState[\"InputPipeline\"]\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- TranslatedExpressionTermCount -> 396
+- NormalizedExpressionTermCount -> 260
+- TruncatedExpressionTermCount -> 260
+- WitnessExpressionTermCount -> 107
+- TranslationTimeSeconds is typically of order a few minutes, not milliseconds.\
+\>", "Text"],
+
+Cell["Stage 3. Build the Witness-Fixed EH Reference", "Section"],
+
+Cell["\<\
+This stage rebuilds the fixed Einstein-Hilbert reference through d <= 6 with symbolic KappaRefFinal and LambdaRefFinal, and only then applies the witness substitution. That mirrors the corrected validation logic.\
+\>", "Text"],
+
+Cell["\<\
+Why the substitution is delayed:
+
+- We do not want to hardwire KappaRefFinal = 4 Sqrt[3]/M too early, because the reference builder is supposed to construct the symbolic GR template first.
+- After that symbolic reference exists, we apply the same witness branch used on the EFT side. This keeps the comparison symmetric.\
+\>", "Text"],
+
+Cell["\<\
+(* Build the symbolic fixed-EH reference through d <= 6. *)
+{referenceBuildTime, referenceData} = AbsoluteTiming @ Quiet[
+  ExpandFixedEHReferenceLagrangian[
+    \"MaxDimension\" -> 6,
+    \"LambdaReferenceValue\" -> LambdaRefFinal,
+    \"KappaReferenceValue\" -> KappaRefFinal,
+    \"EHSign\" -> -1,
+    \"CacheDirectory\" -> cacheDir,
+    \"UseCache\" -> True,
+    \"Verbose\" -> False
+  ],
+  ToCanonical::noident
+];
+
+(* Apply the witness branch only after the symbolic reference has been constructed. *)
+referenceExpr = Quiet[
+  canonExpr @ removeParameterDerivatives @ (normalizeScalarExpr[referenceData[\"ReferenceExpression\"]] /. witnessSubstitutions),
+  ToCanonical::noident
+];
+
+(* Keep the timing, term count, and original symbolic parameter placeholders for inspection. *)
+orbitNotebookState[\"ReferenceBuild\"] = <|
+  \"ReferenceBuildTimeSeconds\" -> referenceBuildTime,
+  \"ReferenceExpressionTermCount\" -> expressionTermCount[referenceExpr],
+  \"ReferenceParametersBeforeWitnessSubstitution\" -> <|
+    \"LambdaReferenceValue\" -> referenceData[\"LambdaReferenceValue\"],
+    \"KappaReferenceValue\" -> referenceData[\"KappaReferenceValue\"]
+  |>
+|>;
+
+orbitNotebookState[\"ReferenceBuild\"]\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- ReferenceExpressionTermCount -> 106
+- The symbolic reference parameters shown in ReferenceParametersBeforeWitnessSubstitution are LambdaRefFinal and KappaRefFinal.
+- ReferenceBuildTimeSeconds should be short when the cache is present.\
+\>", "Text"],
+
+Cell["Stage 4. Build the Candidate Field-Redefinition Shifts", "Section"],
+
+Cell["\<\
+Here we compute two related objects:
+- the first-order shift of the full witness-fixed reference expression itself
+- the projected Fierz-Pauli image generated directly from delta h
+
+The later stages will show that the projected Fierz-Pauli image matches the reduced residual, while the raw full-reference shift does not.\
+\>", "Text"],
+
+Cell["\<\
+Conceptual distinction:
+
+- fullReferenceShift asks: if I literally replace h by h + delta h in the full reference expression and keep only first order in delta h, what comes out?
+- fpShiftTruncated asks the cleaner question relevant for the proof: what is the image of delta h under the quadratic Fierz-Pauli kinetic operator, truncated to d <= 6?
+
+The fresh validation showed that the second object is the right one to compare against the reduced residual.\
+\>", "Text"],
+
+Cell["\<\
+(* Literal first-order shift of the full witness-fixed reference representative. *)
+{fullShiftTime, fullReferenceShift} = AbsoluteTiming[
+  firstOrderShiftFromExpression[referenceExpr, quadraticFieldRedefinitionExpr]
+];
+
+(* Restrict that literal shift to the d <= 6 truncation. *)
+fullReferenceShiftTruncated = selectTermsByMassDimension[fullReferenceShift, 6];
+
+(* Independently compute the projected Fierz-Pauli image of delta h itself. *)
+fpShiftTruncated = selectTermsByMassDimension[
+  Quiet[
+    canonExpr @ removeParameterDerivatives @ ShiftFromRedefExpr[quadraticFieldRedefinitionExpr[u, v]],
+    ToCanonical::noident
+  ],
+  6
+];
+
+(* Compare the two shift constructions directly. *)
+fullShiftMinusFPShift = Quiet[
+  canonExpr[fullReferenceShiftTruncated - fpShiftTruncated],
+  ToCanonical::noident
+];
+
+(* Also build the shifted reference expression, because later stages reduce it as a separate object. *)
+shiftedReferenceExpr = selectTermsByMassDimension[
+  Quiet[
+    canonExpr[referenceExpr + fullReferenceShiftTruncated],
+    ToCanonical::noident
+  ],
+  6
+];
+
+(* Store the key diagnostics: sector support, term counts, and whether the two shift constructions agree. *)
+orbitNotebookState[\"ShiftBuild\"] = <|
+  \"FullReferenceShiftTimeSeconds\" -> fullShiftTime,
+  \"FullReferenceShiftTermCount\" -> expressionTermCount[fullReferenceShift],
+  \"TruncatedFullReferenceShiftTermCount\" -> expressionTermCount[fullReferenceShiftTruncated],
+  \"ShiftedReferenceExpressionTermCount\" -> expressionTermCount[shiftedReferenceExpr],
+  \"FullReferenceShiftSectors\" -> Sort[Keys[SplitTermsBySector[Expand[fullReferenceShiftTruncated]]]],
+  \"FullReferenceShiftMatchesFPShiftAfterTruncationQ\" -> zeroExprQ[fullShiftMinusFPShift, witnessAssumptions]
+|>;
+
+orbitNotebookState[\"ShiftBuild\"]\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- FullReferenceShiftTermCount -> 338
+- TruncatedFullReferenceShiftTermCount -> 21
+- ShiftedReferenceExpressionTermCount -> 127
+- FullReferenceShiftSectors -> {{1, 4}, {2, 4}}
+- FullReferenceShiftMatchesFPShiftAfterTruncationQ is False. This is expected and is the important subtlety.\
+\>", "Text"],
+
+Cell["Stage 5. Reduce the Original EFT and Extract Canonical Normalization", "Section"],
+
+Cell["\<\
+This stage reduces the witness-fixed EFT and extracts the canonical normalization needed to match the Fierz-Pauli sign convention used elsewhere in the pipeline.\
+\>", "Text"],
+
+Cell["\<\
+What canonical normalization means here:
+
+- ReduceLagrangian gives a reduced answer, but the overall normalization of the quadratic kinetic sector can still differ from the standard Fierz-Pauli convention.
+- kineticNormalizationDataFromReduction inspects the quadratic sector and tells us the multiplicative factor needed to bring it to the target sign.
+- canonicalNormalizeReduction then rescales the whole reduced answer consistently.
+
+Without this step, the later GR comparison would be polluted by a trivial overall normalization mismatch.\
+\>", "Text"],
+
+Cell["\<\
+(* Reduce the witness-fixed EFT into ORBIT's sector-by-sector basis. *)
+{inputReductionTime, rawInputReduction} = AbsoluteTiming[
+  Quiet[ReduceLagrangian[witnessInputExpr, Sequence @@ basisOpts], ToCanonical::noident]
+];
+
+(* Read off the overall factor needed to match the standard Fierz-Pauli normalization. *)
+canonicalNormalization = Append[
+  kineticNormalizationDataFromReduction[rawInputReduction, basisOpts],
+  \"TargetQuadraticSign\" -> -1
+];
+
+(* Apply that normalization if the extraction succeeded; otherwise keep the raw reduction for debugging. *)
+canonicalInputReduction = If[
+  TrueQ[Lookup[canonicalNormalization, \"SucceededQ\", False]],
+  canonicalNormalizeReduction[rawInputReduction, canonicalNormalization[\"Factor\"], -1],
+  rawInputReduction
+];
+
+(* Store the normalization data and the list of reduced sectors that now exist. *)
+orbitNotebookState[\"CanonicalInputReduction\"] = <|
+  \"InputReductionTimeSeconds\" -> inputReductionTime,
+  \"CanonicalNormalization\" -> canonicalNormalization,
+  \"ReducedSectors\" -> Sort[Keys[canonicalInputReduction[\"SectorReductions\"]]]
+|>;
+
+orbitNotebookState[\"CanonicalInputReduction\"]\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- CanonicalNormalization[\"SucceededQ\"] -> True
+- CanonicalNormalization[\"Factor\"] -> -1/48*(M^2*\\[Kappa]^2)
+- CanonicalNormalization[\"TargetQuadraticSign\"] -> -1
+- ReducedSectors should include the supported sectors {2,2}, {3,2}, and {4,2}.\
+\>", "Text"],
+
+Cell["Stage 6. Reduce the Reference Objects", "Section"],
+
+Cell["\<\
+We now reduce:
+- the unshifted witness-fixed reference
+- the raw full-reference first-order shift
+- the projected Fierz-Pauli shift
+- the shifted reference obtained by adding the raw shift back into the reference
+
+These reductions are what the later comparison cells inspect.\
+\>", "Text"],
+
+Cell["\<\
+Why four separate reductions are kept:
+
+- referenceReduction is the GR benchmark before any extra field redefinition is applied.
+- fullShiftReduction tracks what the literal full-reference shift becomes after reduction.
+- fpShiftReduction tracks the reduced image of delta h under the Fierz-Pauli operator.
+- shiftedReferenceReduction tells us what happens if we actually add the literal full-reference shift back into the reference before reducing.
+
+Keeping all four makes it possible to separate the physically correct reduced statement from tempting but false stronger statements about the raw unreduced reference.\
+\>", "Text"],
+
+Cell["\<\
+(* Reduce the unshifted witness-fixed GR reference. *)
+{referenceReductionTime, referenceReduction} = AbsoluteTiming[
+  Quiet[ReduceLagrangian[referenceExpr, Sequence @@ basisOpts], ToCanonical::noident]
+];
+
+(* Reduce the literal first-order shift of the full reference representative. *)
+{fullShiftReductionTime, fullShiftReduction} = AbsoluteTiming[
+  Quiet[ReduceLagrangian[fullReferenceShiftTruncated, Sequence @@ basisOpts], ToCanonical::noident]
+];
+
+(* Reduce the projected Fierz-Pauli image generated directly from delta h. *)
+{fpShiftReductionTime, fpShiftReduction} = AbsoluteTiming[
+  Quiet[ReduceLagrangian[fpShiftTruncated, Sequence @@ basisOpts], ToCanonical::noident]
+];
+
+(* Reduce the reference after the literal full-reference shift has been added in. *)
+{shiftedReferenceReductionTime, shiftedReferenceReduction} = AbsoluteTiming[
+  Quiet[ReduceLagrangian[shiftedReferenceExpr, Sequence @@ basisOpts], ToCanonical::noident]
+];
+
+(* Save just the timings and sector support of the four reduced objects. *)
+orbitNotebookState[\"ReferenceReductions\"] = <|
+  \"ReferenceReductionTimeSeconds\" -> referenceReductionTime,
+  \"FullShiftReductionTimeSeconds\" -> fullShiftReductionTime,
+  \"FPShiftReductionTimeSeconds\" -> fpShiftReductionTime,
+  \"ShiftedReferenceReductionTimeSeconds\" -> shiftedReferenceReductionTime,
+  \"ReferenceReducedSectors\" -> Sort[Keys[referenceReduction[\"SectorReductions\"]]],
+  \"FullShiftReducedSectors\" -> Sort[Keys[fullShiftReduction[\"SectorReductions\"]]],
+  \"FPShiftReducedSectors\" -> Sort[Keys[fpShiftReduction[\"SectorReductions\"]]],
+  \"ShiftedReferenceReducedSectors\" -> Sort[Keys[shiftedReferenceReduction[\"SectorReductions\"]]]
+|>;
+
+orbitNotebookState[\"ReferenceReductions\"]\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- The reference reduction contains the ordinary GR-supported sectors.
+- The full-shift reduction contains {1,4} and {2,4}.
+- The FP-shift reduction contains the quadratic four-derivative sector {2,4}.
+- The timings are usually around seconds to tens of seconds, not minutes.\
+\>", "Text"],
+
+Cell["Stage 7. Compare the Original-Lagrangian EFT Against GR", "Section"],
+
+Cell["\<\
+This is the core physics checkpoint before using the field redefinition image.
+
+The supported reduced sectors should already match exactly after the witness substitution. The only remaining reduced discrepancy should be the quadratic four-derivative sector {2,4}.\
+\>", "Text"],
+
+Cell["\<\
+What is being compared here:
+
+- buildProjectedSectorComparisons keeps track of coordinate differences in the IBP basis.
+- buildReducedSectorComparisons keeps track of the actual reduced expressions and their coordinates.
+- supportedSectorsUpTo[6] selects the sectors that belong to the ordinary GR comparison target at this truncation.
+- The notebook deliberately stores both the supported-sector summary and the full list of nonzero reduced sectors, because they answer slightly different questions.\
+\>", "Text"],
+
+Cell["\<\
+(* Compare EFT vs GR sector by sector, both in projected coordinates and in reduced expressions. *)
+beforeShiftComparisons = buildProjectedSectorComparisons[canonicalInputReduction, referenceReduction];
+beforeShiftReducedComparisons = buildReducedSectorComparisons[canonicalInputReduction, referenceReduction];
+
+(* Summaries compress the full comparison tables into the few diagnostics we care about. *)
+beforeShiftSummary = comparisonSummary[beforeShiftComparisons];
+beforeShiftReducedSummary = reducedComparisonSummary[beforeShiftReducedComparisons];
+
+(* Supported sectors are the ones that should agree directly with GR at d <= 6. *)
+supportedReducedComparisons = KeySelect[
+  beforeShiftReducedComparisons,
+  MemberQ[supportedSectorsUpTo[6], #] &
+];
+
+supportedReducedSummary = reducedComparisonSummary[supportedReducedComparisons];
+
+(* Pull out the surviving quadratic four-derivative coordinate vector explicitly. *)
+quadraticDifferenceCoordinates = Lookup[
+  beforeShiftComparisons[{2, 4}],
+  \"DifferenceProjectedCoordinates\",
+  {}
+];
+
+(* Store the core physical checkpoint of the notebook. *)
+orbitNotebookState[\"BeforeShift\"] = <|
+  \"SupportedReducedSectorSummary\" -> supportedReducedSummary,
+  \"NonZeroReducedDifferenceSectors\" -> beforeShiftReducedSummary[\"NonZeroReducedDifferenceSectors\"],
+  \"QuadraticDifferenceProjectedCoordinates\" -> quadraticDifferenceCoordinates
+|>;
+
+orbitNotebookState[\"BeforeShift\"]\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- SupportedReducedSectorSummary[\"AllReducedDifferencesZeroQ\"] -> True
+- SupportedReducedSectorSummary[\"NonZeroReducedDifferenceSectors\"] -> {}
+- NonZeroReducedDifferenceSectors -> {{2, 4}}
+- QuadraticDifferenceProjectedCoordinates ->
+  {9/(10*M^2), -9/(20*M^2), -3/(5*M^2), 3/(10*M^2), -3/(20*M^2)}\
+\>", "Text"],
+
+Cell["Stage 8. Compare the Residual Against delta h", "Section"],
+
+Cell["\<\
+This stage performs the decisive match:
+- extract the projected coordinates of the {2,4} residual
+- extract the projected coordinates of the Fierz-Pauli image of delta h
+- confirm that they match exactly
+
+It also records the raw full-reference-shift coordinates to make the subtlety explicit.\
+\>", "Text"],
+
+Cell["\<\
+What each diagnostic below means:
+
+- quadraticDifferenceCoordinates is the residual coming from the original-lagrangian pipeline.
+- fpShiftQuadraticCoordinates is the projected Fierz-Pauli image of the explicit delta h.
+- fullShiftQuadraticCoordinates is the quadratic part of the literal full-reference shift after reduction.
+- fullShiftLinearFourDerivativeReducedZeroQ tests whether the extra {1,4} piece in that literal shift is physically trivial after reduction.
+
+The expected pattern is:
+- residual matches fpShift
+- residual does not match the raw full-reference shift directly\
+\>", "Text"],
+
+Cell["\<\
+(* Read off the reduced {2,4} coordinates of the literal full-reference shift. *)
+fullShiftQuadraticCoordinates = Lookup[
+  sectorLookup[fullShiftReduction[\"SectorReductions\"], {2, 4}],
+  \"ProjectedIBPCoordinates\",
+  {}
+];
+
+(* Read off the reduced {2,4} coordinates of the projected Fierz-Pauli image of delta h. *)
+fpShiftQuadraticCoordinates = Lookup[
+  sectorLookup[fpShiftReduction[\"SectorReductions\"], {2, 4}],
+  \"ProjectedIBPCoordinates\",
+  {}
+];
+
+(* Test whether the extra {1,4} contribution in the literal shift is zero after reduction. *)
+fullShiftLinearFourDerivativeReducedZeroQ = zeroExprQ[
+  Lookup[
+    sectorLookup[fullShiftReduction[\"SectorReductions\"], {1, 4}],
+    \"ReducedExpression\",
+    0
+  ],
+  witnessAssumptions
+];
+
+(* Package the decisive coordinate comparisons into a single small record. *)
+orbitNotebookState[\"ShiftComparison\"] = <|
+  \"QuadraticDifferenceProjectedCoordinates\" -> quadraticDifferenceCoordinates,
+  \"FPShiftQuadraticProjectedCoordinates\" -> fpShiftQuadraticCoordinates,
+  \"FullShiftQuadraticProjectedCoordinates\" -> fullShiftQuadraticCoordinates,
+  \"QuadraticDifferenceMatchesFPShiftQ\" -> zeroVectorQWithAssumptions[
+    quadraticDifferenceCoordinates - fpShiftQuadraticCoordinates,
+    witnessAssumptions
+  ],
+  \"FullShiftLinearFourDerivativeReducedZeroQ\" -> fullShiftLinearFourDerivativeReducedZeroQ,
+  \"RawFullReferenceShiftReproducesQuadraticResidualDirectlyQ\" -> zeroVectorQWithAssumptions[
+    quadraticDifferenceCoordinates - fullShiftQuadraticCoordinates,
+    witnessAssumptions
+  ]
+|>;
+
+orbitNotebookState[\"ShiftComparison\"]\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- QuadraticDifferenceMatchesFPShiftQ -> True
+- QuadraticDifferenceProjectedCoordinates and FPShiftQuadraticProjectedCoordinates agree and both equal
+  {9/(10*M^2), -9/(20*M^2), -3/(5*M^2), 3/(10*M^2), -3/(20*M^2)}
+- FullShiftQuadraticProjectedCoordinates -> {0, 0, 0, 0, 0}
+- FullShiftLinearFourDerivativeReducedZeroQ -> True
+- RawFullReferenceShiftReproducesQuadraticResidualDirectlyQ -> False
+
+Healthy interpretation:
+- the reduced residual matches the projected FP image of delta h
+- the raw full-reference shift is not the right literal object to compare against that residual.\
+\>", "Text"],
+
+Cell["Stage 9. Final Summary", "Section"],
+
+Cell["\<\
+This cell compresses the whole notebook into a small conclusion table. A healthy run has the first four booleans equal to True and the final direct-raw-shift boolean equal to False.\
+\>", "Text"],
+
+Cell["\<\
+How to read the final booleans:
+
+- The first four are the positive statements we want ORBIT to satisfy.
+- The last one is intentionally expected to be False. It records the corrected understanding that the raw full-reference shift is not the right literal object to compare directly to the reduced residual.
+- So a good run ends with four True values and then one False.\
+\>", "Text"],
+
+Cell["\<\
+(* Final high-level pass/fail digest of the notebook. *)
+orbitNotebookState[\"FinalSummary\"] = <|
+  \"SupportedSectorsMatchGRQ\" -> TrueQ[
+    orbitNotebookState[\"BeforeShift\", \"SupportedReducedSectorSummary\", \"AllReducedDifferencesZeroQ\"]
+  ],
+  \"OnlyReducedResidualIs{2,4}Q\" -> (
+    Sort[orbitNotebookState[\"BeforeShift\", \"NonZeroReducedDifferenceSectors\"]] === {{2, 4}}
+  ),
+  \"ResidualMatchesProjectedFPShiftQ\" -> TrueQ[
+    orbitNotebookState[\"ShiftComparison\", \"QuadraticDifferenceMatchesFPShiftQ\"]
+  ],
+  \"Extra{1,4}PieceReducesToZeroQ\" -> TrueQ[
+    orbitNotebookState[\"ShiftComparison\", \"FullShiftLinearFourDerivativeReducedZeroQ\"]
+  ],
+  \"RawFullReferenceShiftReproducesResidualDirectlyQ\" -> TrueQ[
+    orbitNotebookState[\"ShiftComparison\", \"RawFullReferenceShiftReproducesQuadraticResidualDirectlyQ\"]
+  ],
+  \"Conclusion\" -> \"From the original Lagrangian, the fixed-EH claim is confirmed in the reduced / IBP sense.\"
+|>;
+
+orbitNotebookState[\"FinalSummary\"]\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- SupportedSectorsMatchGRQ -> True
+- OnlyReducedResidualIs{2,4}Q -> True
+- ResidualMatchesProjectedFPShiftQ -> True
+- Extra{1,4}PieceReducesToZeroQ -> True
+- RawFullReferenceShiftReproducesResidualDirectlyQ -> False
+
+That pattern is the end-to-end statement we now trust.\
+\>", "Text"],
+
+Cell["Optional: Export This Notebook Run", "Section"],
+
+Cell["\<\
+If you want a reviewable artifact from your own notebook run, evaluate the next cell. It writes the in-memory state association to tests/artifacts/scratch/.\
+\>", "Text"],
+
+Cell["\<\
+This export is optional. It does not rerun the physics. It only saves the summaries already stored in orbitNotebookState so you can inspect or diff your notebook run later.\
+\>", "Text"],
+
+Cell["\<\
+(* Destination for a reviewable notebook-side artifact. *)
+exportFile = FileNameJoin[
+  {repoRoot, \"tests\", \"artifacts\", \"scratch\", \"orbit_fixed_eh_original_lagrangian_notebook_run_output.wl\"}
+];
+
+(* Create the output folder if it does not already exist. *)
+If[! DirectoryQ[DirectoryName[exportFile]],
+  CreateDirectory[DirectoryName[exportFile], CreateIntermediateDirectories -> True]
+];
+
+(* Write the in-memory notebook state to disk. *)
+Put[orbitNotebookState, exportFile];
+
+(* Return a tiny success record. *)
+<|\"ExportFile\" -> exportFile, \"ExistsQ\" -> FileExistsQ[exportFile]|>\
+\>", "Input"],
+
+Cell["\<\
+Expected result:
+- ExistsQ -> True
+- The exported association can be reloaded later with Get[exportFile].\
+\>", "Text"]
+},
+Saveable->True,
+WindowTitle->"orbit_fixed_eh_from_original_lagrangian_stage_by_stage",
+PrintingOptions->{"PrintCellBrackets"->False},
+StyleDefinitions->"Default.nb"
+]

@@ -1,0 +1,425 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+
+Notebook[{
+Cell["ORBIT Fixed-EH Original-Lagrangian Minimal Notebook", "Title"],
+
+Cell["\<\
+This is the lean version of the original-lagrangian validation notebook.
+
+It keeps the same Mathematica 13.3 pipeline and the same validated checkpoints, but suppresses non-essential package banners and only returns a small checkpoint output at the end of each stage. Evaluate the input cells from top to bottom.\
+\>", "Text"],
+
+Cell["Stage 0. Setup", "Section"],
+
+Cell["\<\
+ClearAll[\"Global`*\"];
+
+notebookDir = Quiet @ Check[NotebookDirectory[], Directory[]];
+repoRoot = NestWhile[
+  DirectoryName,
+  notebookDir,
+  ! FileExistsQ[FileNameJoin[{#, \"orbit_fixed_eh_comparison.wl\"}]] &
+];
+SetDirectory[repoRoot];
+
+If[! StringStartsQ[System`$Version, \"13.3\"],
+  Print[
+    \"ERROR: This notebook must be run under Mathematica 13.3. Current kernel: \" <>
+    System`$Version
+  ];
+  Abort[]
+];
+
+Block[{Print = (Null &)},
+  Get[\"graviton_basis_toolkit.wl\"];
+  Get[\"orbit_fixed_eh_comparison.wl\"];
+];
+
+inputMX = FileNameJoin[{Directory[], \"examples\", \"left_only_uv_2_eft_6\", \"LEFT_only_uv_2_eft_6.mx\"}];
+cacheDir = If[
+  DirectoryQ[FileNameJoin[{Directory[], \"cache\", \"left_only_uv_2_eft_6_cache\"}]],
+  FileNameJoin[{Directory[], \"cache\", \"left_only_uv_2_eft_6_cache\"}],
+  FileNameJoin[{Directory[], \"cache\", \"orbit_fixed_eh_cache\"}]
+];
+
+basisOpts = {
+  \"MaxDimension\" -> 6,
+  \"CacheDirectory\" -> cacheDir,
+  \"UseCache\" -> True,
+  \"Verbose\" -> False
+};
+
+<|
+  \"KernelOKQ\" -> StringStartsQ[System`$Version, \"13.3\"],
+  \"InputExistsQ\" -> FileExistsQ[inputMX]
+|>\
+\>", "Input"],
+
+Cell["Expected result: both booleans should be True.", "Text"],
+
+Cell["Stage 1. Witness and Helper Definitions", "Section"],
+
+Cell["\<\
+witnessSubstitutions = {
+  Scalar[M] -> M,
+  Scalar[\\[Kappa]] -> \\[Kappa],
+  Scalar[\\[Mu]bar2] -> \\[Mu]bar2,
+  Sqrt[1/(M^2*\\[Kappa]^2)] -> 1/(M*\\[Kappa]),
+  Sqrt[1/(Scalar[M]^2*Scalar[\\[Kappa]]^2)] -> 1/(M*\\[Kappa]),
+  Sqrt[-(1/(M^2*\\[Kappa]^2*(1 + Log[\\[Mu]bar2/M^2])))] -> Sqrt[2]/(M*\\[Kappa]),
+  Sqrt[-(1/((1 + Log[\\[Mu]bar2/M^2])*Scalar[M]^2*Scalar[\\[Kappa]]^2))] -> Sqrt[2]/(M*\\[Kappa]),
+  Log[\\[Mu]bar2/M^2] -> -3/2,
+  Log[Scalar[\\[Mu]bar2]/M^2] -> -3/2,
+  Log[Scalar[\\[Mu]bar2]/Scalar[M]^2] -> -3/2,
+  LambdaRefFinal -> 0,
+  KappaRefFinal -> (4*Sqrt[3])/M
+};
+
+witnessAssumptions = M > 0 && \\[Kappa] > 0 && \\[Mu]bar2 > 0;
+
+quadraticFieldRedefinitionExpr[x_, y_] := Module[{j1, j2},
+  j1 = DummyIn[TangentM];
+  j2 = DummyIn[TangentM];
+  canonExpr[
+    (-3*PD[-j1][PD[j1][h[x, y]]])/(20*M^2) -
+    (3*eta[x, y]*PD[-j2][PD[-j1][h[j1, j2]]])/(10*M^2) +
+    (3*eta[x, y]*PD[-j2][PD[j2][h[j1, -j1]]])/(10*M^2)
+  ]
+];
+
+parameterDerivativeRules = {
+  HoldPattern[PD[_][M]] :> 0,
+  HoldPattern[PD[_][\\[Kappa]]] :> 0,
+  HoldPattern[PD[_][\\[Mu]bar2]] :> 0,
+  HoldPattern[PD[_][LambdaRefFinal]] :> 0,
+  HoldPattern[PD[_][KappaRefFinal]] :> 0,
+  HoldPattern[PD[_][Scalar[M]]] :> 0,
+  HoldPattern[PD[_][Scalar[\\[Kappa]]]] :> 0,
+  HoldPattern[PD[_][Scalar[\\[Mu]bar2]]] :> 0
+};
+
+normalizeScalarExpr[expr_] := normalizeMatcheteParameterScalars[expr];
+
+zeroExprQ[expr_, assumptions_ : True] := Module[{checked},
+  checked = Quiet[canonExpr[normalizeScalarExpr[expr]], ToCanonical::noident];
+  TrueQ[checked === 0] || TrueQ[FullSimplify[checked == 0, assumptions]]
+];
+
+zeroVectorQWithAssumptions[list_List, assumptions_ : True] := And @@ (
+  TrueQ[FullSimplify[normalizeScalarExpr[#] == 0, assumptions]] & /@ list
+);
+
+removeParameterDerivatives[expr_] := FixedPoint[
+  Expand[# /. parameterDerivativeRules] &,
+  expr
+];
+
+firstOrderShiftFromExpression[expr_, deltaExprBuilder_] := Module[{shiftExpr, shiftedDelta},
+  shiftExpr = Expand[expr /. HoldPattern[h[x_, y_]] :> (h[x, y] + lam dh[x, y])];
+  shiftExpr = Coefficient[shiftExpr, lam, 1];
+  shiftExpr = shiftExpr /. HoldPattern[dh[x_, y_]] :> (
+    shiftedDelta = ReplaceDummies[deltaExprBuilder[x, y]];
+    shiftedDelta
+  );
+  Quiet[
+    canonExpr @ removeParameterDerivatives @ ReplaceDummies[shiftExpr],
+    ToCanonical::noident
+  ]
+];
+
+projectedSectorComparisonRecord[key_, inputSector_, referenceSector_, sectorData_] := Module[
+  {basis, inputCoords, referenceCoords, differenceCoords, inputExpr, referenceExpr, differenceExpr},
+  basis = sectorData[\"IBPBasis\"];
+  inputCoords = If[AssociationQ[inputSector], inputSector[\"ProjectedIBPCoordinates\"], ConstantArray[0, Length[basis]]];
+  referenceCoords = If[AssociationQ[referenceSector], referenceSector[\"ProjectedIBPCoordinates\"], ConstantArray[0, Length[basis]]];
+  differenceCoords = inputCoords - referenceCoords;
+  inputExpr = If[AssociationQ[inputSector], inputSector[\"ProjectedIBPExpression\"], 0];
+  referenceExpr = If[AssociationQ[referenceSector], referenceSector[\"ProjectedIBPExpression\"], 0];
+  differenceExpr = canonExpr @ LinearCombination[differenceCoords, basis];
+  <|
+    \"DifferenceProjectedCoordinates\" -> differenceCoords,
+    \"DifferenceIsZeroQ\" -> zeroExprQ[differenceExpr, witnessAssumptions],
+    \"DifferenceCoordinatesZeroQ\" -> zeroVectorQWithAssumptions[differenceCoords, witnessAssumptions]
+  |>
+];
+
+buildProjectedSectorComparisons[inputReduction_Association, referenceReduction_Association] := Module[
+  {allSectors},
+  allSectors = Sort @ Union[
+    Keys[inputReduction[\"SectorReductions\"]],
+    Keys[referenceReduction[\"SectorReductions\"]]
+  ];
+  Association @ Table[
+    With[
+      {
+        key = sector,
+        inputSector = sectorLookup[inputReduction[\"SectorReductions\"], sector],
+        referenceSector = sectorLookup[referenceReduction[\"SectorReductions\"], sector],
+        sectorData = Which[
+          AssociationQ[sectorLookup[inputReduction[\"SectorReductions\"], sector]],
+            inputReduction[\"SectorReductions\"][sector][\"SectorData\"],
+          AssociationQ[sectorLookup[referenceReduction[\"SectorReductions\"], sector]],
+            referenceReduction[\"SectorReductions\"][sector][\"SectorData\"],
+          True,
+            ComputeSectorData[sector[[1]], sector[[2]], Sequence @@ basisOpts]
+        ]
+      },
+      key -> projectedSectorComparisonRecord[key, inputSector, referenceSector, sectorData]
+    ],
+    {sector, allSectors}
+  ]
+];
+
+buildReducedSectorComparisons[inputReduction_Association, referenceReduction_Association] := Module[
+  {allSectors},
+  allSectors = Sort @ Union[
+    Keys[inputReduction[\"SectorReductions\"]],
+    Keys[referenceReduction[\"SectorReductions\"]]
+  ];
+  Association @ Table[
+    With[
+      {
+        key = sector,
+        inputSector = sectorLookup[inputReduction[\"SectorReductions\"], sector],
+        referenceSector = sectorLookup[referenceReduction[\"SectorReductions\"], sector],
+        sectorData = Which[
+          AssociationQ[sectorLookup[inputReduction[\"SectorReductions\"], sector]],
+            inputReduction[\"SectorReductions\"][sector][\"SectorData\"],
+          AssociationQ[sectorLookup[referenceReduction[\"SectorReductions\"], sector]],
+            referenceReduction[\"SectorReductions\"][sector][\"SectorData\"],
+          True,
+            ComputeSectorData[sector[[1]], sector[[2]], Sequence @@ basisOpts]
+        ]
+      },
+      key -> Join[
+        sectorComparisonRecord[key, inputSector, referenceSector, sectorData],
+        <|
+          \"DifferenceZeroQ\" -> zeroExprQ[
+            sectorComparisonRecord[key, inputSector, referenceSector, sectorData][\"DifferenceExpression\"],
+            witnessAssumptions
+          ],
+          \"DifferenceCoordinatesZeroQ\" -> zeroVectorQWithAssumptions[
+            sectorComparisonRecord[key, inputSector, referenceSector, sectorData][\"DifferenceCoordinates\"],
+            witnessAssumptions
+          ]
+        |>
+      ]
+    ],
+    {sector, allSectors}
+  ]
+];
+
+reducedComparisonSummary[comparisons_Association] := <|
+  \"NonZeroReducedDifferenceSectors\" -> Keys @ KeySelect[
+    comparisons,
+    ! TrueQ[comparisons[#][\"DifferenceZeroQ\"]] &
+  ],
+  \"AllReducedDifferencesZeroQ\" -> And @@ Lookup[Values[comparisons], \"DifferenceZeroQ\", {}]
+|>;
+
+<|\"HelpersReadyQ\" -> True, \"WitnessSubstitutionCount\" -> Length[witnessSubstitutions]|>\
+\>", "Input"],
+
+Cell["Expected result: HelpersReadyQ True and WitnessSubstitutionCount 12.", "Text"],
+
+Cell["Stage 2. Load the Original EFT", "Section"],
+
+Cell["\<\
+{translationTime, translatedInput} = AbsoluteTiming[LoadMatcheteToXAct[inputMX]];
+normalizedInput = NormalizeMatcheteFinitePart[translatedInput];
+truncatedInput = selectTermsByMassDimension[normalizedInput, 6];
+witnessInputExpr = Quiet[
+  canonExpr @ removeParameterDerivatives @ (normalizeScalarExpr[truncatedInput] /. witnessSubstitutions),
+  ToCanonical::noident
+];
+
+<|
+  \"TranslatedExpressionTermCount\" -> expressionTermCount[translatedInput],
+  \"NormalizedExpressionTermCount\" -> expressionTermCount[normalizedInput],
+  \"TruncatedExpressionTermCount\" -> expressionTermCount[truncatedInput],
+  \"WitnessExpressionTermCount\" -> expressionTermCount[witnessInputExpr]
+|>\
+\>", "Input"],
+
+Cell["Expected result: 396, 260, 260, 107.", "Text"],
+
+Cell["Stage 3. Build the Reference and Shifts", "Section"],
+
+Cell["\<\
+referenceData = Quiet[
+  ExpandFixedEHReferenceLagrangian[
+    \"MaxDimension\" -> 6,
+    \"LambdaReferenceValue\" -> LambdaRefFinal,
+    \"KappaReferenceValue\" -> KappaRefFinal,
+    \"EHSign\" -> -1,
+    \"CacheDirectory\" -> cacheDir,
+    \"UseCache\" -> True,
+    \"Verbose\" -> False
+  ],
+  ToCanonical::noident
+];
+
+referenceExpr = Quiet[
+  canonExpr @ removeParameterDerivatives @ (normalizeScalarExpr[referenceData[\"ReferenceExpression\"]] /. witnessSubstitutions),
+  ToCanonical::noident
+];
+
+fullReferenceShift = firstOrderShiftFromExpression[referenceExpr, quadraticFieldRedefinitionExpr];
+fullReferenceShiftTruncated = selectTermsByMassDimension[fullReferenceShift, 6];
+
+fpShiftTruncated = selectTermsByMassDimension[
+  Quiet[
+    canonExpr @ removeParameterDerivatives @ ShiftFromRedefExpr[quadraticFieldRedefinitionExpr[u, v]],
+    ToCanonical::noident
+  ],
+  6
+];
+
+fullShiftMinusFPShift = Quiet[
+  canonExpr[fullReferenceShiftTruncated - fpShiftTruncated],
+  ToCanonical::noident
+];
+
+shiftedReferenceExpr = selectTermsByMassDimension[
+  Quiet[
+    canonExpr[referenceExpr + fullReferenceShiftTruncated],
+    ToCanonical::noident
+  ],
+  6
+];
+
+<|
+  \"ReferenceExpressionTermCount\" -> expressionTermCount[referenceExpr],
+  \"FullReferenceShiftSectors\" -> Sort[Keys[SplitTermsBySector[Expand[fullReferenceShiftTruncated]]]],
+  \"FullReferenceShiftMatchesFPShiftAfterTruncationQ\" -> zeroExprQ[fullShiftMinusFPShift, witnessAssumptions]
+|>\
+\>", "Input"],
+
+Cell["Expected result: term count 106, sectors {{1,4},{2,4}}, and the last boolean False.", "Text"],
+
+Cell["Stage 4. Reduce the EFT and Reference Objects", "Section"],
+
+Cell["\<\
+rawInputReduction = Quiet[ReduceLagrangian[witnessInputExpr, Sequence @@ basisOpts], ToCanonical::noident];
+canonicalNormalization = Append[
+  kineticNormalizationDataFromReduction[rawInputReduction, basisOpts],
+  \"TargetQuadraticSign\" -> -1
+];
+canonicalInputReduction = If[
+  TrueQ[Lookup[canonicalNormalization, \"SucceededQ\", False]],
+  canonicalNormalizeReduction[rawInputReduction, canonicalNormalization[\"Factor\"], -1],
+  rawInputReduction
+];
+
+referenceReduction = Quiet[ReduceLagrangian[referenceExpr, Sequence @@ basisOpts], ToCanonical::noident];
+fullShiftReduction = Quiet[ReduceLagrangian[fullReferenceShiftTruncated, Sequence @@ basisOpts], ToCanonical::noident];
+fpShiftReduction = Quiet[ReduceLagrangian[fpShiftTruncated, Sequence @@ basisOpts], ToCanonical::noident];
+shiftedReferenceReduction = Quiet[ReduceLagrangian[shiftedReferenceExpr, Sequence @@ basisOpts], ToCanonical::noident];
+
+<|
+  \"CanonicalNormalizationSucceededQ\" -> Lookup[canonicalNormalization, \"SucceededQ\", False],
+  \"CanonicalFactor\" -> Lookup[canonicalNormalization, \"Factor\", Missing[\"NotAvailable\"]],
+  \"ReferenceReducedSectors\" -> Sort[Keys[referenceReduction[\"SectorReductions\"]]]
+|>\
+\>", "Input"],
+
+Cell["Expected result: normalization succeeds and the factor is -1/48*(M^2*\\[Kappa]^2).", "Text"],
+
+Cell["Stage 5. Compare EFT Against GR", "Section"],
+
+Cell["\<\
+beforeShiftComparisons = buildProjectedSectorComparisons[canonicalInputReduction, referenceReduction];
+beforeShiftReducedComparisons = buildReducedSectorComparisons[canonicalInputReduction, referenceReduction];
+
+supportedReducedComparisons = KeySelect[
+  beforeShiftReducedComparisons,
+  MemberQ[supportedSectorsUpTo[6], #] &
+];
+
+supportedReducedSummary = reducedComparisonSummary[supportedReducedComparisons];
+beforeShiftReducedSummary = reducedComparisonSummary[beforeShiftReducedComparisons];
+
+quadraticDifferenceCoordinates = Lookup[
+  beforeShiftComparisons[{2, 4}],
+  \"DifferenceProjectedCoordinates\",
+  {}
+];
+
+<|
+  \"SupportedSectorsMatchGRQ\" -> supportedReducedSummary[\"AllReducedDifferencesZeroQ\"],
+  \"NonZeroReducedDifferenceSectors\" -> beforeShiftReducedSummary[\"NonZeroReducedDifferenceSectors\"],
+  \"QuadraticDifferenceProjectedCoordinates\" -> quadraticDifferenceCoordinates
+|>\
+\>", "Input"],
+
+Cell["Expected result: supported sectors match, the only nonzero reduced sector is {2,4}, and the coordinate vector is {9/(10*M^2), -9/(20*M^2), -3/(5*M^2), 3/(10*M^2), -3/(20*M^2)}.", "Text"],
+
+Cell["Stage 6. Compare the Residual Against delta h", "Section"],
+
+Cell["\<\
+fullShiftQuadraticCoordinates = Lookup[
+  sectorLookup[fullShiftReduction[\"SectorReductions\"], {2, 4}],
+  \"ProjectedIBPCoordinates\",
+  {}
+];
+
+fpShiftQuadraticCoordinates = Lookup[
+  sectorLookup[fpShiftReduction[\"SectorReductions\"], {2, 4}],
+  \"ProjectedIBPCoordinates\",
+  {}
+];
+
+fullShiftLinearFourDerivativeReducedZeroQ = zeroExprQ[
+  Lookup[
+    sectorLookup[fullShiftReduction[\"SectorReductions\"], {1, 4}],
+    \"ReducedExpression\",
+    0
+  ],
+  witnessAssumptions
+];
+
+<|
+  \"ResidualMatchesProjectedFPShiftQ\" -> zeroVectorQWithAssumptions[
+    quadraticDifferenceCoordinates - fpShiftQuadraticCoordinates,
+    witnessAssumptions
+  ],
+  \"FullShiftQuadraticProjectedCoordinates\" -> fullShiftQuadraticCoordinates,
+  \"Extra14PieceReducesToZeroQ\" -> fullShiftLinearFourDerivativeReducedZeroQ,
+  \"RawFullReferenceShiftReproducesResidualDirectlyQ\" -> zeroVectorQWithAssumptions[
+    quadraticDifferenceCoordinates - fullShiftQuadraticCoordinates,
+    witnessAssumptions
+  ]
+|>\
+\>", "Input"],
+
+Cell["Expected result: first and third booleans True, full-shift coordinates {0,0,0,0,0}, and the last boolean False.", "Text"],
+
+Cell["Stage 7. Final Summary", "Section"],
+
+Cell["\<\
+<|
+  \"SupportedSectorsMatchGRQ\" -> supportedReducedSummary[\"AllReducedDifferencesZeroQ\"],
+  \"OnlyReducedResidualIs{2,4}Q\" -> (
+    Sort[beforeShiftReducedSummary[\"NonZeroReducedDifferenceSectors\"]] === {{2, 4}}
+  ),
+  \"ResidualMatchesProjectedFPShiftQ\" -> zeroVectorQWithAssumptions[
+    quadraticDifferenceCoordinates - fpShiftQuadraticCoordinates,
+    witnessAssumptions
+  ],
+  \"Extra14PieceReducesToZeroQ\" -> fullShiftLinearFourDerivativeReducedZeroQ,
+  \"RawFullReferenceShiftReproducesResidualDirectlyQ\" -> zeroVectorQWithAssumptions[
+    quadraticDifferenceCoordinates - fullShiftQuadraticCoordinates,
+    witnessAssumptions
+  ]
+|>\
+\>", "Input"],
+
+Cell["Expected result: True, True, True, True, False.", "Text"]
+},
+Saveable->True,
+WindowTitle->"orbit_fixed_eh_from_original_lagrangian_minimal",
+PrintingOptions->{"PrintCellBrackets"->False},
+StyleDefinitions->"Default.nb"
+]

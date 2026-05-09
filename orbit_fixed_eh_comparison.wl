@@ -684,7 +684,13 @@ LoadMatcheteToXAct[inputFile_String, opts : OptionsPattern[]] := Module[
   ];
   expr = MatcheteXActTranslator`LoadMatcheteMXExpression[inputFile, OptionValue["SymbolSpec"]];
   If[expr === $Failed, Return[$Failed]];
-  translatedExpr = canonExpr @ MatcheteXActTranslator`MatcheteToXAct[expr, OptionValue["TranslationRules"]];
+  (* Quiet suppresses ToCanonical::noident for scalar parameters (hbar, epsilon, etc.)
+     that survive the Matchete→xAct translation but aren't registered xAct objects.
+     The canonicalization is still correct — ToCanonical simply leaves unknown scalars untouched. *)
+  translatedExpr = Quiet[
+    canonExpr @ MatcheteXActTranslator`MatcheteToXAct[expr, OptionValue["TranslationRules"]],
+    ToCanonical::noident
+  ];
   $LoadedMatcheteToXActCache[absFile] = translatedExpr;
   translatedExpr
 ];
@@ -792,7 +798,11 @@ CompareMatcheteToFixedEH[input_, opts : OptionsPattern[]] := Module[
       "TranslationRules" -> OptionValue["TranslationRules"],
       "SymbolSpec" -> OptionValue["SymbolSpec"]
     ],
-    True, canonExpr[input]
+    True,
+      Quiet[
+        canonExpr[input],
+        ToCanonical::noident
+      ]
   ];
 
   If[translatedExpr === $Failed, Return[$Failed]];

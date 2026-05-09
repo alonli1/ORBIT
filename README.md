@@ -32,8 +32,10 @@ Key example and validation entry points:
 
 - `examples/left_only_uv_2_eft_6/`
 - `examples/orbit_fixed_eh/`
+- `tests/orbit_comprehensive_test.wls`
 - `tests/graviton_basis_toolkit_validation.wls`
 - `tests/validate_orbit_fixed_eh_comparison.wls`
+- `tests/validate_orbit_fixed_eh_solution_cases.wls`
 
 Additional non-package helpers now live under:
 
@@ -148,9 +150,17 @@ reduce to zero after IBP and field-redefinition removal.
 
 Stored validation artifacts:
 
+- `tests/orbit_comprehensive_test.wls`
+- `tests/orbit_test_results.txt`
 - `tests/graviton_basis_toolkit_validation.wls`
 - `docs/graviton_basis/graviton_basis_toolkit_validation_output.wl`
 - `docs/graviton_basis/graviton_basis_toolkit_validation_report.pdf`
+
+The comprehensive regression suite now includes the fixed-EH proof-case validator as a dedicated final stage. That stage launches `tests/validate_orbit_fixed_eh_solution_cases.wls` in a fresh Mathematica 13.3 kernel and checks that:
+
+- the `d <= 5` fixed-EH match has a symbolic solution and vanishing supported-sector residuals,
+- the `d <= 6` witness substitutions satisfy all supported matching equations,
+- the quadratic `{2,4}` remainder is pure higher-derivative field-redefinition data with zero `R^2` and zero `Ricci^2`.
 
 The current report also contains a worked example in which the input Lagrangian has:
 

@@ -1,0 +1,15 @@
+scriptDir = DirectoryName[$InputFileName];
+repoRoot = NestWhile[DirectoryName, scriptDir, ! FileExistsQ[FileNameJoin[{#, "graviton_basis_toolkit.wl"}]] &];
+SetDirectory[repoRoot];
+Get["graviton_basis_toolkit.wl"];
+opts = {"CacheDirectory" -> FileNameJoin[{Directory[], "cache", "diag_cache"}], "UseCache" -> True, "ForceRecompute" -> False, "Verbose" -> False};
+sec = ComputeSectorData[3, 2, Sequence @@ opts];
+b = First[sec["PhysicalBasis"]];
+Print["phys count: ", Length[sec["PhysicalBasis"]]];
+res1 = Check[DirectProjectToBasis[b, sec["IBPBasis"]], $Failed];
+Print["res1 = ", InputForm[res1]];
+res2 = Check[TimeConstrained[DirectProjectToBasis[b, sec["RawBasis"]], 20, $TimedOut], $Failed];
+Print["res2 = ", InputForm[res2]];
+res3 = Check[TimeConstrained[ReduceSectorLagrangian[b, 3, 2, Sequence @@ opts], 20, $TimedOut], $Failed];
+Print["res3 = ", InputForm[res3]];
+Quit[];

@@ -1,0 +1,10 @@
+scriptDir = DirectoryName[$InputFileName];
+repoRoot = NestWhile[DirectoryName, scriptDir, ! FileExistsQ[FileNameJoin[{#, "graviton_basis_toolkit.wl"}]] &];
+SetDirectory[repoRoot];
+Get["graviton_basis_toolkit.wl"];
+opts = {"CacheDirectory" -> FileNameJoin[{Directory[], "cache", "diag_cache"}], "UseCache" -> True, "ForceRecompute" -> False, "Verbose" -> False};
+sec = ComputeSectorData[3, 2, Sequence @@ opts];
+b = First[sec["PhysicalBasis"]];
+red = ReduceSectorLagrangian[b, 3, 2, Sequence @@ opts];
+Export["tests\\artifacts\\run_logs\\diag_reduce_single_result.txt", ToString[<|"reducedEquals" -> (canonExpr[red["ReducedExpression"] - b] === 0), "coords" -> red["PhysicalCoordinates"]|>, InputForm], "Text"];
+Quit[];

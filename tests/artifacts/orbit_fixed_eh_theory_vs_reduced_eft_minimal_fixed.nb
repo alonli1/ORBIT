@@ -1,0 +1,334 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+
+Notebook[{
+Cell["ORBIT Theory vs Reduced EFT Minimal Notebook (Fixed)", "Title"],
+
+Cell["\<\
+This notebook shows only the essential comparison objects, split by sector and with zero sectors shown explicitly:
+
+1. the witness-fixed Einstein-Hilbert theory expansion, with the curvature-squared coefficients made explicit
+2. the input EFT after IBP only
+3. the explicit quadratic field redefinition that explains the remaining `{2,4}` discrepancy
+4. the input EFT after IBP plus the supported interaction-sector field-redefinition quotient
+5. the theory-minus-EFT comparison after IBP only
+6. the theory-minus-EFT comparison after the supported interaction-sector quotient
+7. the direct comparison between the remaining `{2,4}` residual and the image of the explicit quadratic field redefinition
+
+Run this in Mathematica 13.3.\
+\>", "Text"],
+
+Cell["Stage 0. Setup", "Section"],
+
+Cell["\<\
+ClearAll[\"Global`*\"];
+
+notebookDir = Quiet @ Check[NotebookDirectory[], Directory[]];
+repoRoot = NestWhile[
+  DirectoryName,
+  notebookDir,
+  ! FileExistsQ[FileNameJoin[{#, \"orbit_fixed_eh_comparison.wl\"}]] &
+];
+SetDirectory[repoRoot];
+
+If[! StringStartsQ[System`$Version, \"13.3\"],
+  Print[
+    \"ERROR: This notebook must be run under Mathematica 13.3. Current kernel: \" <>
+    System`$Version
+  ];
+  Abort[]
+];
+
+Block[{Print = (Null &)},
+  Get[\"graviton_basis_toolkit.wl\"];
+  Get[\"orbit_fixed_eh_comparison.wl\"];
+];
+
+inputMX = FileNameJoin[{Directory[], \"examples\", \"left_only_uv_2_eft_6\", \"LEFT_only_uv_2_eft_6.mx\"}];
+cacheDir = If[
+  DirectoryQ[FileNameJoin[{Directory[], \"cache\", \"left_only_uv_2_eft_6_cache\"}]],
+  FileNameJoin[{Directory[], \"cache\", \"left_only_uv_2_eft_6_cache\"}],
+  FileNameJoin[{Directory[], \"cache\", \"orbit_fixed_eh_cache\"}]
+];
+
+basisOpts = {
+  \"MaxDimension\" -> 6,
+  \"CacheDirectory\" -> cacheDir,
+  \"UseCache\" -> True,
+  \"Verbose\" -> False
+};
+
+<|
+  \"KernelOKQ\" -> StringStartsQ[System`$Version, \"13.3\"],
+  \"InputExistsQ\" -> FileExistsQ[inputMX]
+|>\
+\>", "Input"],
+
+Cell["Stage 1. Build the Theory and EFT Objects", "Section"],
+
+Cell["\<\
+witnessSubstitutions = {
+  Scalar[M] -> M,
+  Scalar[\\[Kappa]] -> \\[Kappa],
+  Scalar[\\[Mu]bar2] -> \\[Mu]bar2,
+  Sqrt[1/(M^2*\\[Kappa]^2)] -> 1/(M*\\[Kappa]),
+  Sqrt[1/(Scalar[M]^2*Scalar[\\[Kappa]]^2)] -> 1/(M*\\[Kappa]),
+  Sqrt[-(1/(M^2*\\[Kappa]^2*(1 + Log[\\[Mu]bar2/M^2])))] -> Sqrt[2]/(M*\\[Kappa]),
+  Sqrt[-(1/((1 + Log[\\[Mu]bar2/M^2])*Scalar[M]^2*Scalar[\\[Kappa]]^2))] -> Sqrt[2]/(M*\\[Kappa]),
+  Log[\\[Mu]bar2/M^2] -> -3/2,
+  Log[Scalar[\\[Mu]bar2]/M^2] -> -3/2,
+  Log[Scalar[\\[Mu]bar2]/Scalar[M]^2] -> -3/2,
+  LambdaRefFinal -> 0,
+  KappaRefFinal -> (4*Sqrt[3])/M
+};
+
+witnessAssumptions = M > 0 && \\[Kappa] > 0 && \\[Mu]bar2 > 0;
+relevantSectors = {{2, 2}, {2, 4}, {3, 2}, {4, 2}};
+
+normalizeScalarExpr[expr_] := normalizeMatcheteParameterScalars[expr];
+
+zeroExprQ[expr_, assumptions_ : True] := Module[{checked},
+  checked = Quiet[canonExpr[normalizeScalarExpr[expr]], ToCanonical::noident];
+  TrueQ[checked === 0] || TrueQ[FullSimplify[checked == 0, assumptions]]
+];
+
+removeParameterDerivatives[expr_] := FixedPoint[
+  Expand[# /. {
+    HoldPattern[PD[_][M]] :> 0,
+    HoldPattern[PD[_][\\[Kappa]]] :> 0,
+    HoldPattern[PD[_][\\[Mu]bar2]] :> 0,
+    HoldPattern[PD[_][LambdaRefFinal]] :> 0,
+    HoldPattern[PD[_][KappaRefFinal]] :> 0,
+    HoldPattern[PD[_][Scalar[M]]] :> 0,
+    HoldPattern[PD[_][Scalar[\\[Kappa]]]] :> 0,
+    HoldPattern[PD[_][Scalar[\\[Mu]bar2]]] :> 0
+  }] &,
+  expr
+];
+
+projectedExpressionFromReduction[red_Association] := canonExpr @ Total[
+  Lookup[Values[red[\"SectorReductions\"]], \"ProjectedIBPExpression\", {}]
+];
+
+relevantBySector[expr_] := Module[{split},
+  split = SplitTermsBySector[Expand[canonExpr[expr]]];
+  Association @ Table[
+    sector -> If[KeyExistsQ[split, sector], split[sector], 0],
+    {sector, relevantSectors}
+  ]
+];
+
+simplifyDisplayExpr[expr_] := Module[{clean},
+  clean = normalizeScalarExpr[expr];
+  If[
+    TrueQ[FullSimplify[clean == 0, witnessAssumptions]],
+    0,
+    FullSimplify[clean, witnessAssumptions]
+  ]
+];
+
+displayBySector[expr_] := Association @ KeyValueMap[
+  #1 -> simplifyDisplayExpr[#2] &,
+  relevantBySector[expr]
+];
+
+quadraticFieldRedefinitionFriendly =
+  (-3*PD[-i1][PD[i1][h[u, v]]])/(20*M^2) -
+  (3*eta[u, v]*PD[-i2][PD[-i1][h[i1, i2]]])/(10*M^2) +
+  (3*eta[u, v]*PD[-i2][PD[i2][h[i1, -i1]]])/(10*M^2);
+
+quadraticFieldRedefinitionExpr[x_, y_] := Module[{j1, j2},
+  j1 = DummyIn[TangentM];
+  j2 = DummyIn[TangentM];
+  canonExpr[
+    (-3*PD[-j1][PD[j1][h[x, y]]])/(20*M^2) -
+    (3*eta[x, y]*PD[-j2][PD[-j1][h[j1, j2]]])/(10*M^2) +
+    (3*eta[x, y]*PD[-j2][PD[j2][h[j1, -j1]]])/(10*M^2)
+  ]
+];
+
+rawRicci2Expr[] := Module[{a1, b1, c1, d1},
+  a1 = DummyIn[TangentM];
+  b1 = DummyIn[TangentM];
+  c1 = DummyIn[TangentM];
+  d1 = DummyIn[TangentM];
+  canonExpr[
+    eta[a1, c1] eta[b1, d1] linRicciExpr[-a1, -b1] linRicciExpr[-c1, -d1]
+  ]
+];
+
+translatedInput = LoadMatcheteToXAct[inputMX];
+normalizedInput = NormalizeMatcheteFinitePart[translatedInput];
+truncatedInput = selectTermsByMassDimension[normalizedInput, 6];
+witnessInputExpr = Quiet[
+  canonExpr @ removeParameterDerivatives @ (normalizeScalarExpr[truncatedInput] /. witnessSubstitutions),
+  ToCanonical::noident
+];
+
+referenceData = Quiet[
+  ExpandFixedEHReferenceLagrangian[
+    \"MaxDimension\" -> 6,
+    \"LambdaReferenceValue\" -> LambdaRefFinal,
+    \"KappaReferenceValue\" -> KappaRefFinal,
+    \"EHSign\" -> -1,
+    \"CacheDirectory\" -> cacheDir,
+    \"UseCache\" -> True,
+    \"Verbose\" -> False
+  ],
+  ToCanonical::noident
+];
+
+referenceExpr = Quiet[
+  canonExpr @ removeParameterDerivatives @ (normalizeScalarExpr[referenceData[\"ReferenceExpression\"]] /. witnessSubstitutions),
+  ToCanonical::noident
+];
+
+rawInputReduction = Quiet[ReduceLagrangian[witnessInputExpr, Sequence @@ basisOpts], ToCanonical::noident];
+canonicalNormalization = Append[
+  kineticNormalizationDataFromReduction[rawInputReduction, basisOpts],
+  \"TargetQuadraticSign\" -> -1
+];
+canonicalInputReduction = If[
+  TrueQ[Lookup[canonicalNormalization, \"SucceededQ\", False]],
+  canonicalNormalizeReduction[rawInputReduction, canonicalNormalization[\"Factor\"], -1],
+  rawInputReduction
+];
+
+referenceReduction = Quiet[ReduceLagrangian[referenceExpr, Sequence @@ basisOpts], ToCanonical::noident];
+
+inputSector24 = sectorLookup[canonicalInputReduction[\"SectorReductions\"], {2, 4}];
+referenceSector24 = sectorLookup[referenceReduction[\"SectorReductions\"], {2, 4}];
+sector24Data = Which[
+  AssociationQ[inputSector24], inputSector24[\"SectorData\"],
+  AssociationQ[referenceSector24], referenceSector24[\"SectorData\"],
+  True, ComputeSectorData[2, 4, Sequence @@ basisOpts]
+];
+
+eftAfterIBPOnly = projectedExpressionFromReduction[canonicalInputReduction];
+eftAfterIBPAndFieldRedefs = canonicalInputReduction[\"ReducedExpression\"];
+
+theoryAfterIBPOnly = projectedExpressionFromReduction[referenceReduction];
+theoryAfterIBPAndFieldRedefs = referenceReduction[\"ReducedExpression\"];
+
+sector24Difference = canonExpr[
+  If[AssociationQ[inputSector24], inputSector24[\"ReducedExpression\"], 0] -
+  If[AssociationQ[referenceSector24], referenceSector24[\"ReducedExpression\"], 0]
+];
+
+quadraticAnalysis = AnalyzeQuadraticFourDerivativeDifference[
+  <|
+    \"SectorComparison\" -> <|
+      {2, 4} -> <|
+        \"DifferenceExpression\" -> sector24Difference,
+        \"SectorData\" -> sector24Data
+      |>
+    |>
+  |>,
+  \"Substitutions\" -> {},
+  \"UseQuadraticRedefinitions\" -> True,
+  \"Verbose\" -> False,
+  Sequence @@ basisOpts
+];
+
+curvatureSquaredCoefficients = quadraticAnalysis[\"CurvatureCoefficients\"];
+curvatureSquaredRawExpr = canonExpr[
+  curvatureSquaredCoefficients[\"R2\"] linRicciScalarExpr[] linRicciScalarExpr[] +
+  curvatureSquaredCoefficients[\"Ricci2\"] rawRicci2Expr[]
+];
+
+theoryExpansionExpr = canonExpr[referenceExpr + curvatureSquaredRawExpr];
+ibpOnlyComparison = canonExpr[eftAfterIBPOnly - theoryAfterIBPOnly];
+reducedComparison = canonExpr[eftAfterIBPAndFieldRedefs - theoryAfterIBPAndFieldRedefs];
+
+fpShiftTruncated = selectTermsByMassDimension[
+  Quiet[
+    canonExpr @ removeParameterDerivatives @ ShiftFromRedefExpr[quadraticFieldRedefinitionExpr[u, v]],
+    ToCanonical::noident
+  ],
+  6
+];
+fpShiftReduction = Quiet[ReduceLagrangian[fpShiftTruncated, Sequence @@ basisOpts], ToCanonical::noident];
+fpShiftSector24 = sectorLookup[fpShiftReduction[\"SectorReductions\"], {2, 4}];
+sector24Basis = sector24Data[\"IBPBasis\"];
+zeroSector24Coords = ConstantArray[0, Length[sector24Basis]];
+inputSector24Coords = If[AssociationQ[inputSector24], inputSector24[\"ProjectedIBPCoordinates\"], zeroSector24Coords];
+referenceSector24Coords = If[AssociationQ[referenceSector24], referenceSector24[\"ProjectedIBPCoordinates\"], zeroSector24Coords];
+sector24DifferenceCoords = inputSector24Coords - referenceSector24Coords;
+fpShiftSector24Coords = If[AssociationQ[fpShiftSector24], fpShiftSector24[\"ProjectedIBPCoordinates\"], zeroSector24Coords];
+sector24CoordinateResidual = sector24DifferenceCoords - fpShiftSector24Coords;
+sector24ProjectedResidualExpr = canonExpr @ LinearCombination[sector24CoordinateResidual, sector24Basis];
+
+<|
+  \"ReadyQ\" -> True,
+  \"CanonicalNormalizationSucceededQ\" -> Lookup[canonicalNormalization, \"SucceededQ\", False],
+  \"CurvatureSquaredCoefficients\" -> curvatureSquaredCoefficients
+|>\
+\>", "Input"],
+
+Cell["Stage 2. Applied Field Redefinition", "Section"],
+
+Cell["\<\
+<|
+  \"AppliedFieldRedefinition\" -> quadraticFieldRedefinitionFriendly,
+  \"ActsAtLeadingOrderInSector\" -> {2, 4},
+  \"NotebookRole\" -> \"This explicit quadratic shift explains the remaining {2,4} residual. It is not the step that removes the {4,2} difference below.\"
+|>\
+\>", "Input"],
+
+Cell["Stage 3. Theory Expansion", "Section"],
+
+Cell["\<\
+<|
+  \"CurvatureSquaredCoefficients\" -> curvatureSquaredCoefficients,
+  \"TheoryExpansionBySector\" -> displayBySector[theoryExpansionExpr]
+|>\
+\>", "Input"],
+
+Cell["Stage 4. EFT After IBP Only", "Section"],
+
+Cell["\<\
+displayBySector[eftAfterIBPOnly]\
+\>", "Input"],
+
+Cell["Stage 5. EFT After IBP and Supported Interaction-Sector Quotient", "Section"],
+
+Cell["\<\
+displayBySector[eftAfterIBPAndFieldRedefs]\
+\>", "Input"],
+
+Cell["Stage 6. Comparison After IBP Only", "Section"],
+
+Cell["\<\
+<|
+  \"DifferenceBySector\" -> displayBySector[ibpOnlyComparison],
+  \"DifferenceZeroQ\" -> zeroExprQ[ibpOnlyComparison, witnessAssumptions]
+|>\
+\>", "Input"],
+
+Cell["Stage 7. Comparison After the Supported Interaction-Sector Quotient", "Section"],
+
+Cell["\<\
+<|
+  \"DifferenceBySector\" -> displayBySector[reducedComparison],
+  \"DifferenceZeroQ\" -> zeroExprQ[reducedComparison, witnessAssumptions]
+|>\
+\>", "Input"],
+
+Cell["Stage 8. Remaining {2,4} Residual vs Explicit Quadratic Field Redefinition", "Section"],
+
+Cell["\<\
+<|
+  \"ResidualProjectedCoordinates\" -> sector24DifferenceCoords,
+  \"FieldRedefinitionImageProjectedCoordinates\" -> fpShiftSector24Coords,
+  \"CoordinateResidual\" -> sector24CoordinateResidual,
+  \"ProjectedResidualAfterFieldRedefinition\" -> simplifyDisplayExpr[sector24ProjectedResidualExpr],
+  \"ResidualZeroQ\" -> zeroExprQ[sector24ProjectedResidualExpr, witnessAssumptions]
+|>\
+\>", "Input"]
+},
+Saveable->True,
+WindowTitle->"orbit_fixed_eh_theory_vs_reduced_eft_minimal_fixed",
+PrintingOptions->{"PrintCellBrackets"->False},
+StyleDefinitions->"Default.nb"
+]

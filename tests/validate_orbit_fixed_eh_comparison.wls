@@ -23,7 +23,7 @@ saveCheckpoint[tag_, data_] := Put[<|"Stage" -> tag, "Data" -> data|>, checkpoin
 
 translatedFromMX = LoadMatcheteToXAct[inputMX];
 translatedBaseline = Get[FileNameJoin[{Directory[], "artifacts", "left_only_uv_2_eft_6", "LEFT_only_uv_2_eft_6_xact.wl"}]];
-translationDiff = canonExpr[translatedFromMX - translatedBaseline];
+translationDiff = Quiet[canonExpr[translatedFromMX - translatedBaseline], ToCanonical::noident];
 translationMatchesQ = TrueQ[translationDiff === 0];
 saveCheckpoint["translation", <|
   "TranslationMatchesBaselineQ" -> translationMatchesQ,
@@ -48,6 +48,8 @@ reference = ExpandFixedEHReferenceLagrangian[
   "MaxDimension" -> 6,
   "LambdaReferenceValue" -> 1,
   "KappaReferenceValue" -> 1,
+  "CacheDirectory" -> cacheDir,
+  "UseCache" -> True,
   "Verbose" -> False
 ];
 
@@ -81,7 +83,7 @@ saveCheckpoint["synthetic", <|
 |>];
 
 real = CompareMatcheteToFixedEH[
-  translatedFromMX,
+  inputMX,
   "MaxDimension" -> 6,
   "LambdaReferenceValue" -> 1,
   "KappaReferenceValue" -> 1,
@@ -99,17 +101,40 @@ validation = <|
   "SyntheticExactMatchQ" -> synthetic["ExactMatchQ"],
   "SyntheticUnsupportedSectors" -> synthetic["UnsupportedSectors"],
   "SyntheticSupportedDifference" -> synthetic["SupportedDifference"],
-  "RealExactMatchQ" -> real["ExactMatchQ"],
-  "RealUnsupportedSectors" -> real["UnsupportedSectors"],
-  "RealSupportedDifference" -> real["SupportedDifference"],
-  "RealUnsupportedDifference" -> real["UnsupportedDifference"],
-  "RealMatchSolutions" -> real["MatchSolutions"],
-  "RealInputReductionSummary" -> real["InputReductionSummary"],
-  "RealReferenceReductionSummary" -> real["ReferenceReductionSummary"]
+  "RealComparisonSucceededQ" -> AssociationQ[real],
+  "RealExactMatchQ" -> If[AssociationQ[real], real["ExactMatchQ"], $Failed],
+  "RealUnsupportedSectors" -> If[AssociationQ[real], real["UnsupportedSectors"], $Failed],
+  "RealSupportedDifference" -> If[AssociationQ[real], real["SupportedDifference"], $Failed],
+  "RealUnsupportedDifference" -> If[AssociationQ[real], real["UnsupportedDifference"], $Failed],
+  "RealMatchSolutions" -> If[AssociationQ[real], real["MatchSolutions"], $Failed],
+  "RealInputReductionSummary" -> If[AssociationQ[real], real["InputReductionSummary"], $Failed],
+  "RealReferenceReductionSummary" -> If[AssociationQ[real], real["ReferenceReductionSummary"], $Failed]
 |>;
 
 Put[validation, FileNameJoin[{outputDir, "orbit_fixed_eh_validation_output.wl"}]];
 saveCheckpoint["complete", validation];
 
+allPassed = True;
+
+reportCheck[label_String, condition_] := If[
+  TrueQ[condition],
+  Print["PASS: " <> label],
+  Print["FAIL: " <> label];
+  allPassed = False
+];
+
+reportCheck["translation matches stored baseline", translationMatchesQ];
+reportCheck["normalized expression contains no hbar", noHbarQ];
+reportCheck["normalized expression contains no epsilon poles", noPoleQ];
+reportCheck["synthetic reference self-comparison is exact", TrueQ[synthetic["ExactMatchQ"]]];
+reportCheck["real comparison returns an Association", AssociationQ[real]];
+
+If[AssociationQ[real],
+  reportCheck["real comparison exposes ExactMatchQ", KeyExistsQ[real, "ExactMatchQ"]];
+  reportCheck["real comparison exposes MatchSolutions", KeyExistsQ[real, "MatchSolutions"]]
+];
+
 Print["Validation complete."];
 Print[InputForm[validation]];
+
+If[! allPassed, Exit[1]];
